@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Insert Tailwind CSS CDN below -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto px-0.5 mt-10">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+            <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-0">Dashboard</h1>
+            <div>
+                <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
+                    Contact
+                </button>
+                <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">
+                    Create Event
+                </button>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row mb-4">
+            <!-- Left Column -->
+            <div class="w-full md:w-1/3 bg-white shadow-md rounded p-4 mb-4 md:mb-0">
+                <h2 class="font-bold text-lg mb-2">Requested</h2>
+                <!-- Requested Meetings -->
+                <div class="flex items-center justify-between bg-green-100 p-4 rounded mb-2">
+                    <span>Ian Quan</span>
+                    <button class="text-sm bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded">
+                        Ask for availability
+                    </button>
+                </div>
+                <div class="flex items-center justify-between bg-green-100 p-4 rounded mb-2">
+                    <span>Nate</span>
+                    <button class="text-sm bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded">
+                        Edit Meeting
+                    </button>
+                </div>
+
+                <h2 class="font-bold text-lg mb-2 mt-4">Invitation</h2>
+                <!-- Invitations -->
+                <div class="flex items-center justify-between bg-pink-100 p-4 rounded mb-2">
+                    <span>Wayne Yeung</span>
+                    <button class="text-sm bg-pink-200 hover:bg-pink-300 text-pink-800 py-1 px-3 rounded">
+                        Accept Meeting
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="w-full  md:ml-4">
+                <div class="bg-white shadow-md rounded p-4">
+                    <h2 class="font-bold text-lg mb-2">Finalized Schedule</h2>
+                    <!-- Schedule Grid -->
+                    <div class="overflow-x-auto">
+                        <div class="grid grid-cols-8 gap-4 text-sm">
+                            <div class="col-span-2 col-span-1 row-start-1 sm:col-auto bg-gray-100 p-4 rounded">Time</div>
+                            <div class="col-span-2 col-span-1 row-start-1 sm:col-auto bg-gray-100 p-4 rounded">Mon</div>
+                            <div class="col-span-2 col-span-1 row-start-1 sm:col-auto bg-gray-100 p-4 rounded">Tue</div>
+                            <div class="col-span-2 col-span-1 row-start-1 sm:col-auto bg-gray-100 p-4 rounded">Wed</div>
+                            <div class="col-span-2 col-span-1 row-start-1 sm:col-auto bg-gray-100 p-4 rounded">Thurs</div>
+                            <div class="col-span-2 col-span-1 row-start-1 sm:col-auto bg-gray-100 p-4 rounded">Fri</div>
+                            <div class="col-span-2 col-span-1 row-start-1 sm:col-auto bg-gray-100 p-4 rounded">Sat</div>
+                            <div class="col-span-2 col-span-1 row-start-1 sm:col-auto bg-gray-100 p-4 rounded">Sun</div>
+
+                    <!-- Time slots (Repeat for each time slot needed) -->
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">9am</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">10am</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">11am</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">12pm</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">1pm</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">2pm</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">3pm</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">4pm</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">5pm</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">6pm</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">7pm</div>
+                    <div class="col-start-1 bg-gray-100 p-2 rounded">8pm</div>
+                    <!-- Remaining cells for the schedule (add the respective class for positioning) -->
+                    <!-- Placeholder for CSC309 meeting with Nate on Wednesday at 10am -->
+                    <div class="col-start-5 row-start-6 bg-green-200 p-2 rounded">
+                        CSC309 meetup with Nate
+                    </div>
+
+                    <!-- ... more meetings/events ... -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
