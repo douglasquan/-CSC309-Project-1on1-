@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./output.css" rel="stylesheet">
+  <title>Create Meeting Page</title>
+</head>
+<body class="bg-gray-100 p-5">
+  <div class="flex flex-col md:flex-row gap-4 m-9">
+    <!-- Left Side: Form Inputs -->
+    <div class="bg-white p-6 rounded-lg shadow-md w-full md:w-1/2">
+      <h2 class="text-4xl font-bold mb-4">Create Meeting</h2>
+      <div class="mb-4">
+        <label for="meeting-title" class="block text-lg"
+          >Meeting Title:</label
+        >
+        <h3 class="text-xl font-bold mb-4">CSC301 Meeting</h3>
+      </div>
+      <!-- Selecting Meeting Duration -->
+      <div class="flex items-center space-x-4 mb-4">
+        <label
+          for="meeting-duration"
+          class="block text-sm font-medium text-gray-700"
+          >Select Meeting Duration*</label
+        >
+        <select
+          id="meeting-duration"
+          class="w- p-2 border rounded"
+          onchange="toggleCustomInput(this.value)"
+        >
+          <option>15 minutes</option>
+          <option>30 minutes</option>
+          <option>45 minutes</option>
+          <option>1 hour</option>
+          <option>2 hour</option>
+          <option>3 hour</option>
+          <option>custom</option>
+        </select>
+      </div>
+      <!-- Custom duration input fields, initially hidden -->
+      <div id="custom-duration" class="hidden space-y-2 ">
+        <input
+          type="number"
+          placeholder="Enter duration"
+          class=" p-2 border rounded"
+        />
+        <select class="p-2 border rounded">
+          <option value="minutes">minutes</option>
+          <option value="hours">hours</option>
+        </select>
+      </div>
+
+      <!-- Select Meeting type -->
+      <div class="flex items-center space-x-4">
+        <label class="block text-sm font-medium text-gray-700"
+          >Select a Meeting Type*</label
+        >
+        <div class="flex items-center">
+          <input
+            id="in-person"
+            name="meeting-type"
+            type="radio"
+            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+          />
+          <label
+            for="in-person"
+            class="ml-2 block text-sm font-medium text-gray-700"
+            >In Person</label
+          >
+        </div>
+        <div class="flex items-center">
+          <input
+            id="phone"
+            name="meeting-type"
+            type="radio"
+            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+          />
+          <label
+            for="phone"
+            class="ml-2 block text-sm font-medium text-gray-700"
+            >Phone</label
+          >
+        </div>
+        <div class="flex items-center">
+          <input
+            id="video"
+            name="meeting-type"
+            type="radio"
+            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+          />
+          <label
+            for="video"
+            class="ml-2 block text-sm font-medium text-gray-700"
+            >Video</label
+          >
+        </div>
+      </div>
+    </div>
+
+
+    <div class="bg-white p-6 rounded-lg shadow-md w-full md:w-1/2">
+      <div class="py-2">
+        <button id="prevWeek" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mr-2">&lt;</button>
+        <button id="nextWeek" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4">&gt;</button>
+        <button id="today" class="bg-gray-200 hover:bg-gray-300 text-black py-2 px-4">Today</button>
+      </div>
+      <div id="table-container" class="container mx-auto">
+    </div>
+  </div>
+</body>
+
+<script src="table.js"></script>
+
+</body>
+</html>
