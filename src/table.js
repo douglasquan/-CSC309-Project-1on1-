@@ -9,10 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //toggle functions
   const checkbox = document.getElementById("deadline-checkbox");
-  checkbox.addEventListener('change', toggleDeadlineInput);
+  checkbox.addEventListener("change", toggleDeadlineInput);
   const meetingDurationSelect = document.getElementById("meeting-duration");
-  meetingDurationSelect.addEventListener('change', (event) => toggleCustomInput(event.target.value));
-
+  meetingDurationSelect.addEventListener("change", (event) =>
+    toggleCustomInput(event.target.value)
+  );
 
   function toggleCustomInput(value) {
     var customDurationDiv = document.getElementById("custom-duration");
@@ -32,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // create table 
+  // create table
   function createTable() {
     while (tableContainer.firstChild) {
       tableContainer.removeChild(tableContainer.firstChild);
@@ -218,8 +219,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-
-
 document.addEventListener("click", function (event) {
   if (event.target.matches(".remove-row-icon")) {
     event.target.closest("tr").remove();
@@ -262,7 +261,7 @@ document
         <p class="whitespace-no-wrap">${new Date().toLocaleDateString()}</p>
       </td>
       <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-        <img src="https://icons.getbootstrap.com/assets/icons/trash.svg" class="h-4 w-4 cursor-pointer" alt="icon" onclick="this.closest('tr').remove();">
+        <img src="https://icons.getbootstrap.com/assets/icons/trash.svg" class="h-4 w-4 cursor-pointer delete-icon" alt="icon" >
       </td>
     `;
       document.getElementById("addContactModal").classList.add("hidden");
@@ -275,37 +274,29 @@ document.querySelectorAll(".back-to-dashboard-btn").forEach(function (element) {
   });
 });
 
-// Assuming your confirmation popup has an ID of 'confirmationPopup'
-const confirmationPopup = document.getElementById("confirmationPopup");
-// Buttons within the popup
-const confirmDeleteBtn = confirmationPopup.querySelector(".confirm-delete");
-const cancelDeleteBtn = confirmationPopup.querySelector(".cancel-delete");
-// Variable to store the current row for potential deletion
-let currentRowForDeletion = null;
-
 document.addEventListener("DOMContentLoaded", function () {
-  // Attach event listener to all trash icons
+  const confirmationPopup = document.getElementById("confirmationPopup");
+  const confirmDeleteBtn = confirmationPopup.querySelector(".confirm-delete");
+  const cancelDeleteBtn = confirmationPopup.querySelector(".cancel-delete");
+  let currentRowForDeletion = null;
+
   document.querySelectorAll(".delete-icon").forEach((icon) => {
     icon.addEventListener("click", function () {
       currentRowForDeletion = this.closest("tr");
-      confirmationPopup.style.display = "block"; // Show the confirmation popup
+      confirmationPopup.style.display = "block";
     });
   });
 
-  // Confirm deletion
   confirmDeleteBtn.addEventListener("click", function () {
     if (currentRowForDeletion) {
-      currentRowForDeletion.remove(); // Remove the row
-      confirmationPopup.style.display = "none"; // Hide the confirmation popup
-      currentRowForDeletion = null; // Reset the stored row reference
+      currentRowForDeletion.remove();
+      confirmationPopup.style.display = "none";
+      currentRowForDeletion = null;
     }
   });
 
-  // Cancel deletion
   cancelDeleteBtn.addEventListener("click", function () {
-    confirmationPopup.style.display = "none"; // Hide the confirmation popup
-    currentRowForDeletion = null; // Reset the stored row reference
+    confirmationPopup.style.display = "none";
+    currentRowForDeletion = null;
   });
 });
-
-
