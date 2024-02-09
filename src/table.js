@@ -230,10 +230,15 @@ document.getElementById("addContactBtn").addEventListener("click", function () {
   document.getElementById("addContactModal").classList.remove("hidden");
 });
 
+document.getElementById('cancelBtn').addEventListener('click', function() {
+  document.getElementById('addContactModal').classList.add('hidden');
+});
+
 document
   .getElementById("saveContactBtn")
   .addEventListener("click", function () {
     const email = document.getElementById("email").value;
+    const name = document.getElementById("contactName").value;
     if (email) {
       const table = document
         .getElementById("contactsTable")
@@ -246,7 +251,7 @@ document
       <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
         <div class="flex items-center">
           <div class="ml-3">
-            <p class="whitespace-no-wrap">[new_contact_name]</p>
+            <p class="whitespace-no-wrap">${name}</p>
           </div>
         </div>
       </td>
