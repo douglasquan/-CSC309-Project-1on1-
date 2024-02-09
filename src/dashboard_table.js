@@ -237,10 +237,12 @@ document.addEventListener("click", function (event) {
   }
 });
 
-function deleteParent(element) {
-  // This will remove the closest parent div with the class 'flex'
-  const parentElement = element.closest('.flex.items-center');
-  if (parentElement) {
-    parentElement.remove();
-  }
-}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".dashboard-delete-icon").forEach((item) => {
+    item.addEventListener("click", function () {
+      this.closest("div").remove();
+    });
+  });
+});
