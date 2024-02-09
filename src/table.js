@@ -1,6 +1,12 @@
+// Initialize cellColorStates as a global variable
+window.cellColorStates = {};
+
 document.addEventListener('DOMContentLoaded', function() {
-const tableContainer = document.getElementById('table-container');
+  const tableContainer = document.getElementById('table-container');
+  const cellColorStates = {}; //object to store cell colors
   let baseDate = new Date(); // Initialize baseDate to today's date
+  let isMouseDown = false;
+  let initialColor = '';
 
   function createTable() {
     while(tableContainer.firstChild) {
@@ -83,7 +89,6 @@ const tableContainer = document.getElementById('table-container');
       }
     });
     
-    // Event listener for click and drag cells:
     table.addEventListener('mousedown', function(event) {
       isMouseDown = true;
       const target = event.target;
@@ -131,20 +136,19 @@ const tableContainer = document.getElementById('table-container');
     createTable(); // Re-create the table with the updated baseDate
   });
 
-  let isMouseDown = false;
-  let initialColor = '';
 
   function changeColor(cell) {
     if (cell.tagName === 'TD') {
+      const rowIndex = cell.parentElement.rowIndex;
+      const colIndex = cell.cellIndex;
+      const cellKey = `${rowIndex}-${colIndex}`; // Unique key for the cell
       const currentColor = cell.style.backgroundColor || window.getComputedStyle(cell).backgroundColor;
       const selectedRadioButton = document.querySelector('input[name="Preferences"]:checked');
-      // console.log(`current color ${currentColor}`)
-
-      // Check if the cell is in the first column (time column)
-      const isFirstColumn = cell.cellIndex === 0;
+  
+      const isFirstColumn = colIndex === 0;
       if (!isFirstColumn && selectedRadioButton) {
         const value = selectedRadioButton.value;
-
+  
         if (currentColor === initialColor) {
           switch (value) {
             case "High":
@@ -156,18 +160,24 @@ const tableContainer = document.getElementById('table-container');
             case "Low":
                 cell.style.backgroundColor = 'rgb(204, 255, 204)';
                 break;
-        }
-          // console.log(`c===i ${cell.style.backgroundColor}`)     
-
+          }
+          window.cellColorStates[cellKey] = cell.style.backgroundColor;
         } else {
-          cell.style.backgroundColor = initialColor;
-
-          // console.log(cell.style.backgroundColor)     
+          cell.style.backgroundColor = window.initialColor;
+          window.cellColorStates[cellKey] = window.initialColor;
         }
-        // console.log("==========================")
       } 
+      // console.log('Cell Color States:', window.cellColorStates);
     }
   }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const logStateButton = document.getElementById('logStateButton');
+
+  logStateButton.addEventListener('click', function() {
+    console.log('Accessing cellColorStates:', window.cellColorStates);
+  });
 });
 
 function toggleCustomInput(value) {
@@ -189,3 +199,9 @@ function toggleDeadlineInput() {
     dateInputDiv.classList.add('hidden');
   }
 }
+
+document.addEventListener("click", function (event) {
+  if (event.target.matches(".remove-row-icon")) {
+    event.target.closest("tr").remove();
+  }
+});
