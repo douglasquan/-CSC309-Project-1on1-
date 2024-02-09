@@ -236,3 +236,11 @@ document.addEventListener("click", function (event) {
     event.target.closest("tr").remove();
   }
 });
+
+function deleteParent(element) {
+  // This will remove the closest parent div with the class 'flex'
+  const parentElement = element.closest('.flex.items-center');
+  if (parentElement) {
+    parentElement.remove();
+  }
+}

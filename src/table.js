@@ -303,8 +303,4 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-function deleteParent(element) {
-  // This will remove the closest parent div with the class 'flex'
-  element.closest(".flex").remove();
-}
 

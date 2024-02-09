@@ -23,7 +23,7 @@ module.exports = {
 
       backgroundImage: {
         "custom-gradient":
-          "linear-gradient(to bottom, #92C7CF 0%, #FFFFFF 100%)",
+          "linear-gradient(to bottom, #92C7CF 0%, #92C7CF 100%, #FFFFFF 100%)",
       },
     },
   },
