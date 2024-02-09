@@ -1,5 +1,4 @@
-// Initialize cellColorStates as a global variable
-window.cellColorStates = {};
+import {setColorState, getColorState} from './global_var.js';
 
 document.addEventListener('DOMContentLoaded', function() {
   const tableContainer = document.getElementById('table-container');
@@ -161,23 +160,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 cell.style.backgroundColor = 'rgb(204, 255, 204)';
                 break;
           }
-          window.cellColorStates[cellKey] = cell.style.backgroundColor;
+          setColorState(cellKey, cell.style.backgroundColor);
         } else {
-          cell.style.backgroundColor = window.initialColor;
-          window.cellColorStates[cellKey] = window.initialColor;
+          cell.style.backgroundColor = initialColor;
+          setColorState(cellKey, initialColor);
+
         }
       } 
-      // console.log('Cell Color States:', window.cellColorStates);
+      console.log('Cell Color States:', getColorState());
     }
   }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  const logStateButton = document.getElementById('logStateButton');
-
-  logStateButton.addEventListener('click', function() {
-    console.log('Accessing cellColorStates:', window.cellColorStates);
-  });
 });
 
 function toggleCustomInput(value) {
