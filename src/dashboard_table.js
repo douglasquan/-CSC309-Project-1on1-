@@ -5,34 +5,20 @@ document.addEventListener("DOMContentLoaded", function () {
   const cellColorStates = {}; //object to store cell colors
   let baseDate = new Date(); // Initialize baseDate to today's date
   let isMouseDown = false;
-  let initialColor = "";
+  let initialColor = "rgb(220 252 231)"; // Set the initial color for pre-colored cells
 
-  //toggle functions
-  const checkbox = document.getElementById("deadline-checkbox");
-  checkbox.addEventListener('change', toggleDeadlineInput);
-  const meetingDurationSelect = document.getElementById("meeting-duration");
-  meetingDurationSelect.addEventListener('change', (event) => toggleCustomInput(event.target.value));
+  // Sample pre-colored cells (rowIndex-colIndex): Change according to your sample timetable
+  const preColoredCells = {
+    "2-1": initialColor,
+    "3-1": initialColor,
+    "4-1": initialColor,
+    "4-3": initialColor,
+    "5-3": initialColor,
+    "6-3": initialColor,
+    "8-6": initialColor,
+    "9-6": initialColor,
+  };
 
-
-  function toggleCustomInput(value) {
-    var customDurationDiv = document.getElementById("custom-duration");
-    if (value === "custom") {
-      customDurationDiv.classList.remove("hidden");
-    } else {
-      customDurationDiv.classList.add("hidden");
-    }
-  }
-
-  function toggleDeadlineInput() {
-    var dateInputDiv = document.getElementById("date-input");
-    if (checkbox.checked) {
-      dateInputDiv.classList.remove("hidden");
-    } else {
-      dateInputDiv.classList.add("hidden");
-    }
-  }
-
-  // create table 
   function createTable() {
     while (tableContainer.firstChild) {
       tableContainer.removeChild(tableContainer.firstChild);
@@ -105,12 +91,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const days = 7;
     const rowsPerTime = 4;
 
-    times.forEach((time) => {
+    times.forEach((time, timeIndex) => {
       for (let i = 0; i < rowsPerTime; i++) {
         const row = document.createElement("tr");
         row.className = "bg-white-200";
 
-        // Time cell
+        // Time cell logic remains unchanged...
         if (i === 0) {
           const timeCell = document.createElement("td");
           timeCell.className = "border px-4";
@@ -122,10 +108,15 @@ document.addEventListener("DOMContentLoaded", function () {
           row.appendChild(timeCell);
         }
 
-        // Day cells
+        // Day cells with pre-coloring logic
         for (let j = 0; j < days; j++) {
           const dayCell = document.createElement("td");
           dayCell.className = "border px-4 py-3";
+          // Logic to pre-color certain cells
+          const cellKey = `${timeIndex * rowsPerTime + i}-${j}`;
+          if (preColoredCells[cellKey]) {
+            dayCell.style.backgroundColor = preColoredCells[cellKey];
+          }
           row.appendChild(dayCell);
         }
 
@@ -179,11 +170,12 @@ document.addEventListener("DOMContentLoaded", function () {
     createTable(); // Re-create the table with the updated baseDate
   });
 
+  // Adjusted changeColor function to restrict color changes
   function changeColor(cell) {
     if (cell.tagName === "TD") {
       const rowIndex = cell.parentElement.rowIndex;
       const colIndex = cell.cellIndex;
-      const cellKey = `${rowIndex}-${colIndex}`; // Unique key for the cell
+      const cellKey = `${rowIndex}-${colIndex}`;
       const currentColor =
         cell.style.backgroundColor ||
         window.getComputedStyle(cell).backgroundColor;
@@ -191,11 +183,10 @@ document.addEventListener("DOMContentLoaded", function () {
         'input[name="Preferences"]:checked'
       );
 
-      const isFirstColumn = colIndex === 0;
-      if (!isFirstColumn && selectedRadioButton) {
-        const value = selectedRadioButton.value;
-
-        if (currentColor === initialColor) {
+      // Restrict color change only to pre-colored or already changed cells
+      if (currentColor.trim() === initialColor.trim()) {
+        if (selectedRadioButton) {
+          const value = selectedRadioButton.value;
           switch (value) {
             case "High":
               cell.style.backgroundColor = "rgb(0, 153, 51)";
@@ -207,104 +198,41 @@ document.addEventListener("DOMContentLoaded", function () {
               cell.style.backgroundColor = "rgb(204, 255, 204)";
               break;
           }
-          setColorState(cellKey, cell.style.backgroundColor);
-        } else {
-          cell.style.backgroundColor = initialColor;
-          setColorState(cellKey, initialColor);
         }
+      } else if (
+        currentColor.trim() === "rgb(0, 153, 51)" ||
+        currentColor.trim() === "rgb(102, 255, 102)" ||
+        currentColor.trim() === "rgb(204, 255, 204)"
+      ) {
+        cell.style.backgroundColor = initialColor;
+      } else {
+        console.log("This cell color cannot be changed.");
       }
-      console.log("Cell Color States:", getColorState());
     }
   }
 });
 
+function toggleCustomInput(value) {
+  var customDurationDiv = document.getElementById("custom-duration");
+  if (value === "custom") {
+    customDurationDiv.classList.remove("hidden");
+  } else {
+    customDurationDiv.classList.add("hidden");
+  }
+}
 
+function toggleDeadlineInput() {
+  var checkbox = document.getElementById("deadline-checkbox");
+  var dateInputDiv = document.getElementById("date-input");
+  if (checkbox.checked) {
+    dateInputDiv.classList.remove("hidden");
+  } else {
+    dateInputDiv.classList.add("hidden");
+  }
+}
 
 document.addEventListener("click", function (event) {
   if (event.target.matches(".remove-row-icon")) {
     event.target.closest("tr").remove();
   }
 });
-
-document.getElementById("addContactBtn").addEventListener("click", function () {
-  document.getElementById("addContactModal").classList.remove("hidden");
-});
-
-document
-  .getElementById("saveContactBtn")
-  .addEventListener("click", function () {
-    const email = document.getElementById("email").value;
-    if (email) {
-      const table = document
-        .getElementById("contactsTable")
-        .getElementsByTagName("tbody")[0];
-      const newRow = table.insertRow();
-      newRow.innerHTML = `
-      <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-        <p class="whitespace-no-wrap">[new_contact_id]</p>
-      </td>
-      <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-        <div class="flex items-center">
-          <div class="ml-3">
-            <p class="whitespace-no-wrap">[new_contact_name]</p>
-          </div>
-        </div>
-      </td>
-      <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-        <p class="whitespace-no-wrap">${email}</p>
-      </td>
-      <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-        <p class="whitespace-no-wrap">${new Date().toLocaleDateString()}</p>
-      </td>
-      <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-        <img src="https://icons.getbootstrap.com/assets/icons/trash.svg" class="h-4 w-4 cursor-pointer" alt="icon" onclick="this.closest('tr').remove();">
-      </td>
-    `;
-      document.getElementById("addContactModal").classList.add("hidden");
-    }
-  });
-
-document.querySelectorAll(".back-to-dashboard-btn").forEach(function (element) {
-  element.addEventListener("click", function () {
-    window.location.href = "dashboard.html";
-  });
-});
-
-// Assuming your confirmation popup has an ID of 'confirmationPopup'
-const confirmationPopup = document.getElementById("confirmationPopup");
-// Buttons within the popup
-const confirmDeleteBtn = confirmationPopup.querySelector(".confirm-delete");
-const cancelDeleteBtn = confirmationPopup.querySelector(".cancel-delete");
-// Variable to store the current row for potential deletion
-let currentRowForDeletion = null;
-
-document.addEventListener("DOMContentLoaded", function () {
-  // Attach event listener to all trash icons
-  document.querySelectorAll(".delete-icon").forEach((icon) => {
-    icon.addEventListener("click", function () {
-      currentRowForDeletion = this.closest("tr");
-      confirmationPopup.style.display = "block"; // Show the confirmation popup
-    });
-  });
-
-  // Confirm deletion
-  confirmDeleteBtn.addEventListener("click", function () {
-    if (currentRowForDeletion) {
-      currentRowForDeletion.remove(); // Remove the row
-      confirmationPopup.style.display = "none"; // Hide the confirmation popup
-      currentRowForDeletion = null; // Reset the stored row reference
-    }
-  });
-
-  // Cancel deletion
-  cancelDeleteBtn.addEventListener("click", function () {
-    confirmationPopup.style.display = "none"; // Hide the confirmation popup
-    currentRowForDeletion = null; // Reset the stored row reference
-  });
-});
-
-function deleteParent(element) {
-  // This will remove the closest parent div with the class 'flex'
-  element.closest(".flex").remove();
-}
-

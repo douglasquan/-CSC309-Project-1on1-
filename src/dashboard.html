@@ -2,103 +2,120 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="./base.css" rel="stylesheet">
+    <link href="./output.css" rel="stylesheet" />
 </head>
-<body class="">
-    <div class="container mx-auto px-0.5 mt-10">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
-            <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-0">Dashboard</h1>
-            <div>
-                <a href="contact-page.html" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r inline-block">
-                  Contact
+
+<body class="bg-custom-gradient m-2">
+    <div class="min-h-screen  flex flex-col justify-center m-3">
+        <!-- Header and Buttons -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mx-8 my-4">
+            <h1 class="text-2xl sm:text-4xl font-bold mb-4 sm:mb-0 text-center sm:text-left">Dashboard</h1>
+            <div class="flex flex-wrap justify-center sm:justify-start gap-2">
+                <a href="contact-page.html"
+                    class="bg-blue-400 hover:bg-blue-700 text-white font-semibold py-2 px-6 sm:px-10 rounded-md text-center text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300">
+                    Contact
                 </a>
-                <a href="create-meeting.html" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r inline-block">
-                  Create Event
+                <a href="create-meeting.html"
+                    class="bg-blue-400 hover:bg-blue-700 text-white font-semibold py-2 px-6 sm:px-10 rounded-md text-center text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300">
+                    Create Event
                 </a>
             </div>
         </div>
 
-        <div class="flex flex-col md:flex-row mb-4">
+        <div class="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-4">
             <!-- Left Column -->
-            <div class="w-full md:w-1/3 bg-white shadow-md rounded p-4 mb-4 md:mb-0">
+            <div class="w-full md:w-1/3 bg-white shadow-md rounded p-4">
                 <h2 class="font-bold text-lg mb-2">Requested</h2>
                 <!-- Requested Meetings -->
+
                 <div class="flex items-center justify-between bg-pink-100 p-4 rounded mb-2">
-                    <span>John smith</span>
-                    <select class="bg-pink-200 text-pink-800 py-1 px-3 rounded"
-                        onchange="handleSelectChange(this.value)">
-                        <option disabled selected>Options</option>
-                        <option value="create-meeting.html">Edit Meeting</option>
-                        <option value="http://example.com/link2">Delete</option>
-                    </select>
+                    <span class="flex-grow">Study session - John smith</span>
+                    <a href="create-meeting.html"
+                        class="text-sm bg-pink-200 hover:bg-pink-300 text-pink-800 py-1 px-3 rounded self-center">
+                        Edit Meeting
+                    </a>
+                    <img src="https://icons.getbootstrap.com/assets/icons/trash.svg"
+                        class="h-4 w-4 cursor-pointer dashboard-delete-icon ml-4" alt="Delete icon"
+                        onclick="deleteParent(this)" />
                 </div>
-
-                
                 <div class="flex items-center justify-between bg-yellow-100 p-4 rounded mb-2">
-                    <span>Ian Quan</span>
-                    <select class="bg-yellow-200 text-yellow-800 py-1 px-3 rounded"
-                        onchange="handleSelectChange(this.value)">
-                        <option disabled selected>Options</option>
-                        <option value="confirm-meeting.html">Finalize Meeting</option>
-                        <option value="http://example.com/link2">Delete</option>
-                    </select>
+                    <span class="flex-grow">CSC309 Meetup - Ian Quan</span>
+                    <a href="confirm-meeting.html"
+                        class="text-sm bg-yellow-200 hover:bg-yellow-300 text-yellow-800 py-1 px-3 rounded self-center">
+                        Edit Meeting
+                    </a>
+                    <img src="https://icons.getbootstrap.com/assets/icons/trash.svg"
+                        class="h-4 w-4 cursor-pointer dashboard-delete-icon ml-4" alt="Delete icon"
+                        onclick="deleteParent(this)" />
                 </div>
 
-
-                <h2 class="font-bold text-lg mb-2 mt-4">Received</h2>
+                <h2 class="font-bold text-lg mb-2 mt-4">Invitation</h2>
                 <!-- Invitations -->
                 <div class="flex items-center justify-between bg-blue-100 p-4 rounded mb-2">
-                    <span>Wayne Yeung</span>
-                    <a href="invitation.html" class="text-sm bg-blue-200 hover:bg-blue-300 text-blue-800 py-1 px-3 rounded">
-                      Accept Meeting
+                    <span class="flex-grow">STA302 GP - Wayne Yeung</span>
+                    <a href="invitation.html"
+                        class="text-sm bg-blue-200 hover:bg-blue-300 text-blue-800 py-1 px-3 rounded self-center">
+                        Accept Meeting
                     </a>
+                    <img src="https://icons.getbootstrap.com/assets/icons/trash.svg"
+                        class="h-4 w-4 cursor-pointer dashboard-delete-icon ml-4" alt="Delete icon"
+                        onclick="deleteParent(this)" />
                 </div>
                 <div class="flex items-center justify-between bg-blue-100 p-4 rounded mb-2">
-                    <span>Frank Bob</span>
-                    <a href="invitation.html" class="text-sm bg-blue-200 hover:bg-blue-300 text-blue-800 py-1 px-3 rounded">
-                      Accept Meeting
+                    <span class="flex-grow">Interview Prep - Frank Bob</span>
+                    <a href="invitation.html"
+                        class="text-sm bg-blue-200 hover:bg-blue-300 text-blue-800 py-1 px-3 rounded self-center">
+                        Accept Meeting
                     </a>
+                    <img src="https://icons.getbootstrap.com/assets/icons/trash.svg"
+                        class="h-4 w-4 cursor-pointer dashboard-delete-icon ml-4" alt="Delete icon"
+                        onclick="deleteParent(this)" />
                 </div>
 
                 <h2 class="font-bold text-lg mb-2 mt-4">Finalized</h2>
-                <!-- Invitations -->
+                <!-- Finalized -->
                 <div class="flex items-center justify-between bg-green-100 p-4 rounded mb-2">
-                    <span>Wayne Yeung</span>
-                    <select class="bg-green-200 text-green-800 py-1 px-3 rounded"
-                        onchange="handleSelectChange(this.value)">
-                        <option disabled selected>Options</option>
-                        <option value="http://example.com/link2">Delete</option>
-                    </select>
+                    <span class="flex-grow">Study - Wayne Yeung</span>
+                    <a href="finalized-page.html"
+                        class="text-sm bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded self-center">
+                        Details
+                    </a>
+                    <img src="https://icons.getbootstrap.com/assets/icons/trash.svg"
+                        class="h-4 w-4 cursor-pointer dashboard-delete-icon ml-4" alt="Delete icon"
+                        onclick="deleteParent(this)" />
                 </div>
-
             </div>
 
             <!-- Right Column -->
-            <div class="w-full  md:ml-4">
-                <div class="bg-white p-6 rounded-lg shadow-md w-full md:w-1/2 flex-col">
+            <!-- Right Column -->
+            <div class="w-full md:flex-1 md:ml-4">
+                <div class="bg-white p-6 rounded-lg shadow-md w-full flex-col">
                     <div class="py-2">
                         <button id="prevWeek"
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mr-2">&lt;</button>
+                            class="gap-2 rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white focus:outline-none focus:ring hover:bg-blue-700">
+                            &lt;
+                        </button>
                         <button id="nextWeek"
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4">&gt;</button>
-                        <button id="today" class="bg-gray-200 hover:bg-gray-300 text-black py-2 px-4">Today</button>
+                            class="gap-2 rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white focus:outline-none focus:ring hover:bg-blue-700">
+                            &gt;
+                        </button>
+                        <button id="today"
+                            class="gap-2 rounded-md bg-gray-500 px-4 py-2 text-sm font-semibold text-white focus:outline-none focus:ring hover:bg-blue-700">
+                            Today
+                        </button>
                     </div>
-                    <div class="bg-gray-200 font-bold	text-xl text-center my-1	sm:">
-                        <h1>My Schedule</h2>
+                    <div class="bg-gray-300 font-bold text-xl text-center my-0 sm:">
                     </div>
-                    <div id="table-container" class="container mx-auto"></div>
+                    <div id="table-container" class="container mx-auto overflow-x-auto"></div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
-
 </body>
-<script type="module" src="table.js"></script>
+<script type="module" src="dashboard_table.js"></script>
 <script>
     function handleSelectChange(url) {
         if (url) {
@@ -106,4 +123,5 @@
         }
     }
 </script>
+
 </html>
