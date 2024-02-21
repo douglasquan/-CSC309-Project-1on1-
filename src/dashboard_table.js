@@ -246,3 +246,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+document.getElementById("addContactBtn").addEventListener("click", function () {
+  document.getElementById("addContactModal").classList.remove("hidden");
+});
+
+document.getElementById("saveContactBtn").addEventListener("click", function () {
+  document.getElementById("addContactModal").classList.add("hidden");
+});
+
+document.getElementById("cancelBtn").addEventListener("click", function () {
+  document.getElementById("addContactModal").classList.add("hidden");
+});
+
