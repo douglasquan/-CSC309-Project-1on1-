@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="./base.css" rel="stylesheet">
+</head>
+<body class="">
+    <div class="container mx-auto px-0.5 mt-10">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+            <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-0">Dashboard</h1>
+            <div>
+                <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
+                    Contact
+                </button>
+                <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">
+                    Create Event
+                </button>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row mb-4">
+            <!-- Left Column -->
+            <div class="w-full md:w-1/3 bg-white shadow-md rounded p-4 mb-4 md:mb-0">
+                <h2 class="font-bold text-lg mb-2">Requested</h2>
+                <!-- Requested Meetings -->
+                <div class="flex items-center justify-between bg-pink-100 p-4 rounded mb-2">
+                    <span>John smith</span>
+                    <select class="bg-pink-200 text-pink-800 py-1 px-3 rounded"
+                        onchange="handleSelectChange(this.value)">
+                        <option disabled selected>Options</option>
+                        <option value="http://example.com/link1">Edit</option>
+                        <option value="http://example.com/link2">Delete</option>
+                        <option value="http://example.com/link3">Ask availability</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between bg-yellow-100 p-4 rounded mb-2">
+                    <span>Ian Quan</span>
+                    <select class="bg-yellow-200 text-yellow-800 py-1 px-3 rounded"
+                        onchange="handleSelectChange(this.value)">
+                        <option disabled selected>Options</option>
+                        <option value="http://example.com/link1">Edit</option>
+                        <option value="http://example.com/link2">Delete</option>
+                    </select>
+                </div>
+
+
+                <h2 class="font-bold text-lg mb-2 mt-4">Received</h2>
+                <!-- Invitations -->
+                <div class="flex items-center justify-between bg-blue-100 p-4 rounded mb-2">
+                    <span>Wayne Yeung</span>
+                    <button class="text-sm bg-blue-200 hover:bg-blue-300 text-blue-800 py-1 px-3 rounded">
+                        Accept Meeting
+                    </button>
+                </div>
+                <div class="flex items-center justify-between bg-blue-100 p-4 rounded mb-2">
+                    <span>Frank Bob</span>
+                    <button class="text-sm bg-blue-200 hover:bg-blue-300 text-blue-800 py-1 px-3 rounded">
+                        Accept Meeting
+                    </button>
+                </div>
+
+                <h2 class="font-bold text-lg mb-2 mt-4">Finalized</h2>
+                <!-- Invitations -->
+                <div class="flex items-center justify-between bg-green-100 p-4 rounded mb-2">
+                    <span>Wayne Yeung</span>
+                    <select class="bg-green-200 text-green-800 py-1 px-3 rounded"
+                        onchange="handleSelectChange(this.value)">
+                        <option disabled selected>Options</option>
+                        <option value="http://example.com/link2">Delete</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="w-full  md:ml-4">
+                <div class="bg-white p-6 rounded-lg shadow-md w-full md:w-1/2 flex-col">
+                    <div class="py-2">
+                        <button id="prevWeek"
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mr-2">&lt;</button>
+                        <button id="nextWeek"
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4">&gt;</button>
+                        <button id="today" class="bg-gray-200 hover:bg-gray-300 text-black py-2 px-4">Today</button>
+                    </div>
+                    <div class="bg-gray-200 font-bold	text-xl text-center my-1	sm:">
+                        <h1>My Schedule</h2>
+                    </div>
+                    <div id="table-container" class="container mx-auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+</body>
+<script src="table.js"></script>
+<script>
+    function handleSelectChange(url) {
+        if (url) {
+            window.location.href = url;
+        }
+    }
+</script>
+</html>
