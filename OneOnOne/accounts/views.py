@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
+
 class RegisterView(APIView):
     def get(self, request):
         form = CustomUserCreationForm()
