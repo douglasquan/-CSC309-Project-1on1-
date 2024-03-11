@@ -4,4 +4,4 @@
 source venv/bin/activate
 
 # Start the Django development server
-./manage.py runserver
+python ./manage.py runserver

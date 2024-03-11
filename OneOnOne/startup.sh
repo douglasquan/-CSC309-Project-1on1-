@@ -15,7 +15,13 @@ source venv/bin/activate
 
 # Upgrade pip to the latest version
 pip install --upgrade pip
+pip install -r ./requirements.txt
 
 # Run Django migrations to prepare your database
 ./manage.py migrate
+python3 ./manage.py makemigrations
+python3 ./manage.pyy migrate
+
+# Run Django server
+python3 OneOnOne/manage.py runserver
 

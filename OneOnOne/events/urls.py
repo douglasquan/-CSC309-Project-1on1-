@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import AddEventView, AllEventsView, EventDetailView, EventUpdateView, EventDeleteView
 from django.views.decorators.csrf import csrf_exempt
 
@@ -8,6 +8,6 @@ urlpatterns = [
     path('<int:event_id>/details/', EventDetailView.as_view(), name='event_detail'),
     path('<int:event_id>/edit/', EventUpdateView.as_view(), name='update_event'),
     path('<int:event_id>/delete/', EventDeleteView.as_view(), name='event-delete'),
-
+    path('', include('timeblocks_events.url')),  # Adjust the path to point to your timeblocks URLs
 ]
 
