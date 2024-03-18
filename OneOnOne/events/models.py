@@ -39,3 +39,15 @@ class Event(models.Model):
     
     def __str__(self):
         return self.event_title
+    
+
+class Availability(models.Model):
+    # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="User")
+    user = models.IntegerField(default=1) #required change
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="Event")
+    timeblock_id = models.IntegerField(verbose_name="Timeblock ID")  # required change
+    start_range = models.DateField(verbose_name="Start Date")
+    end_range = models.DateField(verbose_name="End Date")
+
+    def __str__(self):
+        return f"Availability for user {self.user_id} for event {self.event_id} from {self.start_range} to {self.end_range}"
