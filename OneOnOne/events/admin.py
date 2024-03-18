@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event
+from .models import Event, Availability
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('id', 'host_id', 'invitee_id', 'finalized_timeblock_id', 
@@ -10,4 +10,12 @@ class EventAdmin(admin.ModelAdmin):
     search_fields = ('event_title',)  
     ordering = ('created_at',)  
     
+
+class AvailabilityAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'event', 'timeblock_id', 'start_range', 'end_range')  # Fields to display in the list view
+    list_filter = ('user', 'event')  
+    search_fields = ('user__username', 'event__event_title')  
+
+
 admin.site.register(Event, EventAdmin)
+admin.site.register(Availability, AvailabilityAdmin)
