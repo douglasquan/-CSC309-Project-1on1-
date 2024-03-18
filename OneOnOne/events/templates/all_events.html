@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Events</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Events</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Event Title</th>
+                <th>Host ID</th>
+                <th>Invitee ID</th>
+                <th>Finalized Timeblock ID</th>
+                <th>Event Duration</th>
+                <th>Event Type</th>
+                <th>Description</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Is Active</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for event in events %}
+            <tr>
+                <td>{{ event.event_title }}</td>
+                <td>{{ event.host_id }}</td>
+                <td>{{ event.invitee_id }}</td>
+                <td>{{ event.finalized_timeblock_id }}</td>
+                <td>{{ event.get_event_duration_display }}</td>
+                <td>{{ event.get_event_type_display }}</td>
+                <td>{{ event.description }}</td>
+                <td>{{ event.deadline }}</td>
+                <td>{{ event.get_status_display }}</td>
+                <td>{{ event.is_active }}</td>
+                <td>{{ event.created_at }}</td>
+                <td>{{ event.updated_at }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

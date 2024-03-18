@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'accounts',
     'contacts',
     'dashboard',
-    'meetings',
+    'events',
+    'timeblocks_events',
 ]
 
 REST_FRAMEWORK = {

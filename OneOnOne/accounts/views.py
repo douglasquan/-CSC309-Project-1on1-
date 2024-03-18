@@ -7,8 +7,8 @@ from .forms import UserRegisterForm, UserLoginForm
 from django.contrib.auth import login as django_login, logout as django_logout
 from .forms import UserRegisterForm, UserLoginForm
 from .models import User
-
 from django.contrib.auth import authenticate  # Import the authenticate function
+
 
 class RegisterView(APIView):
     def get(self, request):
