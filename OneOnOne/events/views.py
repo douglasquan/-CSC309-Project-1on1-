@@ -5,10 +5,12 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, DeleteView
 from .forms import EventForm
 import json
-from .models import Event
+from .models import Event, Availability
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.contrib.auth.models import User  # Assuming you are using the default User model
+from django.utils.decorators import method_decorator
 
 
 class AddEventView(FormView):
@@ -110,3 +112,59 @@ class EventDeleteView(DeleteView):
     model = Event
     pk_url_kwarg = 'event_id'  
     success_url = reverse_lazy('all_events')  
+
+
+# @method_decorator(csrf_exempt, name='dispatch')  # Note: Be cautious with CSRF exemption
+class CreateAvailabilityView(View):
+
+    def post(self, request, event_id):
+        try:
+            # Attempt to load the JSON body
+            data = json.loads(request.body)
+
+            # Validate and extract the necessary fields from the request body
+            user_id = data.get('user_id')
+            timeblock_id = data.get('timeblock_id')
+            start_range = data.get('start_range')
+            end_range = data.get('end_range')
+
+            # Basic validation 
+            if not all([user_id, timeblock_id, start_range, end_range]):
+                return JsonResponse({'error': 'Missing data'}, status=400)
+
+            # Fetch the event and user instances
+            try:
+                event = Event.objects.get(id=event_id)
+                # user = User.objects.get(id=user_id)
+            except (Event.DoesNotExist, User.DoesNotExist):
+                # event = Event.objects.get(id=event_id)
+                # user = User.objects.get(id=user_id)
+                # print(event.id)
+                # print(user.id)
+                return JsonResponse({'error': 'Event or User not found '}, status=404)
+
+            # Create the Availability instance
+            availability = Availability.objects.create(
+                # user=user,
+                user=user_id,
+                event=event,
+                timeblock_id=timeblock_id,
+                start_range=start_range,
+                end_range=end_range
+            )
+
+            # Return a success response
+            return JsonResponse({
+                'message': 'Availability created successfully',
+                'availability': {
+                    'id': availability.id,
+                    'user_id': user_id,
+                    'event_id': event_id,
+                    'timeblock_id': timeblock_id,
+                    'start_range': start_range,
+                    'end_range': end_range
+                }
+            }, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
