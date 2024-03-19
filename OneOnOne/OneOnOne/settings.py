@@ -51,10 +51,9 @@ REST_FRAMEWORK = {
     ],
     # Allow DRF to recognize authenticated users, so you can differentiate responses based on
     # authentication status.
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }
 
 MIDDLEWARE = [

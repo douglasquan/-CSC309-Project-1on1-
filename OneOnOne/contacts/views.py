@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404
 from .models import Contact
 from .serializers import ContactSerializer  # You will need to create this serializer
+from django.http import JsonResponse
 
 # For /contacts/add/ endpoint
 class ContactListCreateAPIView(APIView):
@@ -14,7 +15,7 @@ class ContactListCreateAPIView(APIView):
 
     def get(self, request):
         # Retrieve all contacts that have not been removed
-        contacts = Contact.objects.filter(user=request.user, removed=False)
+        contacts = Contact.objects.filter(removed=False)
         serializer = ContactSerializer(contacts, many=True)
         return Response(serializer.data)
 
@@ -30,7 +31,8 @@ class ContactListCreateAPIView(APIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def contact_view(request):
-    contacts = Contact.objects.filter(user=request.user, removed=False)
+    # Retrieve all contacts, regardless of the user
+    contacts = Contact.objects.filter(removed=False)
     serializer = ContactSerializer(contacts, many=True)
     return Response(serializer.data)
 
@@ -38,7 +40,14 @@ def contact_view(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def contact_delete(request, contact_id):
-    contact = get_object_or_404(Contact, id=contact_id, user=request.user)
-    contact.removed = True  # Soft delete the contact
-    contact.save()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+    contact = get_object_or_404(Contact, id=contact_id)
+    
+    # Check if the contact belongs to the requesting user
+    if contact.user == request.user:
+        # Prevent users from deleting their own contact
+        return JsonResponse({'detail': 'You cannot delete your own contact.'}, status=status.HTTP_403_FORBIDDEN)
+    else:
+        # Proceed with deleting (soft delete) the contact
+        contact.removed = True
+        contact.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
