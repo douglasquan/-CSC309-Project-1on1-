@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Event, Availability
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'host_id', 'invitee_id', 'finalized_timeblock_id', 
+    list_display = ('id', 'finalized_timeblock_id', 
                     'event_title', 'event_duration', 'event_type', 
                     'deadline', 'description', 'is_active', 'status',
                     'created_at', 'updated_at')  

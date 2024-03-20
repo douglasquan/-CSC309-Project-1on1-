@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import ContactListCreateAPIView, contact_view, contact_delete
+from . import views
 
 urlpatterns = [
-    path('add/', ContactListCreateAPIView.as_view(), name='contact-add'),
-    path('view/', contact_view, name='contact-view'),
-    path('<int:contact_id>/delete/', contact_delete, name='contact-delete'),
+    path('', views.contact_list, name='contact_list'),
+    path('add/', views.add_contact, name='add_contact'),
+    path('<int:contact_id>/delete', views.remove_contact, name='remove_contact'),
 ]

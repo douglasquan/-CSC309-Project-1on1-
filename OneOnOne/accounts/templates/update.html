@@ -1,0 +1,11 @@
+{% block content %}
+<div class="container">
+    <h2>Update Profile</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+    <a href="{% url 'delete-user' user.id %}" class="btn btn-danger">Delete My Account</a>
+</div>
+{% endblock %}

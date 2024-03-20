@@ -40,10 +40,24 @@ class AddEventView(FormView):
         else:
             # render the form with errors
             return self.form_invalid(form)
-
+        
     def form_valid(self, form):
-        # Save the form instance, then call the superclass form_valid to handle redirection
-        form.save()
+        try:
+            # Look up the User object based on the invitee email
+            invitee_user = User.objects.get(email=form.cleaned_data['invitee_email'])
+        except User.DoesNotExist:
+            form.add_error('invitee_email', 'No user found with this email address')
+            return self.form_invalid(form)
+        
+        # If a user is found, proceed with creating the event
+        event = form.save(commit=False)
+        event.host = self.request.user
+        event.invitee = invitee_user
+        event.save()
+        
+        # Optionally, handle many-to-many fields if needed
+        # form.save_m2m()
+        
         return super().form_valid(form)
 
 

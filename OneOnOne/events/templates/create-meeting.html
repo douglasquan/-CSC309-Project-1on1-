@@ -37,13 +37,13 @@
                 {{ form.description }}
             </div>
 
+            <!-- Updated Invitee Email field -->
             <div class="form-group">
-                <label for="id_invitee_id">Invitee:</label>
-                {{ form.invitee_id.errors }}
-                {{ form.invitee_id }}
+                <label for="id_invitee_email">Invitee Email:</label>
+                {{ form.invitee_email.errors }}
+                {{ form.invitee_email }}
             </div>
 
-            <!-- Deadline field added -->
             <div class="form-group">
                 <label for="id_deadline">Deadline:</label>
                 {{ form.deadline.errors }}
@@ -54,16 +54,6 @@
         </form>
         <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
     </div>
-    <script>
-        function toggleDeadlineInput() {
-            var checkbox = document.getElementById('deadline-checkbox');
-            var input = document.getElementById('date-input');
-            if (checkbox.checked) {
-                input.classList.remove('hidden');
-            } else {
-                input.classList.add('hidden');
-            }
-        }
-    </script>
+    <!-- Optional: Include JavaScript libraries like jQuery if you're using Bootstrap JS components -->
 </body>
 </html>

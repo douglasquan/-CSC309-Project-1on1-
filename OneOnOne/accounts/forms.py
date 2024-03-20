@@ -1,21 +1,19 @@
 from django import forms
-from django.contrib.auth import get_user_model
+from .models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
-from django.core.exceptions import ValidationError
-from django import forms
 
-User = get_user_model()
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
-    username = forms.CharField(max_length=100)  # Add this line for the username field
+    username = forms.CharField(max_length=100)
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+    phone_number = forms.CharField(max_length=15, required=False)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']  # Include the username field here
+        fields = ['username', 'email', 'first_name', 'last_name', 'phone_number', 'password1', 'password2']  # Include the username field here
 
     def clean_email(self):
         email = self.cleaned_data['email']
@@ -36,3 +34,8 @@ class UserLoginForm(forms.Form):
 
     class Meta:
         fields = ['username', 'password']
+        
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'phone_number']

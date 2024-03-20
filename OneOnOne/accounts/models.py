@@ -57,6 +57,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
     USERNAME_FIELD = "email"
+    first_name = models.CharField(_('First name'), max_length=30, blank=True)
+    last_name = models.CharField(_('Last name'), max_length=30, blank=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
     
     groups = models.ManyToManyField(
         'auth.Group',
@@ -68,6 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         related_name="user_set_custom",  # Changed related_name
         related_query_name="user_custom",
     )
+    
     user_permissions = models.ManyToManyField(
         'auth.Permission',
         verbose_name=_('user permissions'),

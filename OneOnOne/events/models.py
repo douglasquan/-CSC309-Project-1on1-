@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 
-class Event(models.Model):
+class Event(models.Model):    
     EVENT_TYPES = (
         ('in_person', 'In Person'),
         ('phone', 'Phone'),
@@ -21,9 +21,16 @@ class Event(models.Model):
         ('C', 'Pending Final Confirmation'),
         ('F', 'Finalized'),
     )
+
     
-    host_id = models.IntegerField(default=1) #required change
-    invitee_id = models.IntegerField(default=1)  # required change
+    # host = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL, 
+    #     on_delete=models.CASCADE, 
+    # )
+    # invitee = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL, 
+    #     on_delete=models.CASCADE, 
+    # )
     finalized_timeblock_id = models.IntegerField(null=True, blank=True)  # Assuming it's optional and not always immediately known
     
     event_title = models.CharField(max_length=255, null=False)  
