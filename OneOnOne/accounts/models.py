@@ -34,12 +34,24 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        """Creates and returns a new superuser using an email address"""
+    # def create_superuser(self, email, password=None, **extra_fields):
+    #     """Creates and returns a new superuser using an email address"""
+    #     extra_fields.setdefault("is_staff", True)
+    #     extra_fields.setdefault("is_superuser", True)
+    #     return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, username, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        return self._create_user(email, password, **extra_fields)
 
+        # Check for email in extra_fields if not passed directly
+        email = extra_fields.pop("email", None)
+        if not email:
+            raise ValueError("Superusers must have an email address.")
+        if not username:
+            raise ValueError("Superusers must have a username.")
+
+        return self._create_user(email=email, password=password, username=username, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
     """ Custom user model """
@@ -56,11 +68,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_updated = models.DateTimeField(_("Last Updated"), auto_now=True)
 
     objects = UserManager()
-    USERNAME_FIELD = "email"
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ['email']
     first_name = models.CharField(_('First name'), max_length=30, blank=True)
     last_name = models.CharField(_('Last name'), max_length=30, blank=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
-    
+
     groups = models.ManyToManyField(
         'auth.Group',
         verbose_name=_('groups'),
@@ -71,7 +84,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         related_name="user_set_custom",  # Changed related_name
         related_query_name="user_custom",
     )
-    
+
     user_permissions = models.ManyToManyField(
         'auth.Permission',
         verbose_name=_('user permissions'),

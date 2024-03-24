@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event Timeblock</title>
+</head>
+<body>
+    <h1>Create Event Timeblock</h1>
+        <form id="timeblock-form" method="post" action="{% url 'create_timeblock' event_id=event_id %}">
+        {% csrf_token %}
+
+        <!-- Display non-field-specific errors -->
+        {% if form.non_field_errors %}
+            <div class="error">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <label for="start_time">Start Time:</label>
+        <input type="time" id="start_time" name="start_time" required>
+        {% if form.start_time.errors %}
+            <div class="error">{{ form.start_time.errors }}</div>
+        {% endif %}
+        <br><br>
+
+        <label for="end_time">End Time:</label>
+        <input type="time" id="end_time" name="end_time" required>
+        {% if form.end_time.errors %}
+            <div class="error">{{ form.end_time.errors }}</div>
+        {% endif %}
+        <br><br>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+        {% if form.date.errors %}
+            <div class="error">{{ form.date.errors }}</div>
+        {% endif %}
+        <br><br>
+
+        <label for="preference_type">Preference Type:</label>
+        <select id="preference_type" name="preference_type" required>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select>
+        {% if form.preference_type.errors %}
+            <div class="error">{{ form.preference_type.errors }}</div>
+        {% endif %}
+        <br><br>
+
+        <label for="is_finalized">Is Finalized:</label>
+        <input type="checkbox" id="is_finalized" name="is_finalized">
+        {% if form.is_finalized.errors %}
+            <div class="error">{{ form.is_finalized.errors }}</div>
+        {% endif %}
+        <br><br>
+
+        <input type="submit" value="Create Timeblock">
+    </form>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+</body>
+</html>
