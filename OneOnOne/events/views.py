@@ -9,15 +9,21 @@ from .models import Event, Availability
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.contrib.auth.models import User  # Assuming you are using the default User model
 from django.utils.decorators import method_decorator
-
+from accounts.models import User 
+from django.contrib import messages
+from django.shortcuts import redirect
 
 class AddEventView(FormView):
     form_class = EventForm
     template_name = 'create-meeting.html'
     success_url = reverse_lazy('home')
 
+    def get_form_kwargs(self):  # pass user in the kwargs so that form can read the current user
+        kwargs = super(AddEventView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user 
+        return kwargs
+    
     def post(self, request, *args, **kwargs):
         # Determine the content type of the incoming request
         content_type = request.META.get('CONTENT_TYPE', '')
@@ -55,9 +61,6 @@ class AddEventView(FormView):
         event.invitee = invitee_user
         event.save()
         
-        # Optionally, handle many-to-many fields if needed
-        # form.save_m2m()
-        
         return super().form_valid(form)
 
 
@@ -81,12 +84,12 @@ class EventDetailView(DetailView):
     context_object_name = 'event'  
     pk_url_kwarg = 'event_id'  
     
-    def get_queryset(self):
-        """
-        If needed, override this method to customize the query.
-        By default, it retrieves the object based on the primary key and the model specified.
-        """
-        return Event.objects.all()
+    def dispatch(self, request, *args, **kwargs):
+        event = self.get_object()
+        if event.host != request.user and event.invitee != request.user:
+            messages.error(request, "You are not authorized to view this event.")
+            return redirect('all_events')  # Adjust the redirection URL as needed
+        return super().dispatch(request, *args, **kwargs)
     
     
 
@@ -101,7 +104,7 @@ class EventUpdateView(UpdateView):
         if request.headers.get('Content-Type') == 'application/json':
             try:
                 data = json.loads(request.body)
-                form = self.form_class(data, instance=self.get_object())
+                form = self.form_class(data, instance=self.get_object(), user=request.user)
                 if form.is_valid():
                     self.object = form.save()
                     # Return a JSON response indicating success
@@ -120,13 +123,26 @@ class EventUpdateView(UpdateView):
         # Redirect to the event's detail view after updating
         event_id = self.object.id
         return reverse_lazy('event_detail', kwargs={'event_id': event_id})
+    
+    def dispatch(self, request, *args, **kwargs):
+        event = self.get_object()
+        if event.host != request.user and event.invitee != request.user:
+            messages.error(request, "You are not authorized to edit this event.")
+            return redirect('all_events')  # Adjust the redirection URL as needed
+        return super().dispatch(request, *args, **kwargs)
 
 
 class EventDeleteView(DeleteView):
     model = Event
     pk_url_kwarg = 'event_id'  
     success_url = reverse_lazy('all_events')  
-
+    
+    def dispatch(self, request, *args, **kwargs):
+        event = self.get_object()
+        if event.host != request.user:
+            messages.error(request, "You are not authorized to delete this event.")
+            return redirect('all_events')  # Adjust the redirection URL as needed
+        return super().dispatch(request, *args, **kwargs)
 
 # @method_decorator(csrf_exempt, name='dispatch')  # Note: Be cautious with CSRF exemption
 class CreateAvailabilityView(View):

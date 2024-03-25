@@ -1,5 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+
+{% block title %}All Events{% endblock %}
+
+{% block content %}<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>All Events</title>
@@ -25,9 +28,10 @@
     <table>
         <thead>
             <tr>
+                <th>Event ID</th>
                 <th>Event Title</th>
-                <th>Host ID</th>
-                <th>Invitee ID</th>
+                <th>Host email</th>
+                <th>Invitee email</th>
                 <th>Finalized Timeblock ID</th>
                 <th>Event Duration</th>
                 <th>Event Type</th>
@@ -42,9 +46,10 @@
         <tbody>
         {% for event in events %}
             <tr>
+                <td>{{ event.id }}</td>
                 <td>{{ event.event_title }}</td>
-                <td>{{ event.host_id }}</td>
-                <td>{{ event.invitee_id }}</td>
+                <td>{{ event.host }}</td>
+                <td>{{ event.invitee}}</td>
                 <td>{{ event.finalized_timeblock_id }}</td>
                 <td>{{ event.get_event_duration_display }}</td>
                 <td>{{ event.get_event_type_display }}</td>
@@ -58,5 +63,17 @@
         {% endfor %}
         </tbody>
     </table>
+    <a href="{% url 'create_event' %}">Create Event</a>
 </body>
 </html>
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

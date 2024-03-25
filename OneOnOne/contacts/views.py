@@ -1,48 +1,81 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.list import ListView
+from django.views.generic.edit import FormView, DeleteView
+from django.urls import reverse_lazy
 from .models import Contact
 from .forms import AddContactForm
-from django.contrib.auth import get_user_model
-from django.contrib import messages  # Import Django's messages framework
+from django.shortcuts import redirect
+from django.contrib import messages  
+from accounts.models import User
+from django.http import JsonResponse, HttpResponseBadRequest
+import json
 
-User = get_user_model()
+class ContactListView(LoginRequiredMixin, ListView):
+    model = Contact
+    template_name = 'contact_list.html'
+    context_object_name = 'contacts'
 
-@login_required
-def contact_list(request):
-    contacts = Contact.objects.filter(owner=request.user, removed=False).select_related('contact')
-    print("Current logged-in user:", request.user.email)
-    return render(request, 'contact_list.html', {'contacts': contacts})
+    def get_queryset(self):
+        return Contact.objects.filter(owner=self.request.user).select_related('contact')
 
-@login_required
-def add_contact(request):
-    if request.method == "POST":
-        form = AddContactForm(request.POST)
+
+class AddContactView(LoginRequiredMixin, FormView):
+    template_name = 'add_contact.html'
+    form_class = AddContactForm
+    success_url = reverse_lazy('contact_list')
+
+    def post(self, request, *args, **kwargs):
+        if request.META.get('CONTENT_TYPE') == 'application/json':
+            # Handle JSON data
+            try:
+                data = json.loads(request.body)
+                form = self.form_class(data)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        else:
+            # Handle form data
+            form = self.get_form()
+
         if form.is_valid():
-            email = form.cleaned_data.get('email').strip()
-            if email == request.user.email:  
-                messages.error(request, "You cannot add yourself as a contact.")
-                return redirect('add_contact')
-            
-            contact_user = get_object_or_404(User, email=email)
-            if Contact.objects.filter(owner=request.user, contact=contact_user).exists():
-                messages.error(request, "This user is already in your contact list.")
-                return redirect('add_contact')
-            else:
-                Contact.objects.create(owner=request.user, contact=contact_user)
-                messages.success(request, "Contact added successfully.")  
-                return redirect('contact_list')
-    else:
-        form = AddContactForm()
-    return render(request, 'add_contact.html', {'form': form})
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
+    def form_valid(self, form):
+        email = form.cleaned_data['email'].strip()
+        if email == self.request.user.email:
+            messages.error(self.request, "You cannot add yourself as a contact.")
+            return self.form_invalid(form)        
+        try:
+            contact_user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(self.request, "No user found with the email provided.")
+            return self.form_invalid(form)
+        
+        if Contact.objects.filter(owner=self.request.user, contact=contact_user).exists():
+            messages.error(self.request, "This user is already in your contact list.")
+            return self.form_invalid(form)
+        else:
+            Contact.objects.create(owner=self.request.user, contact=contact_user)
+            messages.success(self.request, "Contact added successfully.")
+            return super().form_valid(form)
 
-@login_required
-def remove_contact(request, contact_id):
-    contact = get_object_or_404(Contact, id=contact_id, owner=request.user)
-    
-    if request.method == 'POST':
-        contact.removed = True
-        contact.save()
-        return redirect('contact_list')
-    else:
-        return render(request, 'delete_contact.html', {'contact': contact})
+    def form_invalid(self, form):
+        if self.request.META.get('CONTENT_TYPE') == 'application/json':
+            return JsonResponse({'errors': "unsuccessful"}, status=400)
+        else:
+            return super().form_invalid(form)
+
+class ContactDeleteView(LoginRequiredMixin, DeleteView):
+    model = Contact
+    template_name = 'delete_contact.html'
+    success_url = reverse_lazy('contact_list')
+
+    def get_queryset(self):
+        return Contact.objects.filter(owner=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        return redirect(success_url)

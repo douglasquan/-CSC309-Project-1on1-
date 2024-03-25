@@ -1,5 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+
+{% block title %}Event Detail{% endblock %}
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <title>Event Details</title>
@@ -7,6 +10,8 @@
 <body>
     <h1>Event Details</h1>
     <p><strong>Title:</strong> {{ event.event_title }}</p>
+    <p><strong>Host Email:</strong> {{ event.host }}</p>
+    <p><strong>Invitee Email:</strong> {{ event.invitee }}</p>
     <p><strong>Duration:</strong> {{ event.get_event_duration_display }}</p>
     <p><strong>Type:</strong> {{ event.get_event_type_display }}</p>
     <p><strong>Description:</strong> {{ event.description }}</p>
@@ -15,5 +20,14 @@
     <p><strong>Active:</strong> {{ event.is_active }}</p>
     <p><strong>Created At:</strong> {{ event.created_at }}</p>
     <p><strong>Updated At:</strong> {{ event.updated_at }}</p>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </body>
-</html>
+{% endblock %}

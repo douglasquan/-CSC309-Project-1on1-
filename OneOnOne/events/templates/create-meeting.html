@@ -1,5 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+
+{% block title %}Create Event{% endblock %}
+
+{% block content %}<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,7 +56,16 @@
             <button type="submit" class="btn btn-primary">Create Event</button>
         </form>
         <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
     <!-- Optional: Include JavaScript libraries like jQuery if you're using Bootstrap JS components -->
 </body>
-</html>
+{% endblock %}

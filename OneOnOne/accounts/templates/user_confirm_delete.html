@@ -1,12 +1,14 @@
-<h2>Confirm Contact Deletion</h2>
+{% block content %}
+  <h2>Confirm Delete</h2>
+  <p>Are you sure you want to delete your account?</p>
 
-<p>Are you sure you want to delete the contact "{{ contact.contact.email }}"?</p>
-
-<form method="post">
+  <form method="post">
     {% csrf_token %}
     <button type="submit">Confirm</button>
-    <a href="{% url 'contact_list' %}">Cancel</a>
-</form>
+    <a href="{% url 'profile' %}">Cancel</a>
+    
+  </form>
+{% endblock %}
 {% if messages %}
 <div class="messages">
     {% for message in messages %}

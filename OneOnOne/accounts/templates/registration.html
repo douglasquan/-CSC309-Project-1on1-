@@ -1,14 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Registration</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Registration{% endblock %}
+
+{% block content %}
     <h2>Register</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Register</button>
     </form> 
-</body>
-</html>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

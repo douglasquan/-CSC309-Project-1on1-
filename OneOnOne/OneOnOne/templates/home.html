@@ -1,9 +1,24 @@
 <!-- templates/home.html -->
-{% extends 'templates/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Home{% endblock %}
 
 {% block content %}
 <h1>Welcome to Our Site!</h1>
-<p>This is the home page. You're logged in and ready to explore.</p>
+<p>This is the home page. You're logged in.</p>
+
+<ul>
+  <li><a href="{% url 'profile' %}">Profile</a></li> 
+  <li><a href="{% url 'contact_list' %}">Contact List</a></li> 
+  <li><a href="{% url 'all_events' %}">All event List</a></li> 
+</ul>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
 {% endblock %}

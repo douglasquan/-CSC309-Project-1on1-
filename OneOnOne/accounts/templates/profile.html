@@ -1,12 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile{% endblock %}
 {% block content %}
-<div class="container mt-5">
-    <h2>User Profile</h2>
-    <div class="profile-info">
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>First Name:</strong> {{ user.first_name }}</p>
-        <p><strong>Last Name:</strong> {{ user.last_name }}</p>
-        <p><strong>Phone Number:</strong> {{ user.phone_number }}</p>
+    <div class="container mt-5">
+        <h2>User Profile</h2>
+        <div class="profile-info">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>First Name:</strong> {{ user.first_name }}</p>
+            <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+            <p><strong>Phone Number:</strong> {{ user.phone_number }}</p>
+        </div>
     </div>
-</div>
+    <a href="{% url 'update_profile'%}" class="btn btn-danger">Update Profile</a>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 {% endblock %}

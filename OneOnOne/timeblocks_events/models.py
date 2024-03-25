@@ -4,7 +4,7 @@ from events.models import Event
 
 
 class Timeblock(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='timeblocks')
+    event = models.ForeignKey(Event, on_delete=models.SET_NULL, related_name='timeblocks', null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_timeblocks')
     start_time = models.TimeField()
     end_time = models.TimeField()
