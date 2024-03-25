@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Availability{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Create Availability</h2>
+    <form method="post" action=".">
+        {% csrf_token %}
+        <p>
+            {{ form.event.label_tag }}<br>
+            {{ form.event }}
+            {% for error in form.event.errors %}
+                <span style="color: red;">{{ error }}</span><br>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.timeblock_id.label_tag }}<br>
+            {{ form.timeblock_id }}
+            {% for error in form.timeblock_id.errors %}
+                <span style="color: red;">{{ error }}</span><br>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.start_range.label_tag }}<br>
+            {{ form.start_range }}
+            {% for error in form.start_range.errors %}
+                <span style="color: red;">{{ error }}</span><br>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.end_range.label_tag }}<br>
+            {{ form.end_range }}
+            {% for error in form.end_range.errors %}
+                <span style="color: red;">{{ error }}</span><br>
+            {% endfor %}
+        </p>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

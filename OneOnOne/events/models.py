@@ -36,7 +36,7 @@ class Event(models.Model):
         related_name='invited_events',  
         null=True
     )
-    finalized_timeblock_id = models.IntegerField(null=True, blank=True)  # Assuming it's optional and not always immediately known
+    finalized_timeblock_id = models.ForeignKey('timeblocks_events.Timeblock', on_delete=models.SET_NULL, null=True, blank=True, related_name='finalized_timeblock')
     
     event_title = models.CharField(max_length=255, null=False)  
     event_duration = models.IntegerField(choices=EVENT_DURATION, null=False)  
@@ -59,13 +59,3 @@ def update_event_on_host_deletion(sender, instance, **kwargs):
     Event.objects.filter(host=instance).update(is_active=False)
 
 
-class Availability(models.Model):
-    # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="User")
-    user = models.IntegerField(default=1) #required change
-    event = models.ForeignKey(Event, on_delete=models.SET_NULL, verbose_name="Event", null=True)
-    timeblock_id = models.IntegerField(verbose_name="Timeblock ID")  # required change
-    start_range = models.DateField(verbose_name="Start Date")
-    end_range = models.DateField(verbose_name="End Date")
-
-    def __str__(self):
-        return f"Availability for user {self.user_id} for event {self.event_id} from {self.start_range} to {self.end_range}"

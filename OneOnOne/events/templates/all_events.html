@@ -2,7 +2,8 @@
 
 {% block title %}All Events{% endblock %}
 
-{% block content %}<html lang="en">
+{% block content %}
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>All Events</title>
@@ -41,6 +42,8 @@
                 <th>Is Active</th>
                 <th>Created At</th>
                 <th>Updated At</th>
+                <th>Create Timeblocks</th> 
+                <th>List Timeblocks</th> 
             </tr>
         </thead>
         <tbody>
@@ -49,7 +52,7 @@
                 <td>{{ event.id }}</td>
                 <td>{{ event.event_title }}</td>
                 <td>{{ event.host }}</td>
-                <td>{{ event.invitee}}</td>
+                <td>{{ event.invitee }}</td>
                 <td>{{ event.finalized_timeblock_id }}</td>
                 <td>{{ event.get_event_duration_display }}</td>
                 <td>{{ event.get_event_type_display }}</td>
@@ -59,6 +62,9 @@
                 <td>{{ event.is_active }}</td>
                 <td>{{ event.created_at }}</td>
                 <td>{{ event.updated_at }}</td>
+                <td>
+                    <a href="{% url 'create_timeblock' event_id=event.id %}" class="btn">Create Timeblock</a>
+                </td>
             </tr>
         {% endfor %}
         </tbody>

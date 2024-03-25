@@ -88,6 +88,7 @@ class CreateTimeblockView(LoginRequiredMixin, FormView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class TimeblockListView(View):
+    template_name = 'timeblock_list.html'
     def get(self, request, event_id, user_id):
         # Check if the Event and User exist, return JSON error if not
         try:
