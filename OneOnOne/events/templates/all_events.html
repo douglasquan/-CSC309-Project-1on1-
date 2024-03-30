@@ -63,7 +63,7 @@
                 <td>{{ event.created_at }}</td>
                 <td>{{ event.updated_at }}</td>
                 <td>
-                    <a href="{% url 'create_timeblock' event_id=event.id %}" class="btn">Create Timeblock</a>
+                    <a href="{% url 'create_event_timeblock' event_id=event.id %}" class="btn">Create Timeblock</a>
                 </td>
             </tr>
         {% endfor %}

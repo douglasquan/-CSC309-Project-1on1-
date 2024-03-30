@@ -1,4 +1,6 @@
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
@@ -19,49 +21,41 @@ class AddEventView(FormView):
     success_url = reverse_lazy('home')
 
     def get_form_kwargs(self):
-        # Pass user in the kwargs so that form can read the current user
         kwargs = super(AddEventView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
-    
+
     def post(self, request, *args, **kwargs):
         content_type = request.META.get('CONTENT_TYPE', '')
 
         if 'application/json' in content_type:
             try:
                 data = json.loads(request.body)
+                # Make sure to convert invitee_id to the correct format if necessary
+                form = self.form_class(data, user=request.user)
             except json.JSONDecodeError:
                 return JsonResponse({'error': 'Invalid JSON'}, status=400)
-            # Pass the user to form for additional validations if necessary
-            form = self.form_class(data, user=request.user)
         else:
             form = self.form_class(request.POST, request.FILES, user=request.user)
 
         if form.is_valid():
+            form.save()
             return self.form_valid(form)
         else:
-            return self.form_invalid(form)
-        
+            # Log form errors and return them in the response for debugging
+            print("Form errors:", form.errors)  # Log to console
+            messages.error(request, f"Form errors: {form.errors}")  # Add errors to messages
+            return JsonResponse({'error': 'Form validation failed', 'form_errors': form.errors}, status=400)
+
     def form_valid(self, form):
-        invitee_email = form.cleaned_data['invitee_email'].strip()
-
-        # Ensure the host's email is not the same as the invitee's email
-        if invitee_email == self.request.user.email:
-            form.add_error('invitee_email', 'You cannot invite yourself to an event.')
-            return self.form_invalid(form)
-
-        try:
-            invitee_user = User.objects.get(email=invitee_email)
-        except User.DoesNotExist:
-            form.add_error('invitee_email', 'No user found with this email address')
-            return self.form_invalid(form)
-        
+        # Set the host as the currently logged-in user
         event = form.save(commit=False)
+        print(self.request.user)
         event.host = self.request.user
-        event.invitee = invitee_user
         event.save()
-
+        messages.success(self.request, "Event created successfully!")  # Inform the user of success
         return super().form_valid(form)
+
 
 class AllEventsView(ListView):
     model = Event
@@ -88,7 +82,7 @@ class EventDetailView(DetailView):
         return super().dispatch(request, *args, **kwargs)
     
     
-
+@method_decorator(csrf_exempt, name='dispatch')
 class EventUpdateView(UpdateView):
     model = Event
     form_class = EventForm
@@ -102,6 +96,7 @@ class EventUpdateView(UpdateView):
                 data = json.loads(request.body)
                 form = self.form_class(data, instance=self.get_object(), user=request.user)
                 if form.is_valid():
+                    print(form.cleaned_data)
                     self.object = form.save()
                     # Return a JSON response indicating success
                     return JsonResponse({'message': 'Event updated successfully', 'event': form.data}, status=200)
@@ -127,7 +122,7 @@ class EventUpdateView(UpdateView):
             return redirect('all_events')  # Adjust the redirection URL as needed
         return super().dispatch(request, *args, **kwargs)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class EventDeleteView(DeleteView):
     model = Event
     pk_url_kwarg = 'event_id'  

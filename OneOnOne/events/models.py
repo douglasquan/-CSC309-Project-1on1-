@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from timeblocks.models import EventTimeblock
+
 
 class Event(models.Model):    
     EVENT_TYPES = (
@@ -36,7 +38,7 @@ class Event(models.Model):
         related_name='invited_events',  
         null=True
     )
-    finalized_timeblock_id = models.ForeignKey('timeblocks_events.Timeblock', on_delete=models.SET_NULL, null=True, blank=True, related_name='finalized_timeblock')
+    finalized_timeblock_id = models.ForeignKey(EventTimeblock, on_delete=models.SET_NULL, null=True, blank=True, related_name='finalized_timeblock')
     
     event_title = models.CharField(max_length=255, null=False)  
     event_duration = models.IntegerField(choices=EVENT_DURATION, null=False)  

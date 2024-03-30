@@ -1,6 +1,10 @@
 
 from django.urls import reverse_lazy
 import json
+
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
 from .models import Availability
 from django.views import View
 from django.http import JsonResponse
@@ -13,6 +17,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import AvailabilityForm
 from django.db import IntegrityError
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CreateAvailabilityView(LoginRequiredMixin, FormView):
     form_class = AvailabilityForm
     template_name = 'create_availability.html'  
@@ -21,6 +26,7 @@ class CreateAvailabilityView(LoginRequiredMixin, FormView):
     def get_form_kwargs(self):
         kwargs = super(CreateAvailabilityView, self).get_form_kwargs()
         kwargs['user'] = self.request.user  # Pass the current user to the form
+        kwargs['event'] = get_object_or_404(Event, pk=self.kwargs['event_id'])  # Get the event based on URL
         return kwargs
 
     def post(self, request, *args, **kwargs):
@@ -28,7 +34,8 @@ class CreateAvailabilityView(LoginRequiredMixin, FormView):
         if request.META.get('CONTENT_TYPE', '').startswith('application/json'):
             try:
                 data = json.loads(request.body)
-                form = self.form_class(data, user=request.user)
+                data['timeblock_id'] = data.pop('timeslot_id', None)  # Rename key to match your model/form fields
+                form = self.form_class(data, user=request.user, event=get_object_or_404(Event, pk=kwargs['event_id']))
             except ValueError:
                 return JsonResponse({'error': 'Invalid JSON'}, status=400)
         else:
@@ -58,12 +65,15 @@ class CreateAvailabilityView(LoginRequiredMixin, FormView):
         else:
             return super().form_invalid(form)
 
+@method_decorator(csrf_exempt, name='dispatch')
 class AllAvailabilityView(View):
     def get(self, request, event_id, user_id):
         # Ensure the event and user exist, 404 if not
         event = get_object_or_404(Event, id=event_id)
         user = get_object_or_404(User, id=user_id)
-        
+
+        print(event)
+        print(user)
         # Filter availabilities for the given event and user
         availabilities = Availability.objects.filter(event=event, user=user)
         
@@ -78,6 +88,8 @@ class AllAvailabilityView(View):
         
         return JsonResponse(data, safe=False)  # safe=False is needed to allow non-dict objects
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class DeleteAvailabilityView(LoginRequiredMixin, View):
     def delete(self, request, availability_id, *args, **kwargs):
         try:

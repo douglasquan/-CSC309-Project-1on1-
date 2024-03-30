@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'accounts',
     'contacts',
     'events',
-    'timeblocks_events',
+    'timeblocks',
     'availability'
 ]
 
