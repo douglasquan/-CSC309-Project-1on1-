@@ -14,6 +14,7 @@ from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.http import JsonResponse, HttpResponseBadRequest
 import json
+from .serializers import UserSerializer
 
 
 class RegisterView(APIView):
@@ -22,18 +23,18 @@ class RegisterView(APIView):
         return render(request, 'registration.html', {'form': form})
 
     def post(self, request):
-        form = UserRegisterForm(request.data)
-        if form.is_valid():
-            user = form.save()
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'user_id': user.id,
-                'email': user.email,
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }, status=status.HTTP_201_CREATED)
-        else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = UserSerializer(data=request.data)
+            if serializer.is_valid():
+                user = serializer.save()
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'user_id': user.id,
+                    'email': user.email,
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
