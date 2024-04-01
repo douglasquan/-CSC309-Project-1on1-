@@ -8,7 +8,7 @@ const NavbarMenu = () => {
           <Navbar.Brand as={NavLink} to="/">MeetHomie</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ml-auto"> 
+            <Nav className="ml-auto"> {/* Adjusted to 'ml-auto' for alignment to the right */}
               <Nav.Item>
                 <Nav.Link as={NavLink} to="/login" activeClassName="active">Login</Nav.Link>
               </Nav.Item>

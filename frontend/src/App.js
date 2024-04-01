@@ -1,25 +1,31 @@
 import React from "react";
-import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import NavbarMenu from './components/Navbar';
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import NavbarMenu from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute"
+
+import "./styles/index.css";
 
 function App() {
   return (
-    <div className="App">
-
-      <div>
-        <Router>
-        <NavbarMenu/>
-          <Routes>
-            <Route exact path="/register" element={<Register />} />
-            <Route exact path="/login" element={<Login />} />
-          </Routes>
-        </Router>
-      </div>
-    </div>
+    <Router>
+      <NavbarMenu />
+      <Routes>
+      <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route exact path="/register" element={<Register />} />
+        <Route exact path="/login" element={<Login />} />
+      </Routes>
+    </Router>
   );
 }
 
