@@ -2,9 +2,8 @@
 
 #Setup Backend
 1. cd backend
-2. pip install -r requirements.txt
-3. python manage.py createsuperuser
-4.  python manage.py runserver
+2. ./startup.sh
+3. ./run.sh
 
 #Setup Frontend
 
