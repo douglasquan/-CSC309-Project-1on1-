@@ -45,6 +45,7 @@ function CreateEventPage() {
   const handlePreferenceChange = (e) => {
     setPreference(e.target.value);
   };
+  
   const handleDescriptionChange = (e) => {
     setDescription(e.target.value);
   };

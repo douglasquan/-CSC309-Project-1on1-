@@ -15,8 +15,10 @@ const NavbarComponent = () => {
         <div className="flex md:order-2">
           {user ? (
             <>
-              <button onClick={logoutUser} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Logout</button>
               <NavLink to="/profile" activeClassName="text-blue-700" className="text-sm text-gray-700 hover:bg-gray-50 rounded-lg px-5 py-2.5 ml-2">Profile</NavLink>
+              <NavLink to="/contact-list" activeClassName="text-blue-700" className="text-sm text-gray-700 hover:bg-gray-50 rounded-lg px-5 py-2.5 ml-2">Contacts</NavLink>
+              <NavLink to="/create-event" activeClassName="text-blue-700" className="text-sm text-gray-700 hover:bg-gray-50 rounded-lg px-5 py-2.5 ml-2">Create Event</NavLink>
+              <button onClick={logoutUser} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  md:mr-0 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Logout</button>
             </>
           ) : (
             <>

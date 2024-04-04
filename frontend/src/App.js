@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import NavbarMenu from "./components/Navbar";
 import CreateEventPage from "./pages/CreateEventPage";
+import ContactListPage from "./pages/ContactListPage"
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <NavbarMenu />
           <PrivateRoute component={HomePage} path="/" exact/>
           <PrivateRoute component={CreateEventPage} path="/create-event" exact/>
+          <PrivateRoute component={ContactListPage} path="/contact-list" exact/>
           <Route component={LoginPage} path="/login"/>
           <Route component={RegisterPage} path="/register"/>
         </AuthProvider>

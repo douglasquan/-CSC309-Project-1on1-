@@ -1,20 +1,20 @@
 from django.views import View
 from django.shortcuts import redirect, render
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .forms import UserRegisterForm, UserLoginForm, UserUpdateForm
-from .models import User
+from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.http import JsonResponse, HttpResponseBadRequest
-import json
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .forms import UserUpdateForm
 from .serializers import UserSerializer
+import json
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-
-from .serializers import UserSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -32,6 +32,25 @@ class ProfileView(LoginRequiredMixin, View):
         return render(request, 'profile.html', {'user': request.user})
 
 
+class UserDetailsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')
+        user = get_object_or_404(User, pk=user_id)
+        serializer = UserSerializer(user)
+        return JsonResponse(serializer.data)
+    
+    
+class DeleteUserView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = User
+    success_url = reverse_lazy('login')
+    template_name = 'user_confirm_delete.html'
+
+    def test_func(self):
+        return self.request.user.id == self.kwargs['pk']  # Ensures users can only delete their own accounts
+    
+    
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
@@ -73,10 +92,3 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
             return super().form_invalid(form)
 
 
-class DeleteUserView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = User
-    success_url = reverse_lazy('login')
-    template_name = 'user_confirm_delete.html'
-
-    def test_func(self):
-        return self.request.user.id == self.kwargs['pk']  # Ensures users can only delete their own accounts
