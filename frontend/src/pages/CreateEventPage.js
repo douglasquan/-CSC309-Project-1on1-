@@ -165,20 +165,6 @@ function CreateEventPage() {
     },
   };
 
-  function preferenceColor(preference) {
-    switch (preference) {
-      case 'High':
-        return "#008000"; 
-      case 'Medium':
-        return "#4EF312"; 
-      case 'Low':
-        return "#B2FF59";
-      default:
-        return '#d3d3d3'; 
-    }
-  }
-  
-
   const newTimeblock = (slotInfo) => {
     const title = ''; 
     const newId = Math.max(0, ...timeblock.map(event => event.id)) + 1; // Adjusted to handle when timeblock is empty
@@ -192,9 +178,20 @@ function CreateEventPage() {
     };
     setTimeblock([...timeblock, newEvent]);
   };
-  
-  
-  return (
+
+  function preferenceColor(preference) {
+    switch (preference) {
+      case 'High':
+        return "#008000"; 
+      case 'Medium':
+        return "#4EF312"; 
+      case 'Low':
+        return "#B2FF59";
+      default:
+        return '#d3d3d3'; 
+    }
+  }
+return (
     <div className="bg-custom-gradient m-2">
       <div className="flex flex-col md:flex-row gap-4 m-9">
         {/* Left Side  */}
@@ -371,7 +368,7 @@ function CreateEventPage() {
             onEventDrop={moveTimeblock}
             resizable
             onEventResize={resizeTimeblock}
-            onSelectSlot={newTimeblock} // Updated to use newTimeblock
+            onSelectSlot={newTimeblock} 
             defaultView="week"
             defaultDate={new Date()}
             style={{ height: '800px' }}
