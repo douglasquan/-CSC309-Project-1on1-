@@ -1,0 +1,14 @@
+# Ignore all __pycache__ directories
+__pycache__/
+
+# Ignore all .env files
+.env
+
+# Ignore node_modules directory in a Node.js project
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore all files with a .tmp extension
+*.tmp
