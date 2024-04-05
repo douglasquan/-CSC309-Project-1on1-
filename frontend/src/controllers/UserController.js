@@ -10,13 +10,13 @@ const getAuthHeaders = (authTokens) => ({
     },
 });
 
-// Get user details by contact ID
-export const getUserDetails = async (contactId, authTokens) => {
+// Get user details by user ID
+export const getUserDetails = async (userId, authTokens) => {
     try {
-        const response = await axios.get(`${BASE_URL}/accounts/profile/${contactId}`, getAuthHeaders(authTokens));
+        const response = await axios.get(`${BASE_URL}/accounts/profile/${userId}`, getAuthHeaders(authTokens));
         return response.data; // Return user details
     } catch (error) {
-        console.error(`Failed to fetch details for contact ID ${contactId}:`, error);
-        throw error; // Rethrowing the error to handle it in the component
+        console.error(`Failed to fetch details for contact ID ${userId}:`, error);
+        throw error; 
     }
 };

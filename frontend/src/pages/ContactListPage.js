@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import AuthContext from "../context/AuthContext";
+import {
+  addContact,
+  getContacts,
+  deleteContact,
+} from "../controllers/ContactsController"; 
+import { getUserDetails } from "../controllers/UserController";
 
 // Simple modal component for adding a new contact
 function AddContactModal({ show, onClose }) {
@@ -15,27 +20,14 @@ function AddContactModal({ show, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost:8000/contacts/add/",
-        { email },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + String(authTokens.access),
-          },
-        }
-      );
+      const response = await addContact(email, authTokens);
       console.log(response.data);
       setEmail("");
       onClose(); // close the model when successful add
     } catch (error) {
-      if (error.response && error.response.data) {
-        setErrorMessage(
-          error.response.data.error || "An unexpected error occurred."
-        );
-      } else {
-        setErrorMessage("The request could not be processed.");
-      }
+      const errorMessage =
+        error.response?.data?.error || "An unexpected error occurred.";
+      setErrorMessage(errorMessage);
     }
   };
 
@@ -102,78 +94,40 @@ function ContactListPage() {
 
   // Get contact list when the page is loaded
   useEffect(() => {
-    const fetchContacts = async () => {
-      const response = await fetch("http://localhost:8000/contacts/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + String(authTokens.access),
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // After fetching contacts, fetch each contact's details
-        const detailedContacts = await Promise.all(
-          data.map(async (contact) => {
-            const detailResponse = await fetch(
-              `http://127.0.0.1:8000/accounts/profile/${contact.contact}`,
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + String(authTokens.access),
-                },
-              }
-            );
-
-            if (detailResponse.ok) {
-              const detailData = await detailResponse.json();
-              console.log(detailData);
-              return { ...contact, userDetails: detailData };
-            } else {
-              console.error("Failed to fetch contact details");
-              return contact;
+    const getContactsAndDetails = async () => {
+      try {
+        const contactsData = await getContacts(authTokens); // Get the contact list
+        const detailedContacts = await Promise.all(  // Get the user info for each contact in the list
+          contactsData.map(async (contact) => {
+            try {
+              const userDetails = await getUserDetails(
+                contact.contact,
+                authTokens
+              );
+              return { ...contact, userDetails };
+            } catch (error) {
+              return contact; 
             }
           })
         );
-        console.log(detailedContacts);
         setContacts(detailedContacts);
-      } else {
-        console.error("Failed to fetch contacts");
+      } catch (error) {
+        console.error("Failed to fetch contacts or contact details:", error);
       }
     };
 
-    fetchContacts();
-  }, []);
-  
+    getContactsAndDetails();
+  }, [authTokens]);
+
   // Delete Contact
-  const deleteContact = async (id) => {
-    // Assuming the backend expects a DELETE request to a URL with the contact's ID.
-    const deleteUrl = `http://localhost:8000/contacts/${id}/delete`;
-
+  const handleDeleteContact = async (id) => {
     try {
-      const response = await fetch(deleteUrl, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + String(authTokens.access),
-        },
-      });
-
-      if (response.ok) {
-        // If the delete request was successful, remove the contact from the state.
-        setContacts(
-          contacts.filter((contact) => contact.id !== id)
-        );
-        console.log("Contact deleted successfully");
-      } else {
-        console.error("Failed to delete contact");
-      }
+      await deleteContact(id, authTokens);
+      setContacts(contacts.filter((contact) => contact.id !== id));
+      console.log("Contact deleted successfully");
     } catch (error) {
       console.error("Error deleting contact", error);
     }
-
   };
 
   return (
@@ -207,6 +161,7 @@ function ContactListPage() {
             <thead>
               <tr className="bg-neutral-300	text-left text-xs font-semibold uppercase tracking-widest text-grey">
                 <th className="px-5 py-3">Name</th>
+                <th className="px-5 py-3">Username</th>
                 <th className="px-5 py-3">Email</th>
                 <th className="px-5 py-3">Added at</th>
                 <th className="px-5 py-3"></th>
@@ -218,6 +173,11 @@ function ContactListPage() {
                   <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
                     <p className="whitespace-no-wrap">
                       {`${contact.userDetails.first_name} ${contact.userDetails.last_name}`}
+                    </p>{" "}
+                  </td>
+                  <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+                    <p className="whitespace-no-wrap">
+                      {`${contact.userDetails.username}`}
                     </p>{" "}
                   </td>
                   <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
@@ -244,7 +204,7 @@ function ContactListPage() {
                       src="https://icons.getbootstrap.com/assets/icons/trash.svg"
                       className="h-4 w-4 cursor-pointer delete-icon"
                       alt="Delete"
-                      onClick={() => deleteContact(contact.id)}
+                      onClick={() => handleDeleteContact(contact.id)}
                     />
                   </td>
                 </tr>

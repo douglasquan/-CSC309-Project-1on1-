@@ -12,12 +12,13 @@ class Event(models.Model):
         ('video', 'Video'),
     )
     EVENT_DURATION = (
-        (15, '15 minutes'),
         (30, '30 minutes'),
-        (45, '45 minutes'),
         (60, '60 minutes'),
         (90, '90 minutes'),
         (120, '120 minutes'),
+        (150, '150 minutes'),
+        (180, '180 minutes'),
+
     )
     EVENT_STATUS = (
         ('D', 'Deleted/Canceled'),
@@ -38,14 +39,17 @@ class Event(models.Model):
         related_name='invited_events',  
         null=True
     )
-    finalized_timeblock_id = models.ForeignKey(EventTimeblock, on_delete=models.SET_NULL, null=True, blank=True, related_name='finalized_timeblock')
     
     event_title = models.CharField(max_length=255, null=False)  
     event_duration = models.IntegerField(choices=EVENT_DURATION, null=False)  
     event_type = models.CharField(max_length=50, choices=EVENT_TYPES)
-    description = models.TextField()
-    deadline = models.DateField(null=True)  # Assuming you require only the date; use DateTimeField if time is also needed
+    description = models.TextField(null=True)
+    deadline = models.DateField(null=True)  
 
+    finalized_start_time = models.TimeField(null=True)        
+    finalized_end_time = models.TimeField(null=True)
+    finalized_date = models.DateField(null=True)
+    
     is_active = models.BooleanField(default=True)
     status = models.CharField(max_length=1, choices=EVENT_STATUS, default='A')  
     created_at = models.DateTimeField(auto_now_add=True)
