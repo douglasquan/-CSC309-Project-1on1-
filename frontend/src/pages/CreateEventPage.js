@@ -7,6 +7,7 @@ import AuthContext from "../context/AuthContext";
 import { getContacts } from "../controllers/ContactsController";
 import { getUserDetails } from "../controllers/UserController";
 import { addEvent } from "../controllers/EventsController";
+import { createAvailability } from '../controllers/AvailabilityController';
 
 
 const localizer = momentLocalizer(moment);
@@ -23,7 +24,7 @@ function CreateEventPage() {
   const [contacts, setContacts] = useState([]);
   const [selectedInvitee, setSelectedInvitee] = useState("");
   const [selectedContactUserId, setSelectedContactUserId] = useState("");
-  const { authTokens } = useContext(AuthContext); // Assuming you're using AuthContext for tokens
+  const { authTokens, user } = useContext(AuthContext); // Assuming you're using AuthContext for tokens
   const [errorMessages, setErrorMessages] = useState([]);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ function CreateEventPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessages([]); // Resetting error messages at the beginning of submission
 
@@ -109,26 +110,32 @@ function CreateEventPage() {
       description: description,
       deadline: deadline.date,
     };
-    console.log(eventData);
-    console.log(timeblocks)
-    addEvent(eventData, authTokens)
-      .then((data) => {
-        console.log("Event added successfully:", data);
-        // Handle post-submission logic, such as redirecting or clearing the form
-      })
-      .catch((error) => {
-        console.error("Error adding event:", error);
-        // Parsing error message object and setting error messages
-        const messages = Object.keys(error).reduce((acc, key) => {
-          const messageArray = error[key];
-          const messageText = messageArray.join(" ");
-          acc.push(`${key}: ${messageText}`);
-          return acc;
-        }, []);
+    
+    console.log("eventData: ", eventData);
+    console.log("Timeblocks: ", timeblocks);
 
-        setErrorMessages(messages);
-      });
-  };
+    try {
+        // create the event
+        const eventResponse = await addEvent(eventData, authTokens);
+        console.log("Event added successfully:", eventResponse);
+        
+        // Create an availability for each timeblock
+        await Promise.all(timeblocks.map(timeblock => 
+            createAvailability(authTokens, {
+              user_id: user.user_id,
+              event_id: eventResponse.id,
+              start_time: moment(timeblock.start).toISOString(),
+              end_time: moment(timeblock.end).toISOString(),
+              preference_type: timeblock.preference.toLowerCase(),
+            })
+        ));
+
+        console.log("All availabilities created successfully");
+    } catch (error) {
+        console.error("Error in the process:", error);
+        setErrorMessages(prevMessages => [...prevMessages, error.toString()]);
+    }
+};
 
   // Calendar Timeblock:
 
@@ -234,7 +241,9 @@ function CreateEventPage() {
   };
 
   const newTimeblock = (slotInfo) => {
+    const newId = Math.max(0, ...timeblocks.map((event) => event.id)) + 1; // Adjusted to handle when timeblock is empty
     const newTimeblock = {
+      id: newId,
       start: slotInfo.start,
       end: slotInfo.end,
       preference: preference,

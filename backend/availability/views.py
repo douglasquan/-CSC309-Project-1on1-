@@ -9,13 +9,17 @@ from .models import Availability
 from .serializers import AvailabilitySerializer
 
 class CreateAvailabilityView(APIView):
-    def post(self, request, event_id):
+    def post(self, request):
+        event_id = request.data.get('event_id')
+        if not event_id:
+            return Response({'error': 'Event ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
         event = get_object_or_404(Event, pk=event_id)
         serializer = AvailabilitySerializer(data=request.data)
 
         if serializer.is_valid():
             # Set the event before saving
-            availability = serializer.save(event=event)
+            availability = serializer.save(event_id=event)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

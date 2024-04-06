@@ -8,18 +8,15 @@ class Availability(models.Model):
         ('medium', 'Medium'),
         ('high', 'High'),
     ]
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_availability', null=False)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='available_timeblock', null=False)
-    start_time = models.TimeField(null=True)
-    end_time = models.TimeField(null=True)
+    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_availability', null=False)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='available_timeblock', null=False)
+    start_time = models.DateTimeField(null=True) 
+    end_time = models.DateTimeField(null=True) 
     preference_type = models.CharField(max_length=6, choices=PREFERENCE_CHOICES, null=True)
     is_finalized = models.BooleanField(default=False)
     
     
     def __str__(self):
-        return f"Availability for user {self.user} for event {self.event} from {self.start_range} to {self.end_range}"
+        # Corrected to use start_time and end_time
+        return f"Availability for user {self.user_id} for event {self.event_id} from {self.start_time} to {self.end_time}"
     
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'event'], name='unique_availability')
-        ]

@@ -11,9 +11,10 @@ const getAuthHeaders = (authTokens) => ({
 });
 
 // Create an availability
-async function createAvailability(authTokens, event_id, availabilityData) {
+async function createAvailability(authTokens, availabilityData) {
     try {
-        const response = await axios.post(`${BASE_URL}/${event_id}/availability/`, availabilityData, getAuthHeaders(authTokens));
+        console.log(availabilityData)
+        const response = await axios.post(`${BASE_URL}/availability/add/`, availabilityData, getAuthHeaders(authTokens));
         console.log('Availability created:', response.data);
         return response.data;
     } catch (error) {
@@ -25,7 +26,7 @@ async function createAvailability(authTokens, event_id, availabilityData) {
 // Get all availabilities for a specific event and user
 async function getAllAvailabilities(authTokens, event_id, user_id) {
     try {
-        const response = await axios.get(`${BASE_URL}/${event_id}/availability/${user_id}/`, getAuthHeaders(authTokens));
+        const response = await axios.get(`${BASE_URL}/availability/${event_id}/${user_id}/all`, getAuthHeaders(authTokens));
         console.log('Availabilities:', response.data);
         return response.data;
     } catch (error) {
@@ -37,7 +38,7 @@ async function getAllAvailabilities(authTokens, event_id, user_id) {
 // Delete an availability
 async function deleteAvailability(authTokens, event_id, availability_id) {
     try {
-        await axios.delete(`${BASE_URL}/${event_id}/availability/${availability_id}/`, getAuthHeaders(authTokens));
+        await axios.delete(`${BASE_URL}/availability/${event_id}/${availability_id}/delete/`, getAuthHeaders(authTokens));
         console.log('Availability deleted');
     } catch (error) {
         console.error('Error deleting availability:', error.response?.data || error.message);
