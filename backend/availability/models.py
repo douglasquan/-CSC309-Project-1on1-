@@ -3,18 +3,15 @@ from django.db import models
 from events.models import Event
 
 class Availability(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_availability', null=False)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='available_timeblock', null=False)
-    start_range = models.DateField(verbose_name="Start Date")
-    end_range = models.DateField(verbose_name="End Date")
-    start_time = models.TimeField(null=True)
-    end_time = models.TimeField(null=True)
-    date = models.DateField(null=True)
     PREFERENCE_CHOICES = [
         ('low', 'Low'),
         ('medium', 'Medium'),
         ('high', 'High'),
     ]
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_availability', null=False)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='available_timeblock', null=False)
+    start_time = models.TimeField(null=True)
+    end_time = models.TimeField(null=True)
     preference_type = models.CharField(max_length=6, choices=PREFERENCE_CHOICES, null=True)
     is_finalized = models.BooleanField(default=False)
     

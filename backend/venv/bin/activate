@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/ian/Downloads/refresh-token-interval-master/backend/venv"
+VIRTUAL_ENV="/home/ian/-CSC309-Project-1on1-/backend/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -29,7 +29,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/ian/Downloads/refresh-token-interval-master/backend/venv"
+set -gx VIRTUAL_ENV "/home/ian/-CSC309-Project-1on1-/backend/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

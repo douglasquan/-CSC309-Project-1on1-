@@ -8,14 +8,12 @@ import { getContacts } from "../controllers/ContactsController";
 import { getUserDetails } from "../controllers/UserController";
 import { addEvent } from "../controllers/EventsController";
 
-// Assume events is an array of your event objects
-import events from "./events";
 
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(BigCalendar);
 
 function CreateEventPage() {
-  const [timeblock, setTimeblock] = useState(events);
+  const [timeblocks, setTimeblocks] = useState([]);
   const [eventTitle, setEventTitle] = useState("");
   const [eventDuration, setEventDuration] = useState("");
   const [eventType, setEventType] = useState("");
@@ -112,7 +110,7 @@ function CreateEventPage() {
       deadline: deadline.date,
     };
     console.log(eventData);
-    console.log(timeblock)
+    console.log(timeblocks)
     addEvent(eventData, authTokens)
       .then((data) => {
         console.log("Event added successfully:", data);
@@ -140,24 +138,24 @@ function CreateEventPage() {
     end,
     isAllDay: droppedOnAllDaySlot,
   }) => {
-    const idx = timeblock.indexOf(event);
+    const idx = timeblocks.indexOf(event);
     const updatedEvent = { ...event, start, end, allDay: droppedOnAllDaySlot };
-    const nextEvents = [...timeblock];
+    const nextEvents = [...timeblocks];
     nextEvents.splice(idx, 1, updatedEvent);
-    setTimeblock(nextEvents);
+    setTimeblocks(nextEvents);
   };
 
   const resizeTimeblock = ({ event, start, end }) => {
-    const nextEvents = timeblock.map((existingEvent) => {
+    const nextEvents = timeblocks.map((existingEvent) => {
       return existingEvent.id === event.id
         ? { ...existingEvent, start, end }
         : existingEvent;
     });
-    setTimeblock(nextEvents);
+    setTimeblocks(nextEvents);
   };
 
   const deleteTimeblock = (eventId) => {
-    setTimeblock((currentEvents) =>
+    setTimeblocks((currentEvents) =>
       currentEvents.filter((event) => event.id !== eventId)
     );
   };
@@ -236,17 +234,13 @@ function CreateEventPage() {
   };
 
   const newTimeblock = (slotInfo) => {
-    const title = "";
-    const newId = Math.max(0, ...timeblock.map((event) => event.id)) + 1; // Adjusted to handle when timeblock is empty
-    const newEvent = {
-      id: newId,
-      title,
+    const newTimeblock = {
       start: slotInfo.start,
       end: slotInfo.end,
-      allDay: slotInfo.slots.length === 1,
       preference: preference,
     };
-    setTimeblock([...timeblock, newEvent]);
+    console.log(newTimeblock)
+    setTimeblocks([...timeblocks, newTimeblock]);
   };
 
   function preferenceColor(preference) {
@@ -486,7 +480,7 @@ function CreateEventPage() {
           <DnDCalendar
             selectable
             localizer={localizer}
-            events={timeblock}
+            events={timeblocks}
             onEventDrop={moveTimeblock}
             resizable
             onEventResize={resizeTimeblock}
