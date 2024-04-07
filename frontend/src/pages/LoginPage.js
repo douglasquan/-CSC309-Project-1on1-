@@ -1,43 +1,71 @@
 import React, {useContext} from 'react'
 import AuthContext from '../context/AuthContext'
 import logo from '../img/logo1.png'; 
+import dummy from '../img/dummy.png';
 
 const LoginPage = () => {
   let {loginUser} = useContext(AuthContext)
 
   return (
-    <div className="bg-custom-gradient flex items-center justify-center h-screen">
-      <div className="form-container max-h-screen overflow-y-auto flex flex-col items-center p-8">
-        <img src={logo} alt="MeetHomie Logo" className="mb-4" />
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-          <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-          <form onSubmit={loginUser}>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username" >Username</label>
-              <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" name="username" type="text" placeholder="Username"/>
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password" >Password</label>
-              <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" name="password" type="password" placeholder="******************" />
-            </div>
-            <div className="flex items-center justify-between">
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                Sign In
+    <div className="bg-gradient-to-tr from-blue-600 via-purple-500 to-purple-700 h-screen flex items-center justify-center">
+      <div className="bg-white p-10 rounded-lg shadow-md max-w-6xl w-full">
+        {/* Logo container */}
+        <div className="flex justify-center">
+          <img src={logo} alt="Logo" className="mb-0" />
+        </div>
+
+        <div className="flex flex-col lg:flex-row items-center bg-white p-4 max-w-6xl w-full">
+          {/* Dummy image container */}
+          <div className="lg:flex lg:w-1/2 lg:justify-center lg:items-center pr-10">
+            <img src={dummy} alt="User Icon" className="w-70 h-70 object-cover object-center" />
+          </div>
+          
+          {/* Form container */}
+          <div className="w-full lg:w-1/2 pr-10">
+            <h1 className="font-bold text-center text-2xl mb-6">User Login</h1>
+            <form onSubmit={loginUser} className="space-y-6">
+              <div>
+                <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  required
+                  placeholder="Username"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="******************"
+                />
+              </div>
+      
+              <button
+                type="submit"
+                className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:ring-green-500 focus:ring-opacity-50"
+              >
+                Login
               </button>
-              <a className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="forgot-password.html">
-                Forgot Password?
-              </a>
+            </form>
+            
+            {/* Link container */}
+            <div className="flex justify-between text-sm font-medium text-gray-500 mt-6">
+              <a href="forgot-password.html" className="hover:text-gray-900">Forgot Password?</a>
+              <a href="register" className="hover:text-gray-900">Create your Account →</a>
             </div>
-            <div className="mt-4">
-              <a href="register" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full text-center block">
-                Create Account
-              </a>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default LoginPage;
