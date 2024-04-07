@@ -145,29 +145,55 @@ function CreateEventPage() {
     end,
     isAllDay: droppedOnAllDaySlot,
   }) => {
+    const currentTime = new Date();
+    const newStartTime = new Date(start);
+    const newEndTime = new Date(end);
+  
+    // Prevent moving timeblock to the past
+    if (newStartTime < currentTime) {
+      alert("You cannot move a timeblock to a time in the past.");
+      return; // Exit the function
+    }
+  
+    // Check for overlapping with other timeblocks, excluding the current timeblock being moved
+    const isOverlapping = timeblocks.some((timeblock) => {
+      return (
+        timeblock.id !== event.id &&
+        newStartTime < new Date(timeblock.end) &&
+        newEndTime > new Date(timeblock.start)
+      );
+    });
+  
+    if (isOverlapping) {
+      // alert("Timeblocks cannot overlap.");
+      return; // Exit the function
+    }
+  
     const idx = timeblocks.indexOf(event);
-    const updatedEvent = { ...event, start, end, allDay: droppedOnAllDaySlot };
-    const nextEvents = [...timeblocks];
-    nextEvents.splice(idx, 1, updatedEvent);
-    setTimeblocks(nextEvents);
+    const updatedEvent = { ...event, start, end, allDay: false };
+    const nextTimeblocks = [...timeblocks];
+    nextTimeblocks.splice(idx, 1, updatedEvent);
+    setTimeblocks(nextTimeblocks);
   };
+  
+  
 
-  const resizeTimeblock = ({ event, start, end }) => {
+  const resizeTimeblock = ({ event: timeblock, start, end }) => {
     const nextEvents = timeblocks.map((existingEvent) => {
-      return existingEvent.id === event.id
+      return existingEvent.id === timeblock.id
         ? { ...existingEvent, start, end }
         : existingEvent;
     });
     setTimeblocks(nextEvents);
   };
 
-  const deleteTimeblock = (eventId) => {
+  const deleteTimeblock = (timeblockId) => {
     setTimeblocks((currentEvents) =>
-      currentEvents.filter((event) => event.id !== eventId)
+      currentEvents.filter((timeblock) => timeblock.id !== timeblockId)
     );
   };
 
-  const CustomTimeblock = ({ event }) => {
+  const CustomTimeblock = ({ event: timeblock }) => {
     const formatTime = (date) => {
       const options = { hour: "numeric", minute: "numeric", hour12: true };
       return new Intl.DateTimeFormat("en-US", options).format(new Date(date));
@@ -176,7 +202,7 @@ function CreateEventPage() {
     return (
       <div
         style={{
-          backgroundColor: preferenceColor(event.preference),
+          backgroundColor: preferenceColor(timeblock.preference),
           padding: "4px",
           borderRadius: "5px",
           display: "flex",
@@ -187,12 +213,12 @@ function CreateEventPage() {
       >
         {/* Displaying the start to end time */}
         <span style={{ color: "black", fontSize: "smaller" }}>
-          {formatTime(event.start)} - {formatTime(event.end)}
+          {formatTime(timeblock.start)} - {formatTime(timeblock.end)}
         </span>
 
         {/* Delete button */}
         <button
-          onClick={() => deleteTimeblock(event.id)}
+          onClick={() => deleteTimeblock(timeblock.id)}
           style={{
             color: "black",
             cursor: "pointer",
@@ -206,10 +232,10 @@ function CreateEventPage() {
     );
   };
 
-  const timeblockStyleGetter = (event) => {
+  const timeblockStyleGetter = (timeblock) => {
     let backgroundColor = "#C7C9C6"; // Default background color
-    if (event.preference) {
-      switch (event.preference) {
+    if (timeblock.preference) {
+      switch (timeblock.preference) {
         case "High":
           backgroundColor = "#CCE5CC";
           break;
@@ -241,16 +267,46 @@ function CreateEventPage() {
   };
 
   const newTimeblock = (slotInfo) => {
-    const newId = Math.max(0, ...timeblocks.map((event) => event.id)) + 1; // Adjusted to handle when timeblock is empty
+    const currentTime = new Date();
+    const selectedStartTime = new Date(slotInfo.start);
+    const selectedEndTime = new Date(slotInfo.end);
+  
+    // Ensure a preference is selected
+    if (!preference) {
+      alert("Please select a preference before creating a timeblock.");
+      return; // Exit the function
+    }
+    // Check if the selected start time is in the past
+    if (selectedStartTime < currentTime) {
+      alert("You cannot add a timeblock in the past.");
+      return; // Exit the function
+    }
+  
+    // Check for overlapping timeblocks
+    const isOverlapping = timeblocks.some((timeblock) => {
+      return (
+        selectedStartTime < new Date(timeblock.end) &&
+        selectedEndTime > new Date(timeblock.start)
+      );
+    });
+  
+    if (isOverlapping) {
+      alert("Schedule time cannot overlap.");
+      return; // Exit the function
+    }
+  
+    const newId = Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
     const newTimeblock = {
       id: newId,
       start: slotInfo.start,
       end: slotInfo.end,
       preference: preference,
     };
-    console.log(newTimeblock)
+  
     setTimeblocks([...timeblocks, newTimeblock]);
   };
+  
+  
 
   function preferenceColor(preference) {
     switch (preference) {
@@ -298,7 +354,7 @@ function CreateEventPage() {
             <label
               htmlFor="deadline-date"
               className="block text-lg font-medium text-gray-700"
-              style={{ flexBasis: "35%" }} // Adjust the width of the label as needed
+              style={{ flexBasis: "35%" }} 
             >
               Deadline Date:
             </label>
