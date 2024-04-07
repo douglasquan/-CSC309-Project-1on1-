@@ -2,7 +2,7 @@ import React, {useContext} from 'react'
 import { NavLink } from 'react-router-dom';
 import AuthContext from '../context/AuthContext'
 import logo from '../img/logo1.png'; 
-import dummy from '../img/dummy.png';
+import dummy from '../img/question_mark.png';
 
 const ForgotPasswordPage = () => {
     let {forgotPassword} = useContext(AuthContext)
@@ -48,7 +48,6 @@ const ForgotPasswordPage = () => {
                         {/* Link container */}
                         <div className="flex justify-between text-sm font-medium text-gray-500 mt-6">
                             <NavLink to="/login" className="hover:text-black">← Back to Login</NavLink>
-                            <NavLink to="/register" className="hover:text-black">Register</NavLink>
                         </div>
                     </div>
                 </div>

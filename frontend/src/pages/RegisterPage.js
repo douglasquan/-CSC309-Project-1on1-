@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from 'react-router-dom';
 import logo from "../img/logo1.png"; // Correct the path to your logo image
-import dummy from '../img/dummy.png';
+import dummy from '../img/register.png';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -72,7 +72,7 @@ const RegisterPage = () => {
         <div className="flex flex-col lg:flex-row items-center bg-white p-4 max-w-6xl w-full">
           {/* Dummy image container */}
           <div className="lg:flex lg:w-1/2 lg:justify-center lg:items-center pr-10">
-            <img src={dummy} alt="User Icon" className="w-70 h-70 object-cover object-center" />
+            <img src={dummy} alt="User Icon" className="w-100 h-100 object-cover object-center" />
           </div>
           
           {/* Form container */}
