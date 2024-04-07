@@ -10,6 +10,7 @@ import RegisterPage from './pages/RegisterPage'
 import LayoutWithNavbar from "./components/Navbar";
 import CreateEventPage from "./pages/CreateEventPage";
 import ContactListPage from "./pages/ContactListPage"
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Switch>
             <Route path="/login" component={LoginPage} />
             <Route path="/register" component={RegisterPage} />
+            <Route path="/forgot-password" component={ForgotPasswordPage} />
             <LayoutWithNavbar>
               <PrivateRoute component={HomePage} path="/" exact />
               <PrivateRoute component={CreateEventPage} path="/create-event" exact />

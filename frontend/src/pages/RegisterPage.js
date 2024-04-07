@@ -172,7 +172,7 @@ const RegisterPage = () => {
             </form>
             {/* Link container */}
             <div className="flex justify-between text-sm font-medium text-gray-500 mt-6">
-              <NavLink to="/login" className="hover:text-gray-900">Back to Login →</NavLink>
+              <NavLink to="/login" className="hover:text-gray-900">← Back to Login</NavLink>
             </div>
           </div>
         </div>
