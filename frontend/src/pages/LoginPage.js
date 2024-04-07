@@ -1,4 +1,5 @@
 import React, {useContext} from 'react'
+import { NavLink } from 'react-router-dom';
 import AuthContext from '../context/AuthContext'
 import logo from '../img/logo1.png'; 
 import dummy from '../img/dummy.png';
@@ -58,7 +59,7 @@ const LoginPage = () => {
             {/* Link container */}
             <div className="flex justify-between text-sm font-medium text-gray-500 mt-6">
               <a href="forgot-password.html" className="hover:text-gray-900">Forgot Password?</a>
-              <a href="register" className="hover:text-gray-900">Create your Account →</a>
+              <NavLink to="/register" className="hover:text-gray-900">Create your Account →</NavLink>
             </div>
           </div>
         </div>
