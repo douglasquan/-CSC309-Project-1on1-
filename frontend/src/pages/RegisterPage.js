@@ -64,7 +64,7 @@ const RegisterPage = () => {
       <div className="p-4 flex justify-end">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => (window.location.href = "login")} // Consider using React Router for navigation in a real app
+          onClick={() => (window.location.href = "login")} 
         >
           Login
         </button>
