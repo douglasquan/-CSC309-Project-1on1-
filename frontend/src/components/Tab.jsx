@@ -10,6 +10,7 @@ import Button from "@mui/material/Button";
 import AuthContext from "../context/AuthContext";
 import { fetchEventsByHost, fetchEventsByInvitee } from "../controllers/EventsController";
 import { getUserDetails } from "../controllers/UserController";
+import RequestAvailabilityDialog from './RequestAvailabilityDialog';
 
 // Dummy data arrays for each tab
 const finalizedMeetings = [
@@ -29,12 +30,25 @@ function MeetingItem({
   onView,
 }) {
   const [inviteeUsername, setInviteeUsername] = useState("Loading...");
+  const [openRequestDialog, setOpenRequestDialog] = React.useState(false);
+  const [inviteeEmail, setInviteeEmail] = useState("");
+
+  // Handler to open the dialog
+  const handleOpenRequestDialog = () => {
+    setOpenRequestDialog(true);
+  };
+
+  // Handler to close the dialog
+  const handleCloseRequestDialog = () => {
+    setOpenRequestDialog(false);
+  };
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
         const userDetails = await getUserDetails(inviteeId, authTokens);
         setInviteeUsername(userDetails.username);
+        setInviteeEmail(userDetails.email);
       } catch (error) {
         setInviteeUsername("Unknown user");
         console.error(error);
@@ -64,7 +78,7 @@ function MeetingItem({
           </Button>
         )}
         {onRequest && (
-          <Button variant='outlined' color='primary' onClick={onRequest}>
+          <Button variant='outlined' color='primary' onClick={handleOpenRequestDialog}>
             Request Availability
           </Button>
         )}
@@ -86,6 +100,13 @@ function MeetingItem({
         <IconButton aria-label='delete' onClick={onDelete}>
           <DeleteIcon />
         </IconButton>
+
+        <RequestAvailabilityDialog
+          open={openRequestDialog}
+          onClose={handleCloseRequestDialog}
+          inviteeUsername={inviteeUsername}
+          inviteeEmail={inviteeEmail} 
+        />
       </Box>
     </Box>
   );
