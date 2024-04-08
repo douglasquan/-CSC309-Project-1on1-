@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -8,7 +9,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 
 import AuthContext from "../context/AuthContext";
-import { fetchEventsByHost, fetchEventsByInvitee } from "../controllers/EventsController";
+import {
+  fetchEventsByHost,
+  fetchEventsByInvitee,
+  deleteEvent,
+} from "../controllers/EventsController";
 import { getUserDetails } from "../controllers/UserController";
 import RequestAvailabilityDialog from './RequestAvailabilityDialog';
 
@@ -19,6 +24,7 @@ const finalizedMeetings = [
 ];
 
 function MeetingItem({
+  eventId,
   eventName,
   inviteeId,
   authTokens,
@@ -33,15 +39,15 @@ function MeetingItem({
   const [openRequestDialog, setOpenRequestDialog] = React.useState(false);
   const [inviteeEmail, setInviteeEmail] = useState("");
 
-  // Handler to open the dialog
   const handleOpenRequestDialog = () => {
     setOpenRequestDialog(true);
   };
 
-  // Handler to close the dialog
   const handleCloseRequestDialog = () => {
     setOpenRequestDialog(false);
   };
+  
+  let history = useHistory();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -57,6 +63,15 @@ function MeetingItem({
 
     fetchUserDetails();
   }, [inviteeId, authTokens]);
+
+  const handleAccept = () => {
+    if (onAccept) {
+      onAccept();
+    }
+
+    history.push(`/submit-availability/event/${eventId}/user/${inviteeId}`);
+  };
+
   return (
     <Box
       sx={{
@@ -83,7 +98,7 @@ function MeetingItem({
           </Button>
         )}
         {onAccept && (
-          <Button variant='outlined' color='primary' onClick={onAccept}>
+          <Button variant='outlined' color='primary' onClick={handleAccept}>
             Accept Invitation
           </Button>
         )}
@@ -202,6 +217,7 @@ export default function BasicTabs() {
         {hostedMeetings.map((meeting) => (
           <MeetingItem
             key={meeting.id}
+            eventId={meeting.id}
             eventName={meeting.event_title}
             inviteeId={meeting.invitee}
             authTokens={authTokens}
@@ -211,9 +227,7 @@ export default function BasicTabs() {
             onRequest={() => {
               console.log("Request:", meeting.id);
             }}
-            onDelete={() => {
-              console.log("Delete:", meeting.id);
-            }}
+            onDelete={() => deleteEvent(meeting.id, authTokens)}
           />
         ))}
       </TabPanel>
@@ -222,15 +236,12 @@ export default function BasicTabs() {
         {invitedMeetings.map((meeting) => (
           <MeetingItem
             key={meeting.id}
+            eventId={meeting.id}
             eventName={meeting.event_title}
             inviteeId={meeting.host}
             authTokens={authTokens}
-            onAccept={() => {
-              console.log("Accept:", meeting.id);
-            }}
-            onDelete={() => {
-              console.log("Delete:", meeting.id);
-            }}
+            onAccept={() => {}}
+            onDelete={() => deleteEvent(meeting.id, authTokens)}
           />
         ))}
       </TabPanel>
@@ -241,9 +252,7 @@ export default function BasicTabs() {
             key={meeting.id}
             meetingName={meeting.name}
             participantName={meeting.participant}
-            onDelete={() => {
-              console.log("Delete:", meeting.id);
-            }}
+            onDelete={() => deleteEvent(meeting.id, authTokens)}
           />
         ))}
       </TabPanel>
