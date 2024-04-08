@@ -15,13 +15,8 @@ import {
   deleteEvent,
 } from "../controllers/EventsController";
 import { getUserDetails } from "../controllers/UserController";
-import RequestAvailabilityDialog from './RequestAvailabilityDialog';
+import RequestAvailabilityDialog from "./RequestAvailabilityDialog";
 
-// Dummy data arrays for each tab
-const finalizedMeetings = [
-  { id: 1, name: "Sprint Planning", participant: "Eve", status: "Finalized" },
-  { id: 2, name: "Retrospective", participant: "Frank", status: "Finalized" },
-];
 
 function MeetingItem({
   eventId,
@@ -46,7 +41,7 @@ function MeetingItem({
   const handleCloseRequestDialog = () => {
     setOpenRequestDialog(false);
   };
-  
+
   let history = useHistory();
 
   useEffect(() => {
@@ -88,31 +83,35 @@ function MeetingItem({
       <span>{`${eventName} - ${inviteeUsername}`}</span>
       <Box>
         {onEdit && (
-          <Button variant='outlined' color='primary' onClick={onEdit}>
+          <Button variant="outlined" color="primary" onClick={onEdit}>
             Edit Meeting
           </Button>
         )}
         {onRequest && (
-          <Button variant='outlined' color='primary' onClick={handleOpenRequestDialog}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleOpenRequestDialog}
+          >
             Request Availability
           </Button>
         )}
         {onAccept && (
-          <Button variant='outlined' color='primary' onClick={handleAccept}>
+          <Button variant="outlined" color="primary" onClick={handleAccept}>
             Accept Invitation
           </Button>
         )}
         {onView && (
-          <Button variant='outlined' color='primary' onClick={onView}>
+          <Button variant="outlined" color="primary" onClick={onView}>
             View Meeting
           </Button>
         )}
         {onFinalize && (
-          <Button variant='outlined' color='success' onClick={onFinalize}>
+          <Button variant="outlined" color="success" onClick={onFinalize}>
             Finalize Meeting
           </Button>
         )}
-        <IconButton aria-label='delete' onClick={onDelete}>
+        <IconButton aria-label="delete" onClick={onDelete}>
           <DeleteIcon />
         </IconButton>
 
@@ -120,7 +119,7 @@ function MeetingItem({
           open={openRequestDialog}
           onClose={handleCloseRequestDialog}
           inviteeUsername={inviteeUsername}
-          inviteeEmail={inviteeEmail} 
+          inviteeEmail={inviteeEmail}
         />
       </Box>
     </Box>
@@ -132,7 +131,7 @@ function TabPanel(props) {
 
   return (
     <div
-      role='tabpanel'
+      role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
@@ -155,16 +154,29 @@ function a11yProps(index) {
 }
 
 export default function BasicTabs() {
-  const [value, setValue] = useState(0);
-  const [hostedMeetings, setHostedMeetings] = useState([]);
-  const [invitedMeetings, setInvitedMeetings] = useState([]);
-  //   const [finalizedMeetings, setFinalizedMeetings] = useState([]);
+  const [tabValue, setTabValue] = useState(0); // For top-level tabs
+  const [subTabValue, setSubTabValue] = useState(0); // For sub-tabs within "My Hosted Meetings"
+  const [invitedTabValue, setInvitedTabValue] = useState(0); // For sub-tabs within "Invited Meetings"
 
+  const [hostedMeetingsPending, setHostedMeetingsPending] = useState([]);
+  const [hostedMeetingsReady, setHostedMeetingsReady] = useState([]);
+  const [hostedMeetingsFinalized, setHostedMeetingsFinalized] = useState([]);
+  const [invitedMeetingsPending, setInvitedMeetingsPending] = useState([]);
+  const [invitedMeetingsReady, setInvitedMeetingsReady] = useState([]);
+  const [invitedMeetingsFinalized, setInvitedMeetingsFinalized] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { authTokens, user } = useContext(AuthContext);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
+  const handleSubTabChange = (event, newValue) => {
+    setSubTabValue(newValue);
+  };
+
+  const handleInvitedTabChange = (event, newValue) => {
+    setInvitedTabValue(newValue);
   };
 
   useEffect(() => {
@@ -172,89 +184,202 @@ export default function BasicTabs() {
       if (user && user.user_id) {
         try {
           setIsLoading(true);
-          const hostedEvents = await fetchEventsByHost(user.user_id, authTokens);
-          console.log("hosted events", hostedEvents);
-          const invitedEvents = await fetchEventsByInvitee(user.user_id, authTokens);
-          console.log("invited events", invitedEvents);
-          setHostedMeetings(hostedEvents); // Assuming the fetched data is an array
-          setInvitedMeetings(invitedEvents); // Assuming the fetched data is an array
+          const hostedEvents = await fetchEventsByHost(
+            user.user_id,
+            authTokens
+          );
+          const invitedEvents = await fetchEventsByInvitee(
+            user.user_id,
+            authTokens
+          );
+
+          // Filter hosted events based on status
+          setHostedMeetingsPending(
+            hostedEvents.filter((event) => event.status === "A")
+          );
+          setHostedMeetingsReady(
+            hostedEvents.filter((event) => event.status === "C")
+          );
+          setHostedMeetingsFinalized(
+            hostedEvents.filter((event) => event.status === "F")
+          );
+
+          setInvitedMeetingsPending(
+            invitedEvents.filter((event) => event.status === "A")
+          );
+          setInvitedMeetingsReady(
+            invitedEvents.filter((event) => event.status === "C")
+          );
+          setInvitedMeetingsFinalized(
+            invitedEvents.filter((event) => event.status === "F")
+          );
+          console.log("invitedMeetingsReady", invitedMeetingsReady)
         } catch (error) {
           console.error("Error fetching events:", error);
         } finally {
           setIsLoading(false);
         }
-      } else {
-        console.error("Auth tokens are not available.");
       }
     };
 
     if (user && user.user_id) {
       fetchEvents();
     }
-  }, [user, value, authTokens]); // Re-run the effect if user or value changes
+  }, [user, authTokens]);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Or some loading indicator
+    return <div>Loading...</div>;
   }
 
   return (
     <Box sx={{ width: "100%" }}>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label='basic tabs example'
-          centered
-          variant='fullWidth'
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="basic tabs example"
+          variant="scrollable"
+          scrollButtons
+          allowScrollButtonsMobile
         >
-          <Tab label='My Hosted Meetings' {...a11yProps(0)} sx={{ bgcolor: "lightblue" }} />
-          <Tab label='Invitation Received' {...a11yProps(1)} sx={{ bgcolor: "lightgreen" }} />
-          <Tab label='Finalized Meetings' {...a11yProps(2)} sx={{ bgcolor: "lightgrey" }} />
+          <Tab label="Hosted Meetings" />
+          <Tab label="Invited Meetings" />
         </Tabs>
       </Box>
+      
+      {/* Hosted Meetings */}
+      <TabPanel value={tabValue} index={0}>
+        <Tabs
+          value={subTabValue}
+          onChange={handleSubTabChange}
+        >
+          <Tab label="Pending" />
+          <Tab label="Ready to Finalize" />
+          <Tab label="Finalized" />
+        </Tabs>
 
-      <TabPanel value={value} index={0}>
-        {hostedMeetings.map((meeting) => (
-          <MeetingItem
-            key={meeting.id}
-            eventId={meeting.id}
-            eventName={meeting.event_title}
-            inviteeId={meeting.invitee}
-            authTokens={authTokens}
-            onEdit={() => {
-              console.log("Edit:", meeting.id);
-            }}
-            onRequest={() => {
-              console.log("Request:", meeting.id);
-            }}
-            onDelete={() => deleteEvent(meeting.id, authTokens)}
-          />
-        ))}
+        {/* List hostedMeetingsPending */}
+        <TabPanel value={subTabValue} index={0}>
+          {hostedMeetingsPending.map((meeting) => (
+            <MeetingItem
+              key={meeting.id}
+              eventId={meeting.id}
+              eventName={meeting.event_title}
+              inviteeId={meeting.invitee}
+              authTokens={authTokens}
+              onEdit={() => {
+                console.log("Edit:", meeting.id);
+              }}
+              onRequest={() => {
+                console.log("Request:", meeting.id);
+              }}
+              onDelete={() => deleteEvent(meeting.id, authTokens)}
+            />
+          ))}
+        </TabPanel>
+
+        {/* List hostedMeetingsReady */}
+        <TabPanel value={subTabValue} index={1}>
+          {hostedMeetingsReady.map((meeting) => (
+            <MeetingItem
+              key={meeting.id}
+              eventId={meeting.id}
+              eventName={meeting.event_title}
+              inviteeId={meeting.invitee}
+              authTokens={authTokens}
+              onEdit={() => {
+                console.log("Edit:", meeting.id);
+              }}
+              onRequest={() => {
+                console.log("Request:", meeting.id);
+              }}
+              onDelete={() => deleteEvent(meeting.id, authTokens)}
+            />
+          ))}
+        </TabPanel>
+
+        {/* List hostedMeetingsFinalized */}
+        <TabPanel value={subTabValue} index={2}>
+          {hostedMeetingsFinalized.map((meeting) => (
+            <MeetingItem
+              key={meeting.id}
+              eventId={meeting.id}
+              eventName={meeting.event_title}
+              inviteeId={meeting.invitee}
+              authTokens={authTokens}
+              onEdit={() => {
+                console.log("Edit:", meeting.id);
+              }}
+              onRequest={() => {
+                console.log("Request:", meeting.id);
+              }}
+              onDelete={() => deleteEvent(meeting.id, authTokens)}
+            />
+          ))}
+        </TabPanel>
       </TabPanel>
+      
+      {/* Invited Meetings */}
+      <TabPanel value={tabValue} index={1}>
+        <Tabs
+          value={invitedTabValue}
+          onChange={handleInvitedTabChange}
+          aria-label="sub tabs for invited meetings"
+        >
+          <Tab label="Pending" />
+          <Tab label="Waiting host to Finalize" />
+          <Tab label="Finalized" />
+        </Tabs>
 
-      <TabPanel value={value} index={1}>
-        {invitedMeetings.map((meeting) => (
-          <MeetingItem
-            key={meeting.id}
-            eventId={meeting.id}
-            eventName={meeting.event_title}
-            inviteeId={meeting.host}
-            authTokens={authTokens}
-            onAccept={() => {}}
-            onDelete={() => deleteEvent(meeting.id, authTokens)}
-          />
-        ))}
-      </TabPanel>
+        {/* List invitedMeetingsPending */}
+        <TabPanel value={invitedTabValue} index={0}>
+          {invitedMeetingsPending.map((meeting) => (
+            <MeetingItem
+              key={meeting.id}
+              eventId={meeting.id}
+              eventName={meeting.event_title}
+              inviteeId={meeting.host}
+              authTokens={authTokens}
+              onAccept={() => {}}
+              onDelete={() => deleteEvent(meeting.id, authTokens)}
+            />
+          ))}
+        </TabPanel>
 
-      <TabPanel value={value} index={2}>
-        {finalizedMeetings.map((meeting) => (
-          <MeetingItem
-            key={meeting.id}
-            meetingName={meeting.name}
-            participantName={meeting.participant}
-            onDelete={() => deleteEvent(meeting.id, authTokens)}
-          />
-        ))}
+        {/* List invitedMeetingsReady */}
+        <TabPanel value={subTabValue} index={1}>
+          {invitedMeetingsReady.map((meeting) => (
+            <MeetingItem
+              key={meeting.id}
+              eventId={meeting.id}
+              eventName={meeting.event_title}
+              inviteeId={meeting.invitee}
+              authTokens={authTokens}
+              onEdit={() => {
+                console.log("Edit:", meeting.id);
+              }}
+              onRequest={() => {
+                console.log("Request:", meeting.id);
+              }}
+              onDelete={() => deleteEvent(meeting.id, authTokens)}
+            />
+          ))}
+        </TabPanel>
+
+        {/* List invitedMeetingsFinalized */}
+        <TabPanel value={invitedTabValue} index={1}>
+          {invitedMeetingsFinalized.map((meeting) => (
+            <MeetingItem
+              key={meeting.id}
+              eventId={meeting.id}
+              eventName={meeting.event_title}
+              inviteeId={meeting.host}
+              authTokens={authTokens}
+              onAccept={() => {}}
+              onDelete={() => deleteEvent(meeting.id, authTokens)}
+            />
+          ))}
+        </TabPanel>
       </TabPanel>
     </Box>
   );
