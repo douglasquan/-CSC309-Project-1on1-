@@ -25,7 +25,7 @@ export const getUserDetails = async (userId, authTokens) => {
 export const updateUserDetails = async (userId, authTokens, userData) => {
     try {
         console.log(userData)
-        const response = await axios.put(`${BASE_URL}/accounts/profile/update/`, userData, getAuthHeaders(authTokens));
+        const response = await axios.patch(`${BASE_URL}/accounts/profile/update/`, userData, getAuthHeaders(authTokens));
         console.log(response.data)
         return response.data; // Returns updated user details
     } catch (error) {

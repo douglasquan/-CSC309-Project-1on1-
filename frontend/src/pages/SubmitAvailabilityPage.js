@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import { addMinutes, format } from "date-fns";
 
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -12,12 +12,11 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
 
-import { addMinutes, format } from "date-fns";
 
-import { fetchEventDetails } from "../controllers/EventsController";
+import AuthContext from "../context/AuthContext";
 import { getAllAvailabilities, createAvailability } from "../controllers/AvailabilityController";
+import { fetchEventDetails, updateEvent } from "../controllers/EventsController";
 
 const EventDetailsPage = () => {
   let { eventId, userId } = useParams();
@@ -73,6 +72,14 @@ const EventDetailsPage = () => {
 
       await Promise.all(promises);
       console.log("All availabilities submitted");
+
+      // Update event status to "C" after successfully submitting all availabilities
+      await updateEvent(eventId, { status: "C" }, authTokens);
+      console.log("Event status updated to 'C'");
+
+      // Update local state to reflect the new status
+      setEventDetails((prevDetails) => ({ ...prevDetails, status: "C" }));
+
       // You might want to clear the selected slots or show a success message after submission
       setSelectedTimeSlots([]);
     } catch (error) {

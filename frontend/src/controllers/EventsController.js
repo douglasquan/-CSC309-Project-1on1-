@@ -53,7 +53,7 @@ export const fetchEventDetails = (eventId, authTokens) => {
   // Function to update a specific event
 export const updateEvent = (eventId, eventData, authTokens) => {
     return new Promise((resolve, reject) => {
-      axios.put(`${BASE_URL}/events/${eventId}/edit/`, eventData, getAuthHeaders(authTokens))
+      axios.patch(`${BASE_URL}/events/${eventId}/edit/`, eventData, getAuthHeaders(authTokens))
         .then(response => resolve(response.data))
         .catch(error => reject(error.response ? error.response.data : "Network error"));
     });
