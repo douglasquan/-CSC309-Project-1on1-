@@ -1,15 +1,16 @@
 import "./styles/index.css";
 import './styles/output.css'; 
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 import PrivateRoute from './utils/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
 
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import LayoutWithNavbar from "./components/Navbar";
+import NavbarMenu from "./components/Navbar";
 import CreateEventPage from "./pages/CreateEventPage";
 import ContactListPage from "./pages/ContactListPage"
+import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/forgot-password" component={ForgotPasswordPage} />
             <LayoutWithNavbar>
               <PrivateRoute component={HomePage} path="/" exact />
+              <PrivateRoute component={ProfilePage} path="/profile" exact/>
               <PrivateRoute component={CreateEventPage} path="/create-event" exact />
               <PrivateRoute component={ContactListPage} path="/contact-list" exact />
             </LayoutWithNavbar>
@@ -32,5 +34,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
