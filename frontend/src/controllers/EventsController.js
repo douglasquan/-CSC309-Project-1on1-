@@ -23,7 +23,7 @@ export const addEvent = (eventData, authTokens) => {
 // Function to get all events hosted by a specific user
 export const fetchEventsByHost = (hostId, authTokens) => {
     return new Promise((resolve, reject) => {
-      axios.get(`${BASE_URL}/all/host/${hostId}/`, getAuthHeaders(authTokens))
+      axios.get(`${BASE_URL}/events/all/host/${hostId}/`, getAuthHeaders(authTokens))
         .then(response => resolve(response.data))
         .catch(error => reject(error.response ? error.response.data : "Network error"));
     });
@@ -33,7 +33,7 @@ export const fetchEventsByHost = (hostId, authTokens) => {
   // Function to get all events where a specific user is the invitee
 export const fetchEventsByInvitee = (inviteeId, authTokens) => {
     return new Promise((resolve, reject) => {
-      axios.get(`${BASE_URL}/all/invitee/${inviteeId}/`, getAuthHeaders(authTokens))
+      axios.get(`${BASE_URL}/events/all/invitee/${inviteeId}/`, getAuthHeaders(authTokens))
         .then(response => resolve(response.data))
         .catch(error => reject(error.response ? error.response.data : "Network error"));
     });
@@ -43,7 +43,7 @@ export const fetchEventsByInvitee = (inviteeId, authTokens) => {
   // Function to get details of a specific event
 export const fetchEventDetails = (eventId, authTokens) => {
     return new Promise((resolve, reject) => {
-      axios.get(`${BASE_URL}/${eventId}/details/`, getAuthHeaders(authTokens))
+      axios.get(`${BASE_URL}/events/${eventId}/details/`, getAuthHeaders(authTokens))
         .then(response => resolve(response.data))
         .catch(error => reject(error.response ? error.response.data : "Network error"));
     });
@@ -53,7 +53,7 @@ export const fetchEventDetails = (eventId, authTokens) => {
   // Function to update a specific event
 export const updateEvent = (eventId, eventData, authTokens) => {
     return new Promise((resolve, reject) => {
-      axios.put(`${BASE_URL}/${eventId}/edit/`, eventData, getAuthHeaders(authTokens))
+      axios.put(`${BASE_URL}/events/${eventId}/edit/`, eventData, getAuthHeaders(authTokens))
         .then(response => resolve(response.data))
         .catch(error => reject(error.response ? error.response.data : "Network error"));
     });
@@ -63,7 +63,7 @@ export const updateEvent = (eventId, eventData, authTokens) => {
   // Function to delete a specific event
 export const deleteEvent = (eventId, authTokens) => {
     return new Promise((resolve, reject) => {
-      axios.delete(`${BASE_URL}/${eventId}/delete/`, getAuthHeaders(authTokens))
+      axios.delete(`${BASE_URL}/events/${eventId}/delete/`, getAuthHeaders(authTokens))
         .then(response => resolve(response.data))
         .catch(error => reject(error.response ? error.response.data : "Network error"));
     });
