@@ -7,8 +7,24 @@ import AuthContext from "../context/AuthContext";
 import { getContacts } from "../controllers/ContactsController";
 import { getUserDetails } from "../controllers/UserController";
 import { addEvent } from "../controllers/EventsController";
-import { createAvailability } from '../controllers/AvailabilityController';
-
+import { createAvailability } from "../controllers/AvailabilityController";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  TextareaAutosize,
+  Select,
+  MenuItem,
+  Grid,
+  Alert,
+  InputLabel,
+} from "@mui/material";
 
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(BigCalendar);
@@ -81,13 +97,12 @@ function CreateEventPage() {
     setDescription(e.target.value);
   };
 
-  const handleInviteeChange = (event) => {
-    const { value } = event.target;
+  const handleInviteeChange = (e) => {
+    const { value } = e.target;
+    console.log(value); // output is the selected contact's id
     // Find the contact by its id from the contact list
-    const selectedContact = contacts.find(
-      (contact) => contact.id.toString() === value
-    );
-
+    const selectedContact = contacts.find((contact) => contact.id === value);
+    console.log(contacts); // output is undefined
     if (selectedContact) {
       // Update both selectedInvitee with the contact list ID
       setSelectedInvitee(value);
@@ -110,32 +125,34 @@ function CreateEventPage() {
       description: description,
       deadline: deadline.date,
     };
-    
+
     console.log("eventData: ", eventData);
     console.log("Timeblocks: ", timeblocks);
 
     try {
-        // create the event
-        const eventResponse = await addEvent(eventData, authTokens);
-        console.log("Event added successfully:", eventResponse);
-        
-        // Create an availability for each timeblock
-        await Promise.all(timeblocks.map(timeblock => 
-            createAvailability(authTokens, {
-              user_id: user.user_id,
-              event_id: eventResponse.id,
-              start_time: moment(timeblock.start).toISOString(),
-              end_time: moment(timeblock.end).toISOString(),
-              preference_type: timeblock.preference.toLowerCase(),
-            })
-        ));
+      // create the event
+      const eventResponse = await addEvent(eventData, authTokens);
+      console.log("Event added successfully:", eventResponse);
 
-        console.log("All availabilities created successfully");
+      // Create an availability for each timeblock
+      await Promise.all(
+        timeblocks.map((timeblock) =>
+          createAvailability(authTokens, {
+            user_id: user.user_id,
+            event_id: eventResponse.id,
+            start_time: moment(timeblock.start).toISOString(),
+            end_time: moment(timeblock.end).toISOString(),
+            preference_type: timeblock.preference.toLowerCase(),
+          })
+        )
+      );
+
+      console.log("All availabilities created successfully");
     } catch (error) {
-        console.error("Error in the process:", error);
-        setErrorMessages(prevMessages => [...prevMessages, error.toString()]);
+      console.error("Error in the process:", error);
+      setErrorMessages((prevMessages) => [...prevMessages, error.toString()]);
     }
-};
+  };
 
   // Calendar Timeblock:
 
@@ -148,13 +165,13 @@ function CreateEventPage() {
     const currentTime = new Date();
     const newStartTime = new Date(start);
     const newEndTime = new Date(end);
-  
+
     // Prevent moving timeblock to the past
     if (newStartTime < currentTime) {
       alert("You cannot move a timeblock to a time in the past.");
       return; // Exit the function
     }
-  
+
     // Check for overlapping with other timeblocks, excluding the current timeblock being moved
     const isOverlapping = timeblocks.some((timeblock) => {
       return (
@@ -163,20 +180,18 @@ function CreateEventPage() {
         newEndTime > new Date(timeblock.start)
       );
     });
-  
+
     if (isOverlapping) {
       // alert("Timeblocks cannot overlap.");
       return; // Exit the function
     }
-  
+
     const idx = timeblocks.indexOf(event);
     const updatedEvent = { ...event, start, end, allDay: false };
     const nextTimeblocks = [...timeblocks];
     nextTimeblocks.splice(idx, 1, updatedEvent);
     setTimeblocks(nextTimeblocks);
   };
-  
-  
 
   const resizeTimeblock = ({ event: timeblock, start, end }) => {
     const nextEvents = timeblocks.map((existingEvent) => {
@@ -270,7 +285,7 @@ function CreateEventPage() {
     const currentTime = new Date();
     const selectedStartTime = new Date(slotInfo.start);
     const selectedEndTime = new Date(slotInfo.end);
-  
+
     // Ensure a preference is selected
     if (!preference) {
       alert("Please select a preference before creating a timeblock.");
@@ -281,7 +296,7 @@ function CreateEventPage() {
       alert("You cannot add a timeblock in the past.");
       return; // Exit the function
     }
-  
+
     // Check for overlapping timeblocks
     const isOverlapping = timeblocks.some((timeblock) => {
       return (
@@ -289,24 +304,23 @@ function CreateEventPage() {
         selectedEndTime > new Date(timeblock.start)
       );
     });
-  
+
     if (isOverlapping) {
       alert("Schedule time cannot overlap.");
       return; // Exit the function
     }
-  
-    const newId = Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
+
+    const newId =
+      Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
     const newTimeblock = {
       id: newId,
       start: slotInfo.start,
       end: slotInfo.end,
       preference: preference,
     };
-  
+
     setTimeblocks([...timeblocks, newTimeblock]);
   };
-  
-  
 
   function preferenceColor(preference) {
     switch (preference) {
@@ -320,249 +334,243 @@ function CreateEventPage() {
         return "#d3d3d3";
     }
   }
+
+  const preferenceColors = {
+    High: "#008000",
+    Medium: "#4EF312",
+    Low: "#B2FF59",
+  };
+
   return (
-    <div className="bg-custom-gradient m-2">
-      <div className="flex flex-col md:flex-row gap-4 m-9">
-        {/* Left Side  */}
-        <div className="bg-white p-6 rounded-lg shadow-md w-full md:w-1/3 lg:w-2/5 mx-auto">
-          {/* Form Section */}
-          <div className="flex-auto my-6 lg:items-center justify-between">
-            <div className="flex items-center justify-between">
-              <h2 className="text-4xl font-bold mb-0 mr-4">Create Event</h2>
-            </div>
-          </div>
+    <div className="">
+      {/* Left Side  */}
+      <Grid container spacing={1} sx={{ p: 3, justifyContent: "center" }}>
+        {/* Form Section */}
+        <Grid item xs={12} md={4} lg={2.7}>
+          {" "}
+          <Box
+            sx={{
+              maxWidth: { xs: "100%", md: "400px" },
+              p: 3,
+              boxShadow: 2,
+              borderRadius: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            <Typography variant="h4" component="h2" sx={{ mb: 2 }}>
+              Create Event
+            </Typography>
 
-          {/* Event Title */}
-          <div className="mb-4 flex items-center gap-4">
-            <label
-              htmlFor="event-title"
-              className="block text-lg flex-shrink-0"
-            >
-              Event Title:
-            </label>
-            <input
-              id="event-title"
-              className="flex-grow bg-white w-full border border-slate-300 rounded-md py-2 pl-3 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 text-sm"
-              placeholder="Quick Event"
-              value={eventTitle}
-              onChange={(e) => setEventTitle(e.target.value)}
-            />
-          </div>
-
-          {/* Set Deadline */}
-          <div className="my-6 flex items-center gap-4">
-            <label
-              htmlFor="deadline-date"
-              className="block text-lg font-medium text-gray-700"
-              style={{ flexBasis: "35%" }} 
-            >
-              Deadline Date:
-            </label>
-            <div className="flex-1">
-              <input
-                type="date"
-                id="deadline-date"
-                className="p-2.5 border border-gray-300 rounded-lg block w-full"
-                value={deadline.date}
-                onChange={handleDateChange}
-                required // Making sure the user knows this field is required
+            {/* Event Title */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <TextField
+                fullWidth
+                id="event-title"
+                label="Event Title"
+                variant="outlined"
+                value={eventTitle}
+                onChange={(e) => setEventTitle(e.target.value)}
               />
-            </div>
-          </div>
+            </Box>
 
-          {/* Selecting Event Duration */}
-          <div className="flex my-6 items-center w-full">
-            <label
-              htmlFor="event-duration"
-              className="block text-lg lg:text-base flex-none lg:flex-1" // Ensures the label has a minimum width
-            >
-              Select Event Duration:
-            </label>
-            <div className="flex-1 relative">
-              <select
-                id="event-duration"
-                className="appearance-none block w-full bg-white border border-gray-300 text-gray-700 py-2 px-3 pr-8 rounded leading-tight focus:outline-none focus:bg-white"
-                value={eventDuration}
-                onChange={handleDurationChange}
+            {/* Set Deadline */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <FormControl fullWidth>
+                <TextField
+                  type="date"
+                  id="deadline-date"
+                  label="Deadline Date"
+                  InputLabelProps={{ shrink: true }}
+                  value={deadline.date}
+                  onChange={handleDateChange}
+                  required
+                />
+              </FormControl>
+            </Box>
+
+            {/* Selecting Event Duration */}
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel id="event-duration-label">
+                  Select Event Duration
+                </InputLabel>
+                <Select
+                  labelId="event-duration-label"
+                  id="event-duration"
+                  value={eventDuration}
+                  label="Select Event Duration"
+                  onChange={handleDurationChange}
+                >
+                  <MenuItem value={30}>30 minutes</MenuItem>
+                  <MenuItem value={60}>60 minutes</MenuItem>
+                  <MenuItem value={120}>120 minutes</MenuItem>
+                  <MenuItem value={150}>150 minutes</MenuItem>
+                  <MenuItem value={180}>180 minutes</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            {/* Selecting Event Type */}
+            <FormControl component="fieldset" sx={{ mb: 2 }}>
+              <FormLabel component="legend">Select an Event Type</FormLabel>
+              <RadioGroup
+                row
+                aria-label="event-type"
+                name="event-type"
+                value={eventType}
+                onChange={handleEventTypeChange}
               >
-                <option value="" disabled>
-                  Select duration
-                </option>
-                <option value="30">30 minutes</option>
-                <option value="60">60 minutes</option>
-                <option value="90">90 minutes</option>
-                <option value="120">120 minutes</option>
-                <option value="150">150 minutes</option>
-                <option value="180">180 minutes</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg
-                  className="fill-current h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+                <FormControlLabel
+                  value="in_person"
+                  control={<Radio />}
+                  label="In Person"
+                />
+                <FormControlLabel
+                  value="video"
+                  control={<Radio />}
+                  label="Video"
+                />
+                <FormControlLabel
+                  value="phone"
+                  control={<Radio />}
+                  label="Phone"
+                />
+              </RadioGroup>
+            </FormControl>
 
-          {/* Select Event Type */}
-          <div className="my-6 flex flex-col lg:flex-row gap-4">
-            <label className="block text-lg lg:text-base flex-none lg:flex-1">
-              Select an Event Type*
-            </label>
-            <div className="flex gap-2">
-              {[
-                { label: "In Person", value: "in_person" },
-                { label: "Phone", value: "phone" },
-                { label: "Video", value: "video" },
-              ].map((type) => (
-                <div key={type.value} className="flex items-center">
-                  <input
-                    id={type.value}
-                    name="event-type"
-                    type="radio"
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
-                    value={type.value}
-                    checked={eventType === type.value}
-                    onChange={handleEventTypeChange}
+            {/* Preference */}
+            <FormControl component="fieldset" sx={{ mb: 2, width: "100%" }}>
+              <FormLabel component="legend">Preferences</FormLabel>
+              <RadioGroup
+                row
+                aria-label="preference"
+                name="preference"
+                value={preference}
+                onChange={handlePreferenceChange}
+              >
+                {["High", "Medium", "Low"].map((pref) => (
+                  <FormControlLabel
+                    key={pref}
+                    value={pref}
+                    control={
+                      <Radio
+                        sx={{
+                          "&.Mui-checked": {
+                            color: preferenceColors[pref], // Apply color to the radio button when it's checked
+                          },
+                          color: preferenceColors[pref], // This will color the unchecked state as well
+                        }}
+                      />
+                    }
+                    label={pref}
+                    sx={{
+                      color: preferenceColors[pref], // Apply color to the label text based on the preference
+                      flexGrow: 1,
+                      ".MuiFormControlLabel-label": {
+                        // This targets the label within FormControlLabel
+                        color: preferenceColors[pref], // Apply the color to the label text
+                      },
+                    }}
                   />
-                  <label
-                    htmlFor={type.value}
-                    className="ml-2 block text-sm font-medium text-gray-700"
-                  >
-                    {type.label}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
+                ))}
+              </RadioGroup>
+            </FormControl>
 
-          {/* Preferences */}
-          <div className="my-6 flex flex-col lg:flex-row items-start lg:items-center gap-4">
-            <h1 className="text-lg lg:text-base flex-none lg:flex-1">
-              Preferences
-            </h1>
-            <div className="flex gap-2">
-              {["High", "Medium", "Low"].map((pref) => (
-                <div
-                  key={pref}
-                  className={`w-full border-b sm:border bg-green-${pref.toLowerCase()} rounded-lg`}
+            {/* Description Box */}
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                fullWidth
+                id="description"
+                label="Description/Instructions"
+                multiline
+                rows={4}
+                value={description}
+                onChange={handleDescriptionChange}
+              />
+            </Box>
+
+            {/* Select Invitees */}
+            <Box sx={{ mb: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel id="invitees-label">Invitee</InputLabel>
+                <Select
+                  labelId="invitees-label"
+                  id="invitees"
+                  value={selectedInvitee}
+                  label="Invitee"
+                  onChange={handleInviteeChange}
                 >
-                  <div className="flex items-center ps-3 mx-2">
-                    <input
-                      id={pref}
-                      type="radio"
-                      value={pref}
-                      name="Preferences"
-                      className="h-8 w-8" // Keeping the radio button size as previously adjusted
-                      checked={preference === pref}
-                      onChange={handlePreferenceChange}
-                    />
-                    {/* Reduced vertical padding for the label to decrease container height */}
-                    <label
-                      htmlFor={pref}
-                      className="w-full py-1 ms-2 text-sm font-medium"
-                    >
-                      {pref}
-                    </label>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                  {contacts.map((contact) => (
+                    <MenuItem key={contact.id} value={contact.id}>
+                      {contact.userDetails
+                        ? contact.userDetails.username
+                        : "Loading..."}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
 
-          {/* Description Box */}
-          <div className="mb-4">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Description/Instructions
-            </label>
-            <textarea
-              id="description"
-              rows="4"
-              className="form-textarea mt-1 block w-full border border-gray-300 rounded-lg shadow-sm p-2.5"
-              placeholder="Add any information relevant to this event"
-              value={description}
-              onChange={handleDescriptionChange}
-            ></textarea>
-          </div>
-
-          {/* Select Invitees */}
-          <div className="mb-4">
-            <label
-              htmlFor="invitees"
-              className="text-sm font-medium text-gray-700"
-            >
-              Invitees:
-            </label>
-            <select
-              id="invitees"
-              name="invitees"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2.5 w-full lg:w-auto"
-              value={selectedInvitee}
-              onChange={handleInviteeChange}
-            >
-              <option value="">Choose an invitee</option>
-              {/* Use contact.id for value as needed for filtering */}
-              {contacts.map((contact) => (
-                <option key={contact.id} value={contact.id}>
-                  {contact.userDetails
-                    ? contact.userDetails.username
-                    : "Loading..."}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Error Message */}
-          <div>
+            {/* Error Message */}
             {errorMessages.length > 0 && (
-              <div style={{ color: "red", marginTop: "10px" }}>
+              <Alert severity="error" sx={{ mb: 2 }}>
                 {errorMessages.map((msg, index) => (
                   <div key={index}>{msg}</div>
                 ))}
-              </div>
+              </Alert>
             )}
-          </div>
 
-          {/* Create Meeting Button */}
-          <div className="flex justify-end">
-            <button
-              className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg"
-              onClick={handleSubmit}
-            >
-              Create Event
-            </button>
-          </div>
-        </div>
-
+            {/* Create Meeting Button */}
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+              >
+                Create Event
+              </Button>
+            </Box>
+          </Box>
+        </Grid>
         {/* Calendar Component */}
-        <div className="bg-white p-6 rounded-lg shadow-md w-full md:w-4/5 flex-col">
-          <DnDCalendar
-            selectable
-            localizer={localizer}
-            events={timeblocks}
-            onEventDrop={moveTimeblock}
-            resizable
-            onEventResize={resizeTimeblock}
-            onSelectSlot={newTimeblock}
-            defaultView="week"
-            defaultDate={new Date()}
-            style={{ height: "800px" }}
-            components={{
-              event: (props) => (
-                <CustomTimeblock {...props} preference={preference} />
-              ),
+        <Grid item xs={12} md={8} lg={9}>
+          {" "}
+          {/* Adjusts to full width on xs screens, 2/3 on medium and 3/5 on large screens */}
+          <Box
+            sx={{
+              bgcolor: "background.paper",
+              p: 3,
+              borderRadius: 2,
+              boxShadow: 2,
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              minHeight: 800,
+              mx: "auto", // Centers the box
             }}
-            formats={formats}
-            eventPropGetter={timeblockStyleGetter}
-          />
-        </div>
-      </div>
+          >
+            <DnDCalendar
+              selectable
+              localizer={localizer}
+              events={timeblocks}
+              onEventDrop={moveTimeblock}
+              resizable
+              onEventResize={resizeTimeblock}
+              onSelectSlot={newTimeblock}
+              defaultView="week"
+              defaultDate={new Date()}
+              components={{
+                event: (props) => <CustomTimeblock {...props} />,
+              }}
+              formats={formats}
+              eventPropGetter={timeblockStyleGetter}
+              style={{ height: "100%", flex: 1 }} // Make the calendar responsive to the Box's height
+            />
+          </Box>
+        </Grid>
+      </Grid>
     </div>
   );
 }
