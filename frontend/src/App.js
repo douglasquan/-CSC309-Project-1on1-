@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage';
 import CreateEventPage from "./pages/CreateEventPage";
 import ContactListPage from "./pages/ContactListPage"
+import SubmitAvailabilityPage from "./pages/SubmitAvailabilityPage"
 import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import LayoutWithNavbar from "./components/LayoutWithNavbar";
@@ -19,6 +20,7 @@ function App() {
     <div className="App">
       <Router>
         <AuthProvider>
+
           <Switch>
             <Route path="/login" component={LoginPage} />
             <Route path="/register" component={RegisterPage} />
@@ -30,6 +32,8 @@ function App() {
                   <PrivateRoute exact path="/profile" component={ProfilePage} />
                   <PrivateRoute exact path="/create-event" component={CreateEventPage} />
                   <PrivateRoute exact path="/contact-list" component={ContactListPage} />
+                  <PrivateRoute exact path="/submit-availability/event/:eventId/user/:userId" component={SubmitAvailabilityPage} />
+
                 </Switch>
               </LayoutWithNavbar>
             )} />
