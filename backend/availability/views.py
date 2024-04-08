@@ -26,11 +26,8 @@ class CreateAvailabilityView(APIView):
 
 class AllAvailabilityView(APIView):
     def get(self, request, event_id, user_id):
-        event = get_object_or_404(Event, pk=event_id)
-        user = get_object_or_404(User, pk=user_id)
-        
         # Filter availabilities by both event and user
-        availabilities = Availability.objects.filter(event=event, user=user)
+        availabilities = Availability.objects.filter(event_id=event_id, user_id=user_id)
         
         serializer = AvailabilitySerializer(availabilities, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
