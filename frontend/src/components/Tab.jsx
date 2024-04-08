@@ -15,6 +15,7 @@ import {
   deleteEvent,
 } from "../controllers/EventsController";
 import { getUserDetails } from "../controllers/UserController";
+import RequestAvailabilityDialog from './RequestAvailabilityDialog';
 
 // Dummy data arrays for each tab
 const finalizedMeetings = [
@@ -35,6 +36,17 @@ function MeetingItem({
   onView,
 }) {
   const [inviteeUsername, setInviteeUsername] = useState("Loading...");
+  const [openRequestDialog, setOpenRequestDialog] = React.useState(false);
+  const [inviteeEmail, setInviteeEmail] = useState("");
+
+  const handleOpenRequestDialog = () => {
+    setOpenRequestDialog(true);
+  };
+
+  const handleCloseRequestDialog = () => {
+    setOpenRequestDialog(false);
+  };
+  
   let history = useHistory();
 
   useEffect(() => {
@@ -42,6 +54,7 @@ function MeetingItem({
       try {
         const userDetails = await getUserDetails(inviteeId, authTokens);
         setInviteeUsername(userDetails.username);
+        setInviteeEmail(userDetails.email);
       } catch (error) {
         setInviteeUsername("Unknown user");
         console.error(error);
@@ -80,7 +93,7 @@ function MeetingItem({
           </Button>
         )}
         {onRequest && (
-          <Button variant='outlined' color='primary' onClick={onRequest}>
+          <Button variant='outlined' color='primary' onClick={handleOpenRequestDialog}>
             Request Availability
           </Button>
         )}
@@ -102,6 +115,13 @@ function MeetingItem({
         <IconButton aria-label='delete' onClick={onDelete}>
           <DeleteIcon />
         </IconButton>
+
+        <RequestAvailabilityDialog
+          open={openRequestDialog}
+          onClose={handleCloseRequestDialog}
+          inviteeUsername={inviteeUsername}
+          inviteeEmail={inviteeEmail} 
+        />
       </Box>
     </Box>
   );
