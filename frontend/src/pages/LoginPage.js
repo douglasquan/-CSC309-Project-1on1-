@@ -58,7 +58,7 @@ const LoginPage = () => {
             
             {/* Link container */}
             <div className="flex justify-between text-sm font-medium text-gray-500 mt-6">
-              <a href="forgot-password.html" className="hover:text-gray-900">Forgot Password?</a>
+              <NavLink to="/forgot-password" className="hover:text-gray-900">Forgot Password?</NavLink>
               <NavLink to="/register" className="hover:text-gray-900">Create your Account →</NavLink>
             </div>
           </div>
