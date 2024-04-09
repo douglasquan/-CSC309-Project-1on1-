@@ -17,7 +17,6 @@ import {
 import { getUserDetails } from "../controllers/UserController";
 import RequestAvailabilityDialog from "./RequestAvailabilityDialog";
 
-
 function MeetingItem({
   eventId,
   eventName,
@@ -63,8 +62,15 @@ function MeetingItem({
     if (onAccept) {
       onAccept();
     }
-
     history.push(`/submit-availability/event/${eventId}/user/${inviteeId}`);
+  };
+
+
+  const handleFinalize = () => {
+    if (onFinalize) {
+      onFinalize();
+    }
+    history.push(`/finalize-event/event/${eventId}`);
   };
 
   return (
@@ -83,35 +89,31 @@ function MeetingItem({
       <span>{`${eventName} - ${inviteeUsername}`}</span>
       <Box>
         {onEdit && (
-          <Button variant="outlined" color="primary" onClick={onEdit}>
+          <Button variant='outlined' color='primary' onClick={onEdit}>
             Edit Meeting
           </Button>
         )}
         {onRequest && (
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={handleOpenRequestDialog}
-          >
+          <Button variant='outlined' color='primary' onClick={handleOpenRequestDialog}>
             Request Availability
           </Button>
         )}
         {onAccept && (
-          <Button variant="outlined" color="primary" onClick={handleAccept}>
+          <Button variant='outlined' color='primary' onClick={handleAccept}>
             Accept Invitation
           </Button>
         )}
         {onView && (
-          <Button variant="outlined" color="primary" onClick={onView}>
+          <Button variant='outlined' color='primary' onClick={onView}>
             View Meeting
           </Button>
         )}
         {onFinalize && (
-          <Button variant="outlined" color="success" onClick={onFinalize}>
+          <Button variant='outlined' color='success' onClick={handleFinalize}>
             Finalize Meeting
           </Button>
         )}
-        <IconButton aria-label="delete" onClick={onDelete}>
+        <IconButton aria-label='delete' onClick={onDelete}>
           <DeleteIcon />
         </IconButton>
 
@@ -131,7 +133,7 @@ function TabPanel(props) {
 
   return (
     <div
-      role="tabpanel"
+      role='tabpanel'
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
@@ -184,36 +186,18 @@ export default function BasicTabs() {
       if (user && user.user_id) {
         try {
           setIsLoading(true);
-          const hostedEvents = await fetchEventsByHost(
-            user.user_id,
-            authTokens
-          );
-          const invitedEvents = await fetchEventsByInvitee(
-            user.user_id,
-            authTokens
-          );
+          const hostedEvents = await fetchEventsByHost(user.user_id, authTokens);
+          const invitedEvents = await fetchEventsByInvitee(user.user_id, authTokens);
 
           // Filter hosted events based on status
-          setHostedMeetingsPending(
-            hostedEvents.filter((event) => event.status === "A")
-          );
-          setHostedMeetingsReady(
-            hostedEvents.filter((event) => event.status === "C")
-          );
-          setHostedMeetingsFinalized(
-            hostedEvents.filter((event) => event.status === "F")
-          );
+          setHostedMeetingsPending(hostedEvents.filter((event) => event.status === "A"));
+          setHostedMeetingsReady(hostedEvents.filter((event) => event.status === "C"));
+          setHostedMeetingsFinalized(hostedEvents.filter((event) => event.status === "F"));
 
-          setInvitedMeetingsPending(
-            invitedEvents.filter((event) => event.status === "A")
-          );
-          setInvitedMeetingsReady(
-            invitedEvents.filter((event) => event.status === "C")
-          );
-          setInvitedMeetingsFinalized(
-            invitedEvents.filter((event) => event.status === "F")
-          );
-          console.log("invitedMeetingsReady", invitedMeetingsReady)
+          setInvitedMeetingsPending(invitedEvents.filter((event) => event.status === "A"));
+          setInvitedMeetingsReady(invitedEvents.filter((event) => event.status === "C"));
+          setInvitedMeetingsFinalized(invitedEvents.filter((event) => event.status === "F"));
+          console.log("invitedMeetingsReady", invitedMeetingsReady);
         } catch (error) {
           console.error("Error fetching events:", error);
         } finally {
@@ -237,25 +221,23 @@ export default function BasicTabs() {
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
-          aria-label="basic tabs example"
-          variant="scrollable"
+          aria-label='basic tabs example'
+          // variant='scrollable'
           scrollButtons
           allowScrollButtonsMobile
+          centered
         >
-          <Tab label="Hosted Meetings" />
-          <Tab label="Invited Meetings" />
+          <Tab label='Hosted Meetings' />
+          <Tab label='Invitations' />
         </Tabs>
       </Box>
-      
+
       {/* Hosted Meetings */}
       <TabPanel value={tabValue} index={0}>
-        <Tabs
-          value={subTabValue}
-          onChange={handleSubTabChange}
-        >
-          <Tab label="Pending" />
-          <Tab label="Ready to Finalize" />
-          <Tab label="Finalized" />
+        <Tabs value={subTabValue} onChange={handleSubTabChange} centered>
+          <Tab label='Pending' />
+          <Tab label='Ready to Finalize' />
+          <Tab label='Finalized' />
         </Tabs>
 
         {/* List hostedMeetingsPending */}
@@ -290,8 +272,8 @@ export default function BasicTabs() {
               onEdit={() => {
                 console.log("Edit:", meeting.id);
               }}
-              onRequest={() => {
-                console.log("Request:", meeting.id);
+              onFinalize={() => {
+                console.log("Finalize:", meeting.id);
               }}
               onDelete={() => deleteEvent(meeting.id, authTokens)}
             />
@@ -318,17 +300,17 @@ export default function BasicTabs() {
           ))}
         </TabPanel>
       </TabPanel>
-      
+
       {/* Invited Meetings */}
       <TabPanel value={tabValue} index={1}>
         <Tabs
           value={invitedTabValue}
           onChange={handleInvitedTabChange}
-          aria-label="sub tabs for invited meetings"
+          aria-label='sub tabs for invited meetings'
         >
-          <Tab label="Pending" />
-          <Tab label="Waiting host to Finalize" />
-          <Tab label="Finalized" />
+          <Tab label='Pending' />
+          <Tab label='Waiting host to Finalize' />
+          <Tab label='Finalized' />
         </Tabs>
 
         {/* List invitedMeetingsPending */}

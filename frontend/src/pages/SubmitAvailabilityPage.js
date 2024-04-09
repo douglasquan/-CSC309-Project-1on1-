@@ -61,7 +61,7 @@ const EventDetailsPage = () => {
     try {
       const promises = selectedTimeSlots.map((selectedSlot) => {
         const availabilityData = {
-          user_id: userId,
+          user_id: eventDetails.invitee,
           event_id: eventId,
           start_time: selectedSlot.start,
           end_time: selectedSlot.end,
