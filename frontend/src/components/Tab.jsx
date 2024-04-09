@@ -65,7 +65,6 @@ function MeetingItem({
     history.push(`/submit-availability/event/${eventId}/user/${inviteeId}`);
   };
 
-
   const handleFinalize = () => {
     if (onFinalize) {
       onFinalize();
@@ -148,6 +147,31 @@ function TabPanel(props) {
   );
 }
 
+// for responsive designs
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: undefined,
+    height: undefined,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    handleResize(); // Call the function immediately to set the initial size
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowSize;
+}
+
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
@@ -168,6 +192,11 @@ export default function BasicTabs() {
   const [invitedMeetingsFinalized, setInvitedMeetingsFinalized] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { authTokens, user } = useContext(AuthContext);
+
+  const size = useWindowSize();
+  const isSmallScreen = size.width < 1435 && size.width > 900;
+  console.log(size);
+  console.log(isSmallScreen);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -222,22 +251,36 @@ export default function BasicTabs() {
           value={tabValue}
           onChange={handleTabChange}
           aria-label='basic tabs example'
-          // variant='scrollable'
-          scrollButtons
           allowScrollButtonsMobile
           centered
         >
-          <Tab label='Hosted Meetings' />
-          <Tab label='Invitations' />
+          <Tab label='Hosted Meetings' {...a11yProps(0)} />
+          <Tab label='Invitations' {...a11yProps(1)} />
         </Tabs>
       </Box>
 
       {/* Hosted Meetings */}
       <TabPanel value={tabValue} index={0}>
-        <Tabs value={subTabValue} onChange={handleSubTabChange} centered>
-          <Tab label='Pending' />
-          <Tab label='Ready to Finalize' />
-          <Tab label='Finalized' />
+        <Tabs
+          value={subTabValue}
+          onChange={handleSubTabChange}
+          variant={isSmallScreen ? "scrollable" : "standard"}
+          scrollButtons={isSmallScreen ? "auto" : "false"}
+          centered={!isSmallScreen}
+          allowScrollButtonsMobile
+        >
+          <Tab
+            label={<Box component='span'>Pending ({hostedMeetingsPending.length})</Box>}
+            wrapped
+          />
+          <Tab
+            label={<Box component='span'>Ready to Finalize ({hostedMeetingsReady.length})</Box>}
+            wrapped
+          />
+          <Tab
+            label={<Box component='span'>Finalized ({hostedMeetingsFinalized.length})</Box>}
+            wrapped
+          />
         </Tabs>
 
         {/* List hostedMeetingsPending */}
@@ -289,11 +332,8 @@ export default function BasicTabs() {
               eventName={meeting.event_title}
               inviteeId={meeting.invitee}
               authTokens={authTokens}
-              onEdit={() => {
-                console.log("Edit:", meeting.id);
-              }}
-              onRequest={() => {
-                console.log("Request:", meeting.id);
+              onView={() => {
+                console.log("View:", meeting.id);
               }}
               onDelete={() => deleteEvent(meeting.id, authTokens)}
             />
@@ -306,11 +346,25 @@ export default function BasicTabs() {
         <Tabs
           value={invitedTabValue}
           onChange={handleInvitedTabChange}
-          aria-label='sub tabs for invited meetings'
+          variant={isSmallScreen ? "scrollable" : "standard"}
+          scrollButtons={isSmallScreen ? "auto" : "false"}
+          centered={!isSmallScreen}
+          allowScrollButtonsMobile
         >
-          <Tab label='Pending' />
-          <Tab label='Waiting host to Finalize' />
-          <Tab label='Finalized' />
+          <Tab
+            label={<Box component='span'>Pending ({invitedMeetingsPending.length})</Box>}
+            wrapped
+          />
+          <Tab
+            label={
+              <Box component='span'>Waiting host to Finalize ({invitedMeetingsReady.length})</Box>
+            }
+            wrapped
+          />
+          <Tab
+            label={<Box component='span'>Finalized ({invitedMeetingsFinalized.length})</Box>}
+            wrapped
+          />
         </Tabs>
 
         {/* List invitedMeetingsPending */}
@@ -329,19 +383,16 @@ export default function BasicTabs() {
         </TabPanel>
 
         {/* List invitedMeetingsReady */}
-        <TabPanel value={subTabValue} index={1}>
+        <TabPanel value={invitedTabValue} index={1}>
           {invitedMeetingsReady.map((meeting) => (
             <MeetingItem
               key={meeting.id}
               eventId={meeting.id}
               eventName={meeting.event_title}
-              inviteeId={meeting.invitee}
+              inviteeId={meeting.host}
               authTokens={authTokens}
-              onEdit={() => {
-                console.log("Edit:", meeting.id);
-              }}
-              onRequest={() => {
-                console.log("Request:", meeting.id);
+              onView={() => {
+                console.log("View:", meeting.id);
               }}
               onDelete={() => deleteEvent(meeting.id, authTokens)}
             />
@@ -349,7 +400,7 @@ export default function BasicTabs() {
         </TabPanel>
 
         {/* List invitedMeetingsFinalized */}
-        <TabPanel value={invitedTabValue} index={1}>
+        <TabPanel value={invitedTabValue} index={2}>
           {invitedMeetingsFinalized.map((meeting) => (
             <MeetingItem
               key={meeting.id}
@@ -357,7 +408,9 @@ export default function BasicTabs() {
               eventName={meeting.event_title}
               inviteeId={meeting.host}
               authTokens={authTokens}
-              onAccept={() => {}}
+              onView={() => {
+                console.log("View:", meeting.id);
+              }}
               onDelete={() => deleteEvent(meeting.id, authTokens)}
             />
           ))}
