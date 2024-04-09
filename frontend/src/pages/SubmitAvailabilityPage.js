@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { addMinutes, format } from "date-fns";
 
@@ -13,11 +13,10 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Chip from "@mui/material/Chip";
 
-
 import AuthContext from "../context/AuthContext";
 import { getAllAvailabilities, createAvailability } from "../controllers/AvailabilityController";
 import { fetchEventDetails, updateEvent } from "../controllers/EventsController";
-
+import { getUserDetails } from "../controllers/UserController";
 const EventDetailsPage = () => {
   let { eventId, userId } = useParams();
 
@@ -26,16 +25,29 @@ const EventDetailsPage = () => {
   const [preferredTime, setPreferredTime] = useState("high");
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
   const { authTokens } = useContext(AuthContext);
+  const [hostUsername, setHostUsername] = useState("");
+
+  const sortedAvailabilities = useMemo(() => {
+    return [...availabilities].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+  }, [availabilities]);
 
   // Fetch event details only once or when eventId changes
   useEffect(() => {
-    fetchEventDetails(eventId, authTokens)
-      .then((data) => {
-        setEventDetails(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching event details:", error);
-      });
+    const fetchEventAndHostDetails = async () => {
+      try {
+        const eventDetailsData = await fetchEventDetails(eventId, authTokens);
+        setEventDetails(eventDetailsData);
+        // Once event details are fetched, fetch the host's user details
+        if (eventDetailsData.host) {
+          const hostDetails = await getUserDetails(eventDetailsData.host, authTokens);
+          setHostUsername(hostDetails.username); // Assuming the response contains a username field
+        }
+      } catch (error) {
+        console.error("Error fetching event or host details:", error);
+      }
+    };
+
+    fetchEventAndHostDetails();
   }, [eventId, authTokens]);
 
   // Fetch availabilities only once or when eventId and userId change
@@ -157,7 +169,7 @@ const EventDetailsPage = () => {
         {/* Event Details Section */}
         <Grid item xs={12} md={6}>
           <Box className='bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4'>
-            <h2 className='text-xl mb-2'>Invitation From {eventDetails.host}</h2>
+            <h2 className='text-xl mb-2'>Invitation From {hostUsername}</h2>
             <div className='mb-4'>
               <label className='block text-gray-700 text-sm font-bold mb-2'>Meeting Title</label>
               <p className='border rounded w-full py-2 px-3 text-gray-700'>
@@ -170,6 +182,23 @@ const EventDetailsPage = () => {
                 {eventDetails.event_duration} minutes
               </p>
             </div>
+            <div className='mb-4'>
+              <label className='block text-gray-700 text-sm font-bold mb-2'>Description</label>
+              <p className='border rounded w-full py-2 px-3 text-gray-700'>
+                {eventDetails.description}{" "}
+              </p>
+            </div>
+            <div className='mb-4'>
+              <label className='block text-gray-700 text-sm font-bold mb-2'>Deadline</label>
+              <p className='border rounded w-full py-2 px-3 text-gray-700'>
+                {eventDetails.deadline}{" "}
+              </p>
+            </div>
+          </Box>
+        </Grid>
+        {/* Availabilities Section */}
+        <Grid item xs={12} md={6}>
+          <Box className='bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 overflow-auto h-full'>
             <FormControl component='fieldset' className='mb-4'>
               <FormLabel component='legend'>Select Your Preferred Date and Time</FormLabel>
               <RadioGroup
@@ -184,53 +213,41 @@ const EventDetailsPage = () => {
                 <FormControlLabel value='low' control={<Radio />} label='Low' />
               </RadioGroup>
             </FormControl>
-
-            <TextField
-              className='w-full mb-4'
-              label='Notes for the meeting (optional)'
-              multiline
-              rows={4}
-              placeholder='Add any information relevant to this event'
-            />
-
-          </Box>
-        </Grid>
-        {/* Availabilities Section */}
-        <Grid item xs={12} md={6}>
-          <Box className='bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 overflow-auto h-full'>
             <h2 className='text-xl mb-2'>Available Times</h2>
             <div className='flex flex-col space-y-4'>
-              {availabilities.map((availability, index) => (
+              {sortedAvailabilities.map((availability, index) => (
                 <div key={index} className='flex flex-col'>
                   <h3 className='text-gray-500 text-lg'>
                     {format(new Date(availability.start_time), "PPPP")}
                   </h3>
                   <div className='grid grid-cols-2 gap-2'>
                     {availability.timeSlots &&
-                      availability.timeSlots.map((slot, slotIndex) => {
-                        const isSelected = selectedTimeSlots.some(
-                          (s) => s.start === slot.start && s.end === slot.end
-                        );
-                        const selectedSlot = selectedTimeSlots.find(
-                          (s) => s.start === slot.start && s.end === slot.end
-                        );
-                        return (
-                          <Chip
-                            key={slotIndex}
-                            label={`${formatDateTime(slot.start)} - ${formatDateTime(slot.end)}`}
-                            onClick={() => handleTimeSlotClick(slot)}
-                            style={{
-                              backgroundColor: isSelected
-                                ? preferenceColor(selectedSlot.preference)
-                                : undefined,
-                              borderColor: isSelected
-                                ? preferenceColor(selectedSlot.preference)
-                                : "#d3d3d3",
-                            }}
-                            variant='outlined'
-                          />
-                        );
-                      })}
+                      availability.timeSlots
+                        .sort((a, b) => new Date(a.start) - new Date(b.start))
+                        .map((slot, slotIndex) => {
+                          const isSelected = selectedTimeSlots.some(
+                            (s) => s.start === slot.start && s.end === slot.end
+                          );
+                          const selectedSlot = selectedTimeSlots.find(
+                            (s) => s.start === slot.start && s.end === slot.end
+                          );
+                          return (
+                            <Chip
+                              key={slotIndex}
+                              label={`${formatDateTime(slot.start)} - ${formatDateTime(slot.end)}`}
+                              onClick={() => handleTimeSlotClick(slot)}
+                              style={{
+                                backgroundColor: isSelected
+                                  ? preferenceColor(selectedSlot.preference)
+                                  : undefined,
+                                borderColor: isSelected
+                                  ? preferenceColor(selectedSlot.preference)
+                                  : "#d3d3d3",
+                              }}
+                              variant='outlined'
+                            />
+                          );
+                        })}
                   </div>
                 </div>
               ))}
