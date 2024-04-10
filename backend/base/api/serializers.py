@@ -3,10 +3,6 @@ from base.models import Note
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-class NoteSerializer(ModelSerializer):
-    class Meta:
-        model = Note
-        fields = '__all__'
 
 
 class UserSerializer(ModelSerializer):

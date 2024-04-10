@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
-from timeblocks.models import EventTimeblock
 
 
 class Event(models.Model):    
@@ -46,8 +45,8 @@ class Event(models.Model):
     description = models.TextField(null=True)
     deadline = models.DateField(null=True)  
 
-    finalized_start_time = models.TimeField(null=True)        
-    finalized_end_time = models.TimeField(null=True)
+    finalized_start_time = models.DateTimeField(null=True)      
+    finalized_end_time = models.DateTimeField(null=True)
     finalized_date = models.DateField(null=True)
     
     is_active = models.BooleanField(default=True)
