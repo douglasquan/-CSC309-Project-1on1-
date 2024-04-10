@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
-import { useHistory } from 'react-router-dom'; // Use useHistory for navigation
+import { useHistory } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import { Container, Box, TextField, Button, Typography, Link } from '@mui/material';
 import logo from '../img/logo1.png';
 
 const LoginPage = () => {
   let { loginUser } = useContext(AuthContext);
-  const history = useHistory(); // Initialize useHistory for navigation
+  const history = useHistory();
 
   const handleLinkClick = (path) => {
     history.push(path);

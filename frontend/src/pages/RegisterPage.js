@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Container, Box, Typography, TextField, Button, Grid } from "@mui/material";
 import { Link, useHistory } from 'react-router-dom';
-import logo from "../img/logo1.png"; // Ensure the path to your logo is correct
-import dummy from '../img/register.png'; // Ensure the path to your image is correct
+
 
 const RegisterPage = () => {
   const history = useHistory();
