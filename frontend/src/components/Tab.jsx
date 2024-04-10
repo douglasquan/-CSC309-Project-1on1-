@@ -58,6 +58,7 @@ function MeetingItem({
     fetchUserDetails();
   }, [inviteeId, authTokens]);
 
+  
   const handleAccept = () => {
     if (onAccept) {
       onAccept();
