@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import { Calendar as BigCalendar, momentLocalizer } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import moment from "moment";
@@ -23,10 +24,18 @@ import {
   Grid,
   Alert,
   InputLabel,
+  Stepper,
+  Step,
+  StepLabel,
+  Container,
 } from "@mui/material";
 
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(BigCalendar);
+
+function getSteps() {
+  return ["Fill Event Details", "Choose Preferences & Times"];
+}
 
 function CreateEventPage() {
   const [timeblocks, setTimeblocks] = useState([]);
@@ -41,6 +50,22 @@ function CreateEventPage() {
   const [selectedContactUserId, setSelectedContactUserId] = useState("");
   const { authTokens, user } = useContext(AuthContext); // Assuming you're using AuthContext for tokens
   const [errorMessages, setErrorMessages] = useState([]);
+  const [activeStep, setActiveStep] = useState(0);
+
+  const history = useHistory();
+
+  // -------stepper-------
+  const steps = getSteps();
+  // All other state declarations remain the same
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+  // -------stepper-------
 
   useEffect(() => {
     // Fetch contacts and their details when the component mounts
@@ -52,16 +77,10 @@ function CreateEventPage() {
         const contactsDetails = await Promise.all(
           contactsData.map(async (contact) => {
             try {
-              const userDetails = await getUserDetails(
-                contact.contact,
-                authTokens
-              );
+              const userDetails = await getUserDetails(contact.contact, authTokens);
               return { ...contact, userDetails }; // Combine contact with userDetails
             } catch (error) {
-              console.error(
-                `Error fetching details for contact ${contact.contact}:`,
-                error
-              );
+              console.error(`Error fetching details for contact ${contact.contact}:`, error);
               return contact; // Return the contact without userDetails in case of error
             }
           })
@@ -145,6 +164,7 @@ function CreateEventPage() {
           })
         )
       );
+      history.push("/");
 
       console.log("All availabilities created successfully");
     } catch (error) {
@@ -155,12 +175,7 @@ function CreateEventPage() {
 
   // Calendar Timeblock:
 
-  const moveTimeblock = ({
-    event,
-    start,
-    end,
-    isAllDay: droppedOnAllDaySlot,
-  }) => {
+  const moveTimeblock = ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
     const currentTime = new Date();
     const newStartTime = new Date(start);
     const newEndTime = new Date(end);
@@ -194,9 +209,7 @@ function CreateEventPage() {
 
   const resizeTimeblock = ({ event: timeblock, start, end }) => {
     const nextEvents = timeblocks.map((existingEvent) => {
-      return existingEvent.id === timeblock.id
-        ? { ...existingEvent, start, end }
-        : existingEvent;
+      return existingEvent.id === timeblock.id ? { ...existingEvent, start, end } : existingEvent;
     });
     setTimeblocks(nextEvents);
   };
@@ -299,8 +312,7 @@ function CreateEventPage() {
     // Check for overlapping timeblocks
     const isOverlapping = timeblocks.some((timeblock) => {
       return (
-        selectedStartTime < new Date(timeblock.end) &&
-        selectedEndTime > new Date(timeblock.start)
+        selectedStartTime < new Date(timeblock.end) && selectedEndTime > new Date(timeblock.start)
       );
     });
 
@@ -309,8 +321,7 @@ function CreateEventPage() {
       return; // Exit the function
     }
 
-    const newId =
-      Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
+    const newId = Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
     const newTimeblock = {
       id: newId,
       start: slotInfo.start,
@@ -341,236 +352,262 @@ function CreateEventPage() {
   };
 
   return (
-    <div className="">
-      {/* Left Side  */}
-      <Grid container spacing={1} sx={{ p: 3, justifyContent: "center" }}>
-        {/* Form Section */}
-        <Grid item xs={12} md={4} lg={2.7}>
-          {" "}
-          <Box
-            sx={{
-              maxWidth: { xs: "100%", md: "400px" },
-              p: 3,
-              boxShadow: 2,
-              borderRadius: 2,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            <Typography variant="h4" component="h2" sx={{ mb: 2 }}>
-              Create Event
-            </Typography>
-
-            {/* Event Title */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-              <TextField
-                fullWidth
-                id="event-title"
-                label="Event Title"
-                variant="outlined"
-                value={eventTitle}
-                onChange={(e) => setEventTitle(e.target.value)}
-              />
-            </Box>
-
-            {/* Set Deadline */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-              <FormControl fullWidth>
-                <TextField
-                  type="date"
-                  id="deadline-date"
-                  label="Deadline Date"
-                  InputLabelProps={{ shrink: true }}
-                  value={deadline.date}
-                  onChange={handleDateChange}
-                  required
-                />
-              </FormControl>
-            </Box>
-
-            {/* Selecting Event Duration */}
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <FormControl fullWidth>
-                <InputLabel id="event-duration-label">
-                  Select Event Duration
-                </InputLabel>
-                <Select
-                  labelId="event-duration-label"
-                  id="event-duration"
-                  value={eventDuration}
-                  label="Select Event Duration"
-                  onChange={handleDurationChange}
-                >
-                  <MenuItem value={30}>30 minutes</MenuItem>
-                  <MenuItem value={60}>60 minutes</MenuItem>
-                  <MenuItem value={120}>120 minutes</MenuItem>
-                  <MenuItem value={150}>150 minutes</MenuItem>
-                  <MenuItem value={180}>180 minutes</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Selecting Event Type */}
-            <FormControl component="fieldset" sx={{ mb: 2 }}>
-              <FormLabel component="legend">Select an Event Type</FormLabel>
-              <RadioGroup
-                row
-                aria-label="event-type"
-                name="event-type"
-                value={eventType}
-                onChange={handleEventTypeChange}
+    <Container>
+      <Box sx={{ width: "100%", maxWidth: activeStep === 0 ? 700 : "90%", mx: "auto", my: 4 }}>
+        <Stepper
+          activeStep={activeStep}
+          sx={{
+            mb: 2,
+            padding: 0,
+            ".MuiStepConnector-line": {
+              marginLeft: "calc(50% - 300px)",
+              marginRight: "calc(50% - 300px)",
+            },
+          }}
+        >
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+        {activeStep === steps.length ? (
+          <Typography sx={{ mt: 2, mb: 1 }}>All steps completed - you&apos;re finished</Typography>
+        ) : (
+          <div>
+            {activeStep === 0 && (
+              // Create Event Form
+              <Box
+                sx={{
+                  p: 3,
+                  boxShadow: 2,
+                  borderRadius: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  height: "auto",
+                }}
               >
-                <FormControlLabel
-                  value="in_person"
-                  control={<Radio />}
-                  label="In Person"
-                />
-                <FormControlLabel
-                  value="video"
-                  control={<Radio />}
-                  label="Video"
-                />
-                <FormControlLabel
-                  value="phone"
-                  control={<Radio />}
-                  label="Phone"
-                />
-              </RadioGroup>
-            </FormControl>
+                <Typography variant='h4' component='h2' sx={{ mb: 2 }}>
+                  Create Event
+                </Typography>
 
-            {/* Preference */}
-            <FormControl component="fieldset" sx={{ mb: 2, width: "100%" }}>
-              <FormLabel component="legend">Preferences</FormLabel>
-              <RadioGroup
-                row
-                aria-label="preference"
-                name="preference"
-                value={preference}
-                onChange={handlePreferenceChange}
-              >
-                {["High", "Medium", "Low"].map((pref) => (
-                  <FormControlLabel
-                    key={pref}
-                    value={pref}
-                    control={
-                      <Radio
-                        sx={{
-                          "&.Mui-checked": {
-                            color: preferenceColors[pref], // Apply color to the radio button when it's checked
-                          },
-                          color: preferenceColors[pref], // This will color the unchecked state as well
-                        }}
-                      />
-                    }
-                    label={pref}
-                    sx={{
-                      color: preferenceColors[pref], // Apply color to the label text based on the preference
-                      flexGrow: 1,
-                      ".MuiFormControlLabel-label": {
-                        // This targets the label within FormControlLabel
-                        color: preferenceColors[pref], // Apply the color to the label text
-                      },
-                    }}
+                {/* Event Title */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                  <TextField
+                    fullWidth
+                    id='event-title'
+                    label='Event Title'
+                    variant='outlined'
+                    value={eventTitle}
+                    onChange={(e) => setEventTitle(e.target.value)}
                   />
-                ))}
-              </RadioGroup>
-            </FormControl>
+                </Box>
 
-            {/* Description Box */}
-            <Box sx={{ mb: 2 }}>
-              <TextField
-                fullWidth
-                id="description"
-                label="Description/Instructions"
-                multiline
-                rows={4}
-                value={description}
-                onChange={handleDescriptionChange}
-              />
-            </Box>
+                {/* Set Deadline */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                  <FormControl fullWidth>
+                    <TextField
+                      type='date'
+                      id='deadline-date'
+                      label='Deadline Date'
+                      InputLabelProps={{ shrink: true }}
+                      value={deadline.date}
+                      onChange={handleDateChange}
+                      required
+                    />
+                  </FormControl>
+                </Box>
 
-            {/* Select Invitees */}
-            <Box sx={{ mb: 2 }}>
-              <FormControl fullWidth>
-                <InputLabel id="invitees-label">Invitee</InputLabel>
-                <Select
-                  labelId="invitees-label"
-                  id="invitees"
-                  value={selectedInvitee}
-                  label="Invitee"
-                  onChange={handleInviteeChange}
-                >
-                  {contacts.map((contact) => (
-                    <MenuItem key={contact.id} value={contact.id}>
-                      {contact.userDetails
-                        ? contact.userDetails.username
-                        : "Loading..."}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
+                {/* Selecting Event Duration */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id='event-duration-label'>Select Event Duration</InputLabel>
+                    <Select
+                      labelId='event-duration-label'
+                      id='event-duration'
+                      value={eventDuration}
+                      label='Select Event Duration'
+                      onChange={handleDurationChange}
+                    >
+                      <MenuItem value={30}>30 minutes</MenuItem>
+                      <MenuItem value={60}>60 minutes</MenuItem>
+                      <MenuItem value={120}>120 minutes</MenuItem>
+                      <MenuItem value={150}>150 minutes</MenuItem>
+                      <MenuItem value={180}>180 minutes</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
 
-            {/* Error Message */}
-            {errorMessages.length > 0 && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {errorMessages.map((msg, index) => (
-                  <div key={index}>{msg}</div>
-                ))}
-              </Alert>
+                {/* Selecting Event Type */}
+                <FormControl component='fieldset' sx={{ mb: 2 }}>
+                  <FormLabel component='legend'>Select an Event Type</FormLabel>
+                  <RadioGroup
+                    row
+                    aria-label='event-type'
+                    name='event-type'
+                    value={eventType}
+                    onChange={handleEventTypeChange}
+                  >
+                    <FormControlLabel value='in_person' control={<Radio />} label='In Person' />
+                    <FormControlLabel value='video' control={<Radio />} label='Video' />
+                    <FormControlLabel value='phone' control={<Radio />} label='Phone' />
+                  </RadioGroup>
+                </FormControl>
+
+                {/* Description Box */}
+                <Box sx={{ mb: 2 }}>
+                  <TextField
+                    fullWidth
+                    id='description'
+                    label='Description/Instructions'
+                    multiline
+                    rows={4}
+                    value={description}
+                    onChange={handleDescriptionChange}
+                  />
+                </Box>
+
+                {/* Select Invitees */}
+                <Box sx={{ mb: 2 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id='invitees-label'>Invitee</InputLabel>
+                    <Select
+                      labelId='invitees-label'
+                      id='invitees'
+                      value={selectedInvitee}
+                      label='Invitee'
+                      onChange={handleInviteeChange}
+                    >
+                      {contacts.map((contact) => (
+                        <MenuItem key={contact.id} value={contact.id}>
+                          {contact.userDetails ? contact.userDetails.username : "Loading..."}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+
+                {/* Error Message */}
+                {errorMessages.length > 0 && (
+                  <Alert severity='error' sx={{ mb: 2 }}>
+                    {errorMessages.map((msg, index) => (
+                      <div key={index}>{msg}</div>
+                    ))}
+                  </Alert>
+                )}
+              </Box>
             )}
-
-            {/* Create Meeting Button */}
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
+            {activeStep === 1 && (
+              <Box
+                sx={{
+                  p: 3,
+                  boxShadow: 2,
+                  borderRadius: 2,
+                  maxHeight: "70vh",
+                  overflowY: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  mb: 2,
+                  backgroundColor: "background.default",
+                }}
               >
-                Create Event
+                {/* Preference */}
+                <Box
+                  sx={{
+                    mb: 1,
+                    padding: 1,
+                    backgroundColor: "action.selected",
+                    borderRadius: 1,
+                    height: "70px", // Add this line to reduce the height of the box
+                  }}
+                >
+                  <FormControl component='fieldset' sx={{ mb: 2, width: "100%" }}>
+                    <FormLabel component='legend' sx={{ fontSize: "small" }}>
+                      Preferences
+                    </FormLabel>
+                    <RadioGroup
+                      row
+                      aria-label='preference'
+                      name='preference'
+                      value={preference}
+                      onChange={handlePreferenceChange}
+                    >
+                      {["High", "Medium", "Low"].map((pref) => (
+                        <FormControlLabel
+                          key={pref}
+                          value={pref}
+                          control={
+                            <Radio
+                              sx={{
+                                "&.Mui-checked": {
+                                  color: preferenceColors[pref], // Apply color to the radio button when it's checked
+                                },
+                                color: preferenceColors[pref], // This will color the unchecked state as well
+                              }}
+                            />
+                          }
+                          label={pref}
+                          sx={{
+                            color: preferenceColors[pref], // Apply color to the label text based on the preference
+                            flexGrow: 1,
+                            ".MuiFormControlLabel-label": {
+                              // This targets the label within FormControlLabel
+                              color: preferenceColors[pref], // Apply the color to the label text
+                              fontSize: "small", // Decrease the font size for the label text
+                            },
+                          }}
+                        />
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
+                </Box>
+                {/* Calendar */}
+                <Box sx={{ flexGrow: 1 }}>
+                  <DnDCalendar
+                    selectable
+                    localizer={localizer}
+                    events={timeblocks}
+                    onEventDrop={moveTimeblock}
+                    resizable
+                    onEventResize={resizeTimeblock}
+                    onSelectSlot={newTimeblock}
+                    defaultView='week'
+                    defaultDate={new Date()}
+                    components={{
+                      event: (props) => <CustomTimeblock {...props} />,
+                    }}
+                    formats={formats}
+                    eventPropGetter={timeblockStyleGetter}
+                    style={{ height: "100%", flex: 1 }} // Make the calendar responsive to the Box's height
+                  />
+                </Box>
+              </Box>
+            )}
+            {/* steo back and next button */}
+            <Box sx={{ display: "flex", justifyContent: "center", pt: 2, mt: 2 }}>
+              <Button
+                color='inherit'
+                disabled={activeStep === 0}
+                onClick={handleBack}
+                sx={{ mr: 1 }}
+              >
+                Back
               </Button>
+              {activeStep === steps.length - 1 ? (
+                /* Create Meeting Button */
+                <Button variant='outlined' onClick={handleSubmit}>
+                  Create Meeting
+                </Button>
+              ) : (
+                <Button onClick={handleNext}>Next</Button>
+              )}
             </Box>
-          </Box>
-        </Grid>
-        {/* Calendar Component */}
-        <Grid item xs={12} md={8} lg={9}>
-          {" "}
-          {/* Adjusts to full width on xs screens, 2/3 on medium and 3/5 on large screens */}
-          <Box
-            sx={{
-              bgcolor: "background.paper",
-              p: 3,
-              borderRadius: 2,
-              boxShadow: 2,
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              minHeight: 800,
-              mx: "auto", // Centers the box
-            }}
-          >
-            <DnDCalendar
-              selectable
-              localizer={localizer}
-              events={timeblocks}
-              onEventDrop={moveTimeblock}
-              resizable
-              onEventResize={resizeTimeblock}
-              onSelectSlot={newTimeblock}
-              defaultView="week"
-              defaultDate={new Date()}
-              components={{
-                event: (props) => <CustomTimeblock {...props} />,
-              }}
-              formats={formats}
-              eventPropGetter={timeblockStyleGetter}
-              style={{ height: "100%", flex: 1 }} // Make the calendar responsive to the Box's height
-            />
-          </Box>
-        </Grid>
-      </Grid>
-    </div>
+          </div>
+        )}
+      </Box>
+    </Container>
   );
 }
 
