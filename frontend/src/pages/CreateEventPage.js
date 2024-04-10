@@ -751,7 +751,7 @@ function CreateEventPage() {
                 </Box>
               </Box>
             )}
-            {/* steo back and next button */}
+            {/* step back and next button */}
             <Box
               sx={{ display: "flex", justifyContent: "center", pt: 2, mt: 2 }}
             >
@@ -765,7 +765,7 @@ function CreateEventPage() {
               </Button>
               {activeStep === steps.length - 1 ? (
                 /* Create Meeting Button */
-                <Button variant="outlined" onClick={handleSubmit}>
+                <Button variant="contained" onClick={handleSubmit}>
                   Create Meeting
                 </Button>
               ) : (

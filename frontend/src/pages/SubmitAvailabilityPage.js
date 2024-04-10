@@ -42,39 +42,26 @@ const EventDetailsPage = () => {
   const [hostDetails, setHostDetails] = useState('');
   const { authTokens } = useContext(AuthContext);
 
-  // Fetch event details only once or when eventId changes
   useEffect(() => {
-    fetchEventDetails(eventId, authTokens)
-      .then((data) => {
-        setEventDetails(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching event details:", error);
-      });
-  }, [eventId, authTokens]);
-
-  // Fetch host details
-  useEffect(() => {
-    if (eventDetails && eventDetails.host) { // Check if eventDetails is not null and has a host
-      const fetchUserDetails = async () => {
-        try {
-          const hostDetails = await getUserDetails(eventDetails.host, authTokens);
-          console.log(hostDetails)
-          setHostDetails(hostDetails);
-        } catch (error) {
-          console.error("Error fetching user details:", error);
-        }
-      };
-
-      fetchUserDetails();
-    }
-  }, [eventDetails, authTokens]); // Depend on eventDetails directly
-
-  // Fetch availabilities only once or when eventId and userId change
-  useEffect(() => {
-    getAllAvailabilities(authTokens, eventId, userId)
-      .then(setAvailabilities)
-      .catch(console.error);
+    const fetchData = async () => {
+      try {
+        // Fetch event details first
+        const eventDetailsData = await fetchEventDetails(eventId, authTokens);
+        setEventDetails(eventDetailsData);
+  
+        // Once event details are fetched and set, then fetch host details
+        const hostDetailsData = await getUserDetails(eventDetailsData.host, authTokens);
+        setHostDetails(hostDetailsData);
+  
+        // And finally fetch availabilities
+        const availabilitiesData = await getAllAvailabilities(authTokens, eventId, userId);
+        setAvailabilities(availabilitiesData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
   }, [eventId, userId, authTokens]);
 
   // Generate time slots when eventDetails or availabilities change

@@ -17,7 +17,7 @@ import LayoutWithNavbar from "./components/LayoutWithNavbar";
 
 function App() {
   return (
-    <div className='App'>
+    <div className='App py-4'>
       <Router>
         <AuthProvider>
           <Switch>
