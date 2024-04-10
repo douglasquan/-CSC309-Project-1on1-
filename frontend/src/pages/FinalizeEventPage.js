@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import { addMinutes, format } from "date-fns";
 

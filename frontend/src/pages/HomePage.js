@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Box, Grid, Paper, Typography, CircularProgress } from "@mui/material";
+import { Box, Grid, Typography, CircularProgress } from "@mui/material";
 import BasicTabs from "../components/Tab";
 import { fetchEventsByHost, fetchEventsByInvitee } from "../controllers/EventsController";
 import { getUserDetails } from "../controllers/UserController"; // Assuming this exists
@@ -79,14 +79,14 @@ const HomePage = () => {
 
   // Convert your event data to the format required by BigCalendar
   const calendarEvents = events.map((finalizedEvent) => ({
-    title:
-      finalizedEvent.event_title +
-      " - " +
-      finalizedEvent.inviteeDetails.username,
+    title: finalizedEvent.is_host 
+      ? `${finalizedEvent.event_title} - ${user.username}` // Use host username when is_host is true
+      : `${finalizedEvent.event_title} - ${finalizedEvent.inviteeDetails.username}`, // Use invitee username otherwise
     start: moment(finalizedEvent.finalized_start_time).toDate(),
     end: moment(finalizedEvent.finalized_end_time).toDate(),
     is_host: finalizedEvent.is_host,
   }));
+  
 
   const formats = {
     // remove the default time inside the timeblock

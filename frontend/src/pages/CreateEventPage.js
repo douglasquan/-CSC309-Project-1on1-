@@ -21,7 +21,6 @@ import {
   FormLabel,
   Select,
   MenuItem,
-  Grid,
   Alert,
   InputLabel,
   Stepper,
@@ -39,18 +38,71 @@ function getSteps() {
 
 function CreateEventPage() {
   const [timeblocks, setTimeblocks] = useState([]);
+
   const [eventTitle, setEventTitle] = useState("");
   const [eventDuration, setEventDuration] = useState("");
   const [eventType, setEventType] = useState("");
   const [preference, setPreference] = useState("");
   const [deadline, setDeadline] = useState({ date: "" });
   const [description, setDescription] = useState("");
+
   const [contacts, setContacts] = useState([]);
   const [selectedInvitee, setSelectedInvitee] = useState("");
   const [selectedContactUserId, setSelectedContactUserId] = useState("");
-  const { authTokens, user } = useContext(AuthContext); // Assuming you're using AuthContext for tokens
-  const [errorMessages, setErrorMessages] = useState([]);
   const [activeStep, setActiveStep] = useState(0);
+  const [dynamicStyles, setDynamicStyles] = useState({});
+
+  const [eventTitleError, setEventTitleError] = useState("");
+  const [deadlineError, setDeadlineError] = useState("");
+  const [eventDurationError, setEventDurationError] = useState("");
+  const [eventTypeError, setEventTypeError] = useState("");
+  const [inviteeError, setInviteeError] = useState("");
+
+  const { authTokens, user } = useContext(AuthContext);
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const validateForm = () => {
+    let isValid = true;
+
+    if (!eventTitle) {
+      setEventTitleError("Event title is required.");
+      isValid = false;
+    } else {
+      setEventTitleError("");
+    }
+
+    if (!deadline.date) {
+      setDeadlineError("Deadline is required.");
+      isValid = false;
+    } else {
+      setDeadlineError("");
+    }
+
+    if (!eventDuration) {
+      setEventDurationError("Event duration is required.");
+      isValid = false;
+    } else {
+      setEventDurationError("");
+    }
+
+    if (!eventType) {
+      setEventTypeError("Event type is required.");
+      isValid = false;
+    } else {
+      setEventTypeError("");
+    }
+
+    if (!selectedInvitee) {
+      setInviteeError("An invitee must be selected.");
+      isValid = false;
+    } else {
+      setInviteeError("");
+    }
+
+    return isValid;
+  };
 
   const history = useHistory();
 
@@ -59,6 +111,9 @@ function CreateEventPage() {
   // All other state declarations remain the same
 
   const handleNext = () => {
+    if (!validateForm()) {
+      return; // Prevent form submission if validation fails
+    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -77,10 +132,16 @@ function CreateEventPage() {
         const contactsDetails = await Promise.all(
           contactsData.map(async (contact) => {
             try {
-              const userDetails = await getUserDetails(contact.contact, authTokens);
+              const userDetails = await getUserDetails(
+                contact.contact,
+                authTokens
+              );
               return { ...contact, userDetails }; // Combine contact with userDetails
             } catch (error) {
-              console.error(`Error fetching details for contact ${contact.contact}:`, error);
+              console.error(
+                `Error fetching details for contact ${contact.contact}:`,
+                error
+              );
               return contact; // Return the contact without userDetails in case of error
             }
           })
@@ -94,17 +155,57 @@ function CreateEventPage() {
     fetchContactsWithDetails();
   }, [authTokens]); // Depend on authTokens to refetch if authTokens change
 
+  // Dynamically adjust the length of the stepper line
+  useEffect(() => {
+    const handleResize = () => {
+      const windowWidth = window.innerWidth;
+      const dynamicMargin = Math.max(20, windowWidth * 0.1); // Example calculation
+      setDynamicStyles({
+        "--dynamicMargin": `${dynamicMargin}px`,
+      });
+    };
+
+    // Call once to set initial state
+    handleResize();
+
+    // Add window resize listener
+    window.addEventListener("resize", handleResize);
+
+    // Clean up
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleTitleChange = (e) => {
+    const value = e.target.value;
+    setEventTitle(value);
+
+    if (value) {
+      setEventTitleError("");
+    }
+  };
+
   const handleDateChange = (e) => {
-    setDeadline({ date: e.target.value });
+    const value = e.target.value;
+    setDeadline({ date: value });
+    if (value) {
+      setDeadlineError("");
+    }
   };
 
   const handleDurationChange = (e) => {
     const value = e.target.value;
     setEventDuration(value);
+    if (value) {
+      setEventDurationError("");
+    }
   };
 
   const handleEventTypeChange = (e) => {
-    setEventType(e.target.value);
+    const value = e.target.value;
+    setEventType(value);
+    if (value) {
+      setEventTypeError("");
+    }
   };
 
   const handlePreferenceChange = (e) => {
@@ -116,24 +217,19 @@ function CreateEventPage() {
   };
 
   const handleInviteeChange = (e) => {
-    const { value } = e.target;
-    console.log(value); // output is the selected contact's id
-    // Find the contact by its id from the contact list
+    const value = e.target.value;
     const selectedContact = contacts.find((contact) => contact.id === value);
-    console.log(contacts); // output is undefined
     if (selectedContact) {
-      // Update both selectedInvitee with the contact list ID
       setSelectedInvitee(value);
       setSelectedContactUserId(selectedContact.contact);
+      setInviteeError("");
     } else {
       setSelectedInvitee("");
       setSelectedContactUserId("");
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessages([]); // Resetting error messages at the beginning of submission
 
     const eventData = {
       invitee: selectedContactUserId,
@@ -169,21 +265,34 @@ function CreateEventPage() {
       console.log("All availabilities created successfully");
     } catch (error) {
       console.error("Error in the process:", error);
-      setErrorMessages((prevMessages) => [...prevMessages, error.toString()]);
     }
   };
 
   // Calendar Timeblock:
 
-  const moveTimeblock = ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
+  const moveTimeblock = ({
+    event,
+    start,
+    end,
+    isAllDay: droppedOnAllDaySlot,
+  }) => {
     const currentTime = new Date();
     const newStartTime = new Date(start);
     const newEndTime = new Date(end);
 
     // Prevent moving timeblock to the past
     if (newStartTime < currentTime) {
-      alert("You cannot move a timeblock to a time in the past.");
-      return; // Exit the function
+      setAlertMessage("You cannot move a timeblock to a time in the past.");
+      return;
+    }
+
+    // Check if the new end time is later than the deadline
+    if (moment(end).isAfter(moment(deadline.date))) {
+      setShowAlert(true);
+      setAlertMessage(
+        "Timeblock end time cannot be later than the event deadline."
+      );
+      return;
     }
 
     // Check for overlapping with other timeblocks, excluding the current timeblock being moved
@@ -196,8 +305,7 @@ function CreateEventPage() {
     });
 
     if (isOverlapping) {
-      // alert("Timeblocks cannot overlap.");
-      return; // Exit the function
+      return;
     }
 
     const idx = timeblocks.indexOf(event);
@@ -209,7 +317,9 @@ function CreateEventPage() {
 
   const resizeTimeblock = ({ event: timeblock, start, end }) => {
     const nextEvents = timeblocks.map((existingEvent) => {
-      return existingEvent.id === timeblock.id ? { ...existingEvent, start, end } : existingEvent;
+      return existingEvent.id === timeblock.id
+        ? { ...existingEvent, start, end }
+        : existingEvent;
     });
     setTimeblocks(nextEvents);
   };
@@ -300,28 +410,42 @@ function CreateEventPage() {
 
     // Ensure a preference is selected
     if (!preference) {
-      alert("Please select a preference before creating a timeblock.");
+      setAlertMessage(
+        "Please select a preference before creating a timeblock."
+      );
       return; // Exit the function
     }
+
+    // Check if the selected end time is later than the deadline
+    if (moment(slotInfo.end).isAfter(moment(deadline.date))) {
+      setShowAlert(true);
+      setAlertMessage(
+        "Timeblock end time cannot be later than the event deadline."
+      );
+      return;
+    }
+
     // Check if the selected start time is in the past
     if (selectedStartTime < currentTime) {
-      alert("You cannot add a timeblock in the past.");
+      setAlertMessage("You cannot add a timeblock in the past.");
       return; // Exit the function
     }
 
     // Check for overlapping timeblocks
     const isOverlapping = timeblocks.some((timeblock) => {
       return (
-        selectedStartTime < new Date(timeblock.end) && selectedEndTime > new Date(timeblock.start)
+        selectedStartTime < new Date(timeblock.end) &&
+        selectedEndTime > new Date(timeblock.start)
       );
     });
 
     if (isOverlapping) {
-      alert("Schedule time cannot overlap.");
+      setAlertMessage("Schedule time cannot overlap.");
       return; // Exit the function
     }
 
-    const newId = Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
+    const newId =
+      Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
     const newTimeblock = {
       id: newId,
       start: slotInfo.start,
@@ -353,17 +477,31 @@ function CreateEventPage() {
 
   return (
     <Container>
-      <Box sx={{ width: "100%", maxWidth: activeStep === 0 ? 700 : "90%", mx: "auto", my: 4 }}>
+      {showAlert && (
+        <Alert
+          severity="warning"
+          onClose={() => setShowAlert(false)} // Adds a close icon to dismiss the alert
+          sx={{ mb: 2 }} // Margin bottom for spacing
+        >
+          {alertMessage}
+        </Alert>
+      )}
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: activeStep === 0 ? 700 : "90%",
+          mx: "auto",
+          my: 4,
+        }}
+      >
         <Stepper
           activeStep={activeStep}
           sx={{
             mb: 2,
             padding: 0,
-            ".MuiStepConnector-line": {
-              marginLeft: "calc(50% - 300px)",
-              marginRight: "calc(50% - 300px)",
-            },
+            // Assuming direct usage within `sx` might not directly work for dynamic values like this
           }}
+          style={dynamicStyles} // Apply dynamic styles as regular inline styles
         >
           {steps.map((label) => (
             <Step key={label}>
@@ -371,8 +509,11 @@ function CreateEventPage() {
             </Step>
           ))}
         </Stepper>
+
         {activeStep === steps.length ? (
-          <Typography sx={{ mt: 2, mb: 1 }}>All steps completed - you&apos;re finished</Typography>
+          <Typography sx={{ mt: 2, mb: 1 }}>
+            All steps completed - you&apos;re finished
+          </Typography>
         ) : (
           <div>
             {activeStep === 0 && (
@@ -388,33 +529,41 @@ function CreateEventPage() {
                   height: "auto",
                 }}
               >
-                <Typography variant='h4' component='h2' sx={{ mb: 2 }}>
+                <Typography variant="h4" component="h2" sx={{ mb: 2 }}>
                   Create Event
                 </Typography>
 
                 {/* Event Title */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+                >
                   <TextField
                     fullWidth
-                    id='event-title'
-                    label='Event Title'
-                    variant='outlined'
+                    id="event-title"
+                    label="Event Title"
+                    variant="outlined"
                     value={eventTitle}
-                    onChange={(e) => setEventTitle(e.target.value)}
+                    onChange={handleTitleChange}
+                    error={!!eventTitleError}
+                    helperText={eventTitleError}
                   />
                 </Box>
 
                 {/* Set Deadline */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+                >
                   <FormControl fullWidth>
                     <TextField
-                      type='date'
-                      id='deadline-date'
-                      label='Deadline Date'
+                      type="date"
+                      id="deadline-date"
+                      label="Deadline Date"
                       InputLabelProps={{ shrink: true }}
                       value={deadline.date}
                       onChange={handleDateChange}
                       required
+                      error={!!deadlineError}
+                      helperText={deadlineError}
                     />
                   </FormControl>
                 </Box>
@@ -422,16 +571,21 @@ function CreateEventPage() {
                 {/* Selecting Event Duration */}
                 <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                   <FormControl fullWidth>
-                    <InputLabel id='event-duration-label'>Select Event Duration</InputLabel>
+                    <InputLabel id="event-duration-label">
+                      Select Event Duration
+                    </InputLabel>
                     <Select
-                      labelId='event-duration-label'
-                      id='event-duration'
+                      labelId="event-duration-label"
+                      id="event-duration"
                       value={eventDuration}
-                      label='Select Event Duration'
+                      label="Select Event Duration"
                       onChange={handleDurationChange}
+                      error={!!eventDurationError}
+                      helperText={eventDurationError}
                     >
                       <MenuItem value={30}>30 minutes</MenuItem>
                       <MenuItem value={60}>60 minutes</MenuItem>
+                      <MenuItem value={90}>90 minutes</MenuItem>
                       <MenuItem value={120}>120 minutes</MenuItem>
                       <MenuItem value={150}>150 minutes</MenuItem>
                       <MenuItem value={180}>180 minutes</MenuItem>
@@ -440,18 +594,32 @@ function CreateEventPage() {
                 </Box>
 
                 {/* Selecting Event Type */}
-                <FormControl component='fieldset' sx={{ mb: 2 }}>
-                  <FormLabel component='legend'>Select an Event Type</FormLabel>
+                <FormControl component="fieldset" sx={{ mb: 2 }}>
+                  <FormLabel component="legend">Select an Event Type</FormLabel>
                   <RadioGroup
                     row
-                    aria-label='event-type'
-                    name='event-type'
+                    aria-label="event-type"
+                    name="event-type"
                     value={eventType}
                     onChange={handleEventTypeChange}
+                    error={!!eventTypeError}
+                    helperText={eventTypeError}
                   >
-                    <FormControlLabel value='in_person' control={<Radio />} label='In Person' />
-                    <FormControlLabel value='video' control={<Radio />} label='Video' />
-                    <FormControlLabel value='phone' control={<Radio />} label='Phone' />
+                    <FormControlLabel
+                      value="in_person"
+                      control={<Radio />}
+                      label="In Person"
+                    />
+                    <FormControlLabel
+                      value="video"
+                      control={<Radio />}
+                      label="Video"
+                    />
+                    <FormControlLabel
+                      value="phone"
+                      control={<Radio />}
+                      label="Phone"
+                    />
                   </RadioGroup>
                 </FormControl>
 
@@ -459,8 +627,8 @@ function CreateEventPage() {
                 <Box sx={{ mb: 2 }}>
                   <TextField
                     fullWidth
-                    id='description'
-                    label='Description/Instructions'
+                    id="description"
+                    label="Description/Instructions"
                     multiline
                     rows={4}
                     value={description}
@@ -471,31 +639,26 @@ function CreateEventPage() {
                 {/* Select Invitees */}
                 <Box sx={{ mb: 2 }}>
                   <FormControl fullWidth>
-                    <InputLabel id='invitees-label'>Invitee</InputLabel>
+                    <InputLabel id="invitees-label">Invitee</InputLabel>
                     <Select
-                      labelId='invitees-label'
-                      id='invitees'
+                      labelId="invitees-label"
+                      id="invitees"
                       value={selectedInvitee}
-                      label='Invitee'
+                      label="Invitee"
                       onChange={handleInviteeChange}
+                      error={!!inviteeError}
+                      helperText={inviteeError}
                     >
                       {contacts.map((contact) => (
                         <MenuItem key={contact.id} value={contact.id}>
-                          {contact.userDetails ? contact.userDetails.username : "Loading..."}
+                          {contact.userDetails
+                            ? contact.userDetails.username
+                            : "Loading..."}
                         </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
                 </Box>
-
-                {/* Error Message */}
-                {errorMessages.length > 0 && (
-                  <Alert severity='error' sx={{ mb: 2 }}>
-                    {errorMessages.map((msg, index) => (
-                      <div key={index}>{msg}</div>
-                    ))}
-                  </Alert>
-                )}
               </Box>
             )}
             {activeStep === 1 && (
@@ -523,14 +686,17 @@ function CreateEventPage() {
                     height: "70px", // Add this line to reduce the height of the box
                   }}
                 >
-                  <FormControl component='fieldset' sx={{ mb: 2, width: "100%" }}>
-                    <FormLabel component='legend' sx={{ fontSize: "small" }}>
+                  <FormControl
+                    component="fieldset"
+                    sx={{ mb: 2, width: "100%" }}
+                  >
+                    <FormLabel component="legend" sx={{ fontSize: "small" }}>
                       Preferences
                     </FormLabel>
                     <RadioGroup
                       row
-                      aria-label='preference'
-                      name='preference'
+                      aria-label="preference"
+                      name="preference"
                       value={preference}
                       onChange={handlePreferenceChange}
                     >
@@ -573,7 +739,7 @@ function CreateEventPage() {
                     resizable
                     onEventResize={resizeTimeblock}
                     onSelectSlot={newTimeblock}
-                    defaultView='week'
+                    defaultView="week"
                     defaultDate={new Date()}
                     components={{
                       event: (props) => <CustomTimeblock {...props} />,
@@ -586,9 +752,11 @@ function CreateEventPage() {
               </Box>
             )}
             {/* steo back and next button */}
-            <Box sx={{ display: "flex", justifyContent: "center", pt: 2, mt: 2 }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "center", pt: 2, mt: 2 }}
+            >
               <Button
-                color='inherit'
+                color="inherit"
                 disabled={activeStep === 0}
                 onClick={handleBack}
                 sx={{ mr: 1 }}
@@ -597,7 +765,7 @@ function CreateEventPage() {
               </Button>
               {activeStep === steps.length - 1 ? (
                 /* Create Meeting Button */
-                <Button variant='outlined' onClick={handleSubmit}>
+                <Button variant="outlined" onClick={handleSubmit}>
                   Create Meeting
                 </Button>
               ) : (
