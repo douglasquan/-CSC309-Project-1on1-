@@ -4,13 +4,29 @@ import {
   getUserDetails,
   updateUserDetails,
 } from "../controllers/UserController";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Alert,
+  Grid,
+  Button,
+  TextField,
+  Box,
+} from "@mui/material";
 
 const ProfilePage = () => {
+  // All for 'profile' or 'password'
+  const [openDialog, setOpenDialog] = useState(false); 
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [dialogContent, setDialogContent] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("error");
   const { authTokens, user } = useContext(AuthContext);
+
   const [userDetails, setUserDetails] = useState({
     username: "",
     first_name: "",
@@ -57,36 +73,54 @@ const ProfilePage = () => {
     }));
   };
 
-  const handleUserUpdate = async (e) => {
-    e.preventDefault(); // Prevent default form submission for user info
-    try {
-      await updateUserDetails(user.user_id, authTokens, userDetails);
-      alert("Profile updated successfully!");
-    } catch (error) {
-      console.error("Error updating user details:", error);
-      alert("Failed to update profile.");
-    }
+  const handleUpdateProfileClick = (e) => {
+    e.preventDefault(); 
+    setConfirmAction("profile");
+    setDialogContent("Are you sure you want to update your profile?");
+    setOpenDialog(true);
+  };
+  
+  const handleUpdatePasswordClick = (e) => {
+    e.preventDefault(); 
+    setConfirmAction("password");
+    setDialogContent("Are you sure you want to update your password?");
+    setOpenDialog(true);
   };
 
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault(); // Prevent default form submission for password
-
-    // Check if the new passwords match
-    if (passwordDetails.newPassword !== passwordDetails.confirmPassword) {
-      alert("Passwords do not match.");
-      return; // Stop the form submission
-    }
-
+  const confirmUpdate = async () => {
+    setOpenDialog(false);
     try {
-      await updateUserDetails(user.user_id, authTokens, {
-        password: passwordDetails.newPassword,
-      });
-      alert("Password updated successfully!");
-      setPasswordDetails({ newPassword: "", confirmPassword: "" }); // Reset password fields
+      if (confirmAction === "profile") {
+        await updateUserDetails(user.user_id, authTokens, userDetails);
+        setAlertMessage("Profile updated successfully!");
+        setAlertSeverity("success");
+      } else if (confirmAction === "password") {
+        
+        if (passwordDetails.newPassword !== passwordDetails.confirmPassword) {
+          setAlertMessage("Passwords do not match.");
+          setAlertSeverity("error");
+          setShowAlert(true);
+          return;
+        }
+
+        await updateUserDetails(user.user_id, authTokens, {
+          password: passwordDetails.newPassword,
+        });
+        setAlertMessage("Password updated successfully!");
+        setAlertSeverity("success");
+        setPasswordDetails({ newPassword: "", confirmPassword: "" }); // Reset password fields
+      }
     } catch (error) {
-      console.error("Error updating password:", error);
-      alert("Failed to update password.");
+      console.error("Error updating:", error);
+      setAlertMessage(
+        `Failed to update ${
+          confirmAction === "profile" ? "profile" : "password"
+        }.`
+      );
+      setAlertSeverity("error");
     }
+    setShowAlert(true);
+    setConfirmAction(null); // Reset the confirmed action
   };
 
   return (
@@ -99,16 +133,25 @@ const ProfilePage = () => {
         height: "100vh",
       }}
     >
-      {/* Add padding on the Grid container for smaller screens */}
       <Grid
         container
         spacing={2}
         justifyContent="center"
-        sx={{ maxWidth: "500px", width: "100%", px: 2 }}
+        sx={{ maxWidth: "500px", width: "100%", px: 2 , py: 2}}
       >
+        {showAlert && (
+          <Alert
+            severity={alertSeverity}
+            onClose={() => setShowAlert(false)}
+            sx={{ mb: 2 }}
+          >
+            {alertMessage}
+          </Alert>
+        )}
+
+        {/* User info fields */}
         <Grid item xs={12}>
-          <form onSubmit={handleUserUpdate} style={{ width: "100%" }}>
-            {/* User info fields here */}
+          <form onSubmit={handleUpdateProfileClick} style={{ width: "100%" }}>
             <TextField
               id="username"
               label="Username"
@@ -158,14 +201,15 @@ const ProfilePage = () => {
               variant="standard"
               fullWidth
             />
-            <Button type="submit" variant="contained" sx={{ marginTop: 2 }}>
+            <Button type="submit" variant="contained" color="secondary" sx={{ marginTop: 2 }} >
               Update Profile
             </Button>
           </form>
         </Grid>
+
+        {/* Password fields */}
         <Grid item xs={12}>
-          <form onSubmit={handlePasswordUpdate} style={{ width: "100%" }}>
-            {/* Password fields here */}
+          <form onSubmit={handleUpdatePasswordClick} style={{ width: "100%" }}>
             <TextField
               id="new-password"
               label="New Password"
@@ -189,12 +233,26 @@ const ProfilePage = () => {
               fullWidth
               margin="normal"
             />
-            <Button type="submit" variant="contained" sx={{ marginTop: 2 }}>
+            <Button type="submit" variant="contained" color="secondary" sx={{ marginTop: 2 }} >
               Update Password
             </Button>
           </form>
         </Grid>
       </Grid>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>{"Confirm Update"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{dialogContent}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={confirmUpdate} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

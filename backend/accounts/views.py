@@ -51,7 +51,7 @@ class DeleteUserView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class UserUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def put(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         user = request.user
         serializer = UserSerializer(user, data=request.data, partial=True) # partial=True allows partial updates
         if serializer.is_valid():
