@@ -1,72 +1,80 @@
-import React, {useContext} from 'react'
-import { NavLink } from 'react-router-dom';
-import AuthContext from '../context/AuthContext'
-import logo from '../img/logo1.png'; 
-import dummy from '../img/dummy.png';
+import React, { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
+import { Container, Box, TextField, Button, Typography, Link } from '@mui/material';
+import logo from '../img/logo1.png';
 
 const LoginPage = () => {
-  let {loginUser} = useContext(AuthContext)
+  let { loginUser } = useContext(AuthContext);
+  const history = useHistory();
+
+  const handleLinkClick = (path) => {
+    history.push(path);
+  };
 
   return (
-    <div className="bg-gradient-to-tr from-blue-600 via-purple-500 to-purple-700 h-screen flex items-center justify-center">
-      <div className="bg-white p-10 rounded-lg shadow-md max-w-6xl w-full">
-        {/* Logo container */}
-        <div className="flex justify-center">
-          <img src={logo} alt="Logo" className="mb-0" />
-        </div>
+    <Box
+      sx={{
+        background: 'linear-gradient(45deg, #a8d1d1, #bdb2ff)',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Container maxWidth="md">
+        <Box sx={{display: 'flex', mb: 5, textAlign: 'center', justifyContent: 'center' }}>
+          <img src={logo} alt="Logo" style={{ width: 500, height: 'auto' }} />
+        </Box>
 
-        <div className="flex flex-col lg:flex-row items-center bg-white p-4 max-w-6xl w-full">
-          {/* Dummy image container */}
-          <div className="lg:flex lg:w-1/2 lg:justify-center lg:items-center pr-10">
-            <img src={dummy} alt="User Icon" className="w-70 h-70 object-cover object-center" />
-          </div>
-          
-          {/* Form container */}
-          <div className="w-full lg:w-1/2 pr-10">
-            <h1 className="font-bold text-center text-2xl mb-6">User Login</h1>
-            <form onSubmit={loginUser} className="space-y-6">
-              <div>
-                <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  required
-                  placeholder="Username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-purple-500 focus:border-purple-500"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="******************"
-                />
-              </div>
-      
-              <button
-                type="submit"
-                className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:ring-green-500 focus:ring-opacity-50"
-              >
-                Login
-              </button>
-            </form>
-            
-            {/* Link container */}
-            <div className="flex justify-between text-sm font-medium text-gray-500 mt-6">
-              <NavLink to="/forgot-password" className="hover:text-gray-900">Forgot Password?</NavLink>
-              <NavLink to="/register" className="hover:text-gray-900">Create your Account →</NavLink>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        <Box sx={{ backgroundColor: 'white', p: 5, borderRadius: 2, boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)', width: '100%' }}>
+          <Typography variant="h4" component="h1" gutterBottom textAlign="center">
+            User Login
+          </Typography>
+
+          <Box component="form" onSubmit={loginUser} sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
+            >
+              Login
+            </Button>
+
+            <Box display="flex" justifyContent="space-between" mt={2}>
+              <Link component="button" variant="body2" onClick={() => handleLinkClick('/forgot-password')}>
+                Forgot password?
+              </Link>
+              <Link component="button" variant="body2" onClick={() => handleLinkClick('/register')}>
+                {"Create your Account →"}
+              </Link>
+            </Box>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
   );
 };
-
 
 export default LoginPage;
