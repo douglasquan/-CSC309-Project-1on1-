@@ -132,16 +132,10 @@ function CreateEventPage() {
         const contactsDetails = await Promise.all(
           contactsData.map(async (contact) => {
             try {
-              const userDetails = await getUserDetails(
-                contact.contact,
-                authTokens
-              );
+              const userDetails = await getUserDetails(contact.contact, authTokens);
               return { ...contact, userDetails }; // Combine contact with userDetails
             } catch (error) {
-              console.error(
-                `Error fetching details for contact ${contact.contact}:`,
-                error
-              );
+              console.error(`Error fetching details for contact ${contact.contact}:`, error);
               return contact; // Return the contact without userDetails in case of error
             }
           })
@@ -270,12 +264,7 @@ function CreateEventPage() {
 
   // Calendar Timeblock:
 
-  const moveTimeblock = ({
-    event,
-    start,
-    end,
-    isAllDay: droppedOnAllDaySlot,
-  }) => {
+  const moveTimeblock = ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
     const currentTime = new Date();
     const newStartTime = new Date(start);
     const newEndTime = new Date(end);
@@ -289,9 +278,7 @@ function CreateEventPage() {
     // Check if the new end time is later than the deadline
     if (moment(end).isAfter(moment(deadline.date))) {
       setShowAlert(true);
-      setAlertMessage(
-        "Timeblock end time cannot be later than the event deadline."
-      );
+      setAlertMessage("Timeblock end time cannot be later than the event deadline.");
       return;
     }
 
@@ -317,9 +304,7 @@ function CreateEventPage() {
 
   const resizeTimeblock = ({ event: timeblock, start, end }) => {
     const nextEvents = timeblocks.map((existingEvent) => {
-      return existingEvent.id === timeblock.id
-        ? { ...existingEvent, start, end }
-        : existingEvent;
+      return existingEvent.id === timeblock.id ? { ...existingEvent, start, end } : existingEvent;
     });
     setTimeblocks(nextEvents);
   };
@@ -410,18 +395,14 @@ function CreateEventPage() {
 
     // Ensure a preference is selected
     if (!preference) {
-      setAlertMessage(
-        "Please select a preference before creating a timeblock."
-      );
+      setAlertMessage("Please select a preference before creating a timeblock.");
       return; // Exit the function
     }
 
     // Check if the selected end time is later than the deadline
     if (moment(slotInfo.end).isAfter(moment(deadline.date))) {
       setShowAlert(true);
-      setAlertMessage(
-        "Timeblock end time cannot be later than the event deadline."
-      );
+      setAlertMessage("Timeblock end time cannot be later than the event deadline.");
       return;
     }
 
@@ -434,8 +415,7 @@ function CreateEventPage() {
     // Check for overlapping timeblocks
     const isOverlapping = timeblocks.some((timeblock) => {
       return (
-        selectedStartTime < new Date(timeblock.end) &&
-        selectedEndTime > new Date(timeblock.start)
+        selectedStartTime < new Date(timeblock.end) && selectedEndTime > new Date(timeblock.start)
       );
     });
 
@@ -444,8 +424,7 @@ function CreateEventPage() {
       return; // Exit the function
     }
 
-    const newId =
-      Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
+    const newId = Math.max(0, ...timeblocks.map((timeblock) => timeblock.id)) + 1;
     const newTimeblock = {
       id: newId,
       start: slotInfo.start,
@@ -479,7 +458,7 @@ function CreateEventPage() {
     <Container>
       {showAlert && (
         <Alert
-          severity="warning"
+          severity='warning'
           onClose={() => setShowAlert(false)} // Adds a close icon to dismiss the alert
           sx={{ mb: 2 }} // Margin bottom for spacing
         >
@@ -511,9 +490,7 @@ function CreateEventPage() {
         </Stepper>
 
         {activeStep === steps.length ? (
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
-          </Typography>
+          <Typography sx={{ mt: 2, mb: 1 }}>All steps completed - you&apos;re finished</Typography>
         ) : (
           <div>
             {activeStep === 0 && (
@@ -529,19 +506,17 @@ function CreateEventPage() {
                   height: "auto",
                 }}
               >
-                <Typography variant="h4" component="h2" sx={{ mb: 2 }}>
+                <Typography variant='h4' component='h2' sx={{ mb: 2 }}>
                   Create Event
                 </Typography>
 
                 {/* Event Title */}
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
-                >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
                   <TextField
                     fullWidth
-                    id="event-title"
-                    label="Event Title"
-                    variant="outlined"
+                    id='event-title'
+                    label='Event Title'
+                    variant='outlined'
                     value={eventTitle}
                     onChange={handleTitleChange}
                     error={!!eventTitleError}
@@ -550,14 +525,12 @@ function CreateEventPage() {
                 </Box>
 
                 {/* Set Deadline */}
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
-                >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
                   <FormControl fullWidth>
                     <TextField
-                      type="date"
-                      id="deadline-date"
-                      label="Deadline Date"
+                      type='date'
+                      id='deadline-date'
+                      label='Deadline Date'
                       InputLabelProps={{ shrink: true }}
                       value={deadline.date}
                       onChange={handleDateChange}
@@ -571,14 +544,12 @@ function CreateEventPage() {
                 {/* Selecting Event Duration */}
                 <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                   <FormControl fullWidth>
-                    <InputLabel id="event-duration-label">
-                      Select Event Duration
-                    </InputLabel>
+                    <InputLabel id='event-duration-label'>Select Event Duration</InputLabel>
                     <Select
-                      labelId="event-duration-label"
-                      id="event-duration"
+                      labelId='event-duration-label'
+                      id='event-duration'
                       value={eventDuration}
-                      label="Select Event Duration"
+                      label='Select Event Duration'
                       onChange={handleDurationChange}
                       error={!!eventDurationError}
                       helperText={eventDurationError}
@@ -594,32 +565,20 @@ function CreateEventPage() {
                 </Box>
 
                 {/* Selecting Event Type */}
-                <FormControl component="fieldset" sx={{ mb: 2 }}>
-                  <FormLabel component="legend">Select an Event Type</FormLabel>
+                <FormControl component='fieldset' sx={{ mb: 2 }}>
+                  <FormLabel component='legend'>Select an Event Type</FormLabel>
                   <RadioGroup
                     row
-                    aria-label="event-type"
-                    name="event-type"
+                    aria-label='event-type'
+                    name='event-type'
                     value={eventType}
                     onChange={handleEventTypeChange}
                     error={!!eventTypeError}
                     helperText={eventTypeError}
                   >
-                    <FormControlLabel
-                      value="in_person"
-                      control={<Radio />}
-                      label="In Person"
-                    />
-                    <FormControlLabel
-                      value="video"
-                      control={<Radio />}
-                      label="Video"
-                    />
-                    <FormControlLabel
-                      value="phone"
-                      control={<Radio />}
-                      label="Phone"
-                    />
+                    <FormControlLabel value='in_person' control={<Radio />} label='In Person' />
+                    <FormControlLabel value='video' control={<Radio />} label='Video' />
+                    <FormControlLabel value='phone' control={<Radio />} label='Phone' />
                   </RadioGroup>
                 </FormControl>
 
@@ -627,8 +586,8 @@ function CreateEventPage() {
                 <Box sx={{ mb: 2 }}>
                   <TextField
                     fullWidth
-                    id="description"
-                    label="Description/Instructions"
+                    id='description'
+                    label='Description/Instructions'
                     multiline
                     rows={4}
                     value={description}
@@ -639,21 +598,19 @@ function CreateEventPage() {
                 {/* Select Invitees */}
                 <Box sx={{ mb: 2 }}>
                   <FormControl fullWidth>
-                    <InputLabel id="invitees-label">Invitee</InputLabel>
+                    <InputLabel id='invitees-label'>Invitee</InputLabel>
                     <Select
-                      labelId="invitees-label"
-                      id="invitees"
+                      labelId='invitees-label'
+                      id='invitees'
                       value={selectedInvitee}
-                      label="Invitee"
+                      label='Invitee'
                       onChange={handleInviteeChange}
                       error={!!inviteeError}
                       helperText={inviteeError}
                     >
                       {contacts.map((contact) => (
                         <MenuItem key={contact.id} value={contact.id}>
-                          {contact.userDetails
-                            ? contact.userDetails.username
-                            : "Loading..."}
+                          {contact.userDetails ? contact.userDetails.username : "Loading..."}
                         </MenuItem>
                       ))}
                     </Select>
@@ -681,22 +638,18 @@ function CreateEventPage() {
                   sx={{
                     mb: 1,
                     padding: 1,
-                    backgroundColor: "action.selected",
+                    // backgroundColor: "action.selected",
                     borderRadius: 1,
                     height: "70px", // Add this line to reduce the height of the box
                   }}
                 >
-                  <FormControl
-                    component="fieldset"
-                    sx={{ mb: 2, width: "100%" }}
-                  >
-                    <FormLabel component="legend" sx={{ fontSize: "small" }}>
-                      Preferences
-                    </FormLabel>
+                  <FormControl component='fieldset' sx={{ mb: 2, width: "100%" }}>
+                    <FormLabel component='legend'>Select Your Preferred Date and Time</FormLabel>
+
                     <RadioGroup
                       row
-                      aria-label="preference"
-                      name="preference"
+                      aria-label='preference'
+                      name='preference'
                       value={preference}
                       onChange={handlePreferenceChange}
                     >
@@ -716,11 +669,11 @@ function CreateEventPage() {
                           }
                           label={pref}
                           sx={{
-                            color: preferenceColors[pref], // Apply color to the label text based on the preference
+                            // color: preferenceColors[pref], // Apply color to the label text based on the preference
                             flexGrow: 1,
                             ".MuiFormControlLabel-label": {
                               // This targets the label within FormControlLabel
-                              color: preferenceColors[pref], // Apply the color to the label text
+                              // color: preferenceColors[pref], // Apply the color to the label text
                               fontSize: "small", // Decrease the font size for the label text
                             },
                           }}
@@ -739,7 +692,7 @@ function CreateEventPage() {
                     resizable
                     onEventResize={resizeTimeblock}
                     onSelectSlot={newTimeblock}
-                    defaultView="week"
+                    defaultView='week'
                     defaultDate={new Date()}
                     components={{
                       event: (props) => <CustomTimeblock {...props} />,
@@ -752,11 +705,9 @@ function CreateEventPage() {
               </Box>
             )}
             {/* step back and next button */}
-            <Box
-              sx={{ display: "flex", justifyContent: "center", pt: 2, mt: 2 }}
-            >
+            <Box sx={{ display: "flex", justifyContent: "center", pt: 2, mt: 2 }}>
               <Button
-                color="inherit"
+                color='inherit'
                 disabled={activeStep === 0}
                 onClick={handleBack}
                 sx={{ mr: 1 }}
@@ -765,7 +716,7 @@ function CreateEventPage() {
               </Button>
               {activeStep === steps.length - 1 ? (
                 /* Create Meeting Button */
-                <Button variant="contained" onClick={handleSubmit}>
+                <Button variant='contained' onClick={handleSubmit}>
                   Create Meeting
                 </Button>
               ) : (
