@@ -228,7 +228,6 @@ export default function BasicTabs() {
           setInvitedMeetingsFinalized(invitedEvents.filter((event) => event.status === "F"));
           console.log("hostedEvents", hostedEvents);
           console.log("invitedEvents", invitedEvents);
-          console.log("invitedMeetingsFinalized", invitedMeetingsFinalized);
 
         } catch (error) {
           console.error("Error fetching events:", error);
