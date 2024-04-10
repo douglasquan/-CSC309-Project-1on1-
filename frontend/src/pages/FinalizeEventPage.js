@@ -3,15 +3,19 @@ import { useParams } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import { addMinutes, format } from "date-fns";
 
-import { Box, Grid, Typography, Chip, Divider, Stack, Button} from "@mui/material";
+import { Box, Grid, Typography, Chip, Divider, Stack, Button } from "@mui/material";
+
+import Face6Icon from "@mui/icons-material/Face6";
+import EventIcon from "@mui/icons-material/Event";
+import PhoneIcon from "@mui/icons-material/Phone";
+import VideoCallIcon from "@mui/icons-material/VideoCall";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import { getAllAvailabilities } from "../controllers/AvailabilityController";
-import {
-  fetchEventDetails,
-  updateEvent,
-} from "../controllers/EventsController";
+import { fetchEventDetails, updateEvent } from "../controllers/EventsController";
 
 import { getUserDetails } from "../controllers/UserController";
+import MeetingRoom from "@mui/icons-material/MeetingRoom";
 
 const FinalizeEventPage = () => {
   let { eventId } = useParams();
@@ -36,16 +40,8 @@ const FinalizeEventPage = () => {
         console.log(event);
         console.log(event.host);
         console.log(event.invitee);
-        const hostAvailabilityPromise = getAllAvailabilities(
-          authTokens,
-          eventId,
-          event.host
-        );
-        const inviteeAvailabilityPromise = getAllAvailabilities(
-          authTokens,
-          eventId,
-          event.invitee
-        );
+        const hostAvailabilityPromise = getAllAvailabilities(authTokens, eventId, event.host);
+        const inviteeAvailabilityPromise = getAllAvailabilities(authTokens, eventId, event.invitee);
 
         const [hostAvail, inviteeAvail] = await Promise.all([
           hostAvailabilityPromise,
@@ -67,11 +63,7 @@ const FinalizeEventPage = () => {
 
   // Matching and scoring availabilities
   useEffect(() => {
-    if (
-      eventDetails &&
-      hostAvailabilities.length > 0 &&
-      inviteeAvailabilities.length > 0
-    ) {
+    if (eventDetails && hostAvailabilities.length > 0 && inviteeAvailabilities.length > 0) {
       // Generate time slots for the host that are the same duration as the event
       const hostSlots = generateHostTimeSlots();
 
@@ -80,8 +72,7 @@ const FinalizeEventPage = () => {
       inviteeAvailabilities.forEach((inviteeSlot) => {
         hostSlots.forEach((hostSlot) => {
           if (
-            hostSlot.start.getTime() ===
-              new Date(inviteeSlot.start_time).getTime() &&
+            hostSlot.start.getTime() === new Date(inviteeSlot.start_time).getTime() &&
             hostSlot.end.getTime() === new Date(inviteeSlot.end_time).getTime()
           ) {
             const score =
@@ -109,10 +100,7 @@ const FinalizeEventPage = () => {
       // Check if eventDetails is not null and has a host
       const fetchUserDetails = async () => {
         try {
-          const inviteeDetails = await getUserDetails(
-            eventDetails.invitee,
-            authTokens
-          );
+          const inviteeDetails = await getUserDetails(eventDetails.invitee, authTokens);
           console.log(inviteeDetails);
           setInviteeDetails(inviteeDetails);
         } catch (error) {
@@ -146,7 +134,6 @@ const FinalizeEventPage = () => {
     return slots;
   };
 
-
   // Function to handle selection of a time slot
   const handleSelectTimeSlot = (availability) => {
     setSelectedTimeSlot(availability);
@@ -158,19 +145,18 @@ const FinalizeEventPage = () => {
       alert("Please select a time slot.");
       return;
     }
-  
+
     try {
       // Assuming the event's final date and time are set based on the selectedTimeSlot
       // You might need to adjust the object structure based on your backend requirements
       const updateData = {
         status: "F", // finalized status
-        finalized_start_time: selectedTimeSlot.start_time, 
+        finalized_start_time: selectedTimeSlot.start_time,
         finalized_end_time: selectedTimeSlot.end_time,
       };
-  
+
       await updateEvent(eventId, updateData, authTokens);
       console.log("Event status updated to 'F' (Finalized)");
-  
     } catch (error) {
       console.error("Failed to update event status:", error);
     }
@@ -212,49 +198,97 @@ const FinalizeEventPage = () => {
     return <div>Error: {error.message}</div>;
   }
 
+  // Helper function to get the appropriate icon for an event type
+  const getEventTypeIcon = (eventType) => {
+    switch (eventType) {
+      case "in_person":
+        return <MeetingRoom sx={{ mr: 1 }} />;
+      case "phone":
+        return <PhoneIcon sx={{ mr: 1 }} />;
+      case "video":
+        return <VideoCallIcon sx={{ mr: 1 }} />;
+      default:
+        return null; // Or some default icon
+    }
+  };
+
   return (
-    <Box className="container mx-auto p-4">
-      <Grid container spacing={3}>
+    <Box className='container mx-auto p-4'>
+      <Grid container spacing={3} alignItems='stretch'>
         {/* Event Details Section */}
         <Grid item xs={12} md={6}>
           <Stack spacing={2} sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>
-            <Typography variant="h4" component="span">
+            <Typography
+              variant='h4'
+              component='h2'
+              sx={{ color: "primary.main", fontWeight: "bold", fontSize: "2rem" }}
+            >
               {eventDetails.event_title}
-            </Typography>{" "}
-            <Typography variant="h6" component="span">
-              with {inviteeDetails.username}
             </Typography>
+
             <Divider />
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Duration
+
+            <Typography
+              variant='body1'
+              sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
+            >
+              <Face6Icon sx={{ mr: 0.75 }} /> {inviteeDetails.username}
             </Typography>
-            <Typography variant="body2">
-              {eventDetails.event_duration} minutes
+
+            <Typography
+              variant='body1'
+              sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
+            >
+              <AccessTimeIcon sx={{ mr: 1 }} /> {eventDetails.event_duration} minutes
             </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Notes from {inviteeDetails.username}
+
+            <Typography
+              variant='body1'
+              sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
+            >
+              {getEventTypeIcon(eventDetails.event_type)}
+              {eventDetails.event_type.replace("_", " ")}
             </Typography>
-            <Typography variant="body2">
+
+            <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+              Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
+            </Typography>
+
+            <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+              Notes from {inviteeDetails.username}:
+            </Typography>
+
+            <Typography variant='body2'>
               {eventDetails.description || "No description provided."}
             </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Event Type
-            </Typography>
-            <Typography variant="body2">{eventDetails.event_type}</Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Event Deadline
-            </Typography>
-            <Typography variant="body2">
-              {format(new Date(eventDetails.deadline), "PPPp")}
-            </Typography>
-            <Divider />
           </Stack>
         </Grid>
         {/* Matched Availabilities Section */}
-        <Grid item xs={12} md={6}>
-          <Box sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>
-            <h2>Top Matched Availabilities</h2>
-            <Stack direction="row" spacing={1} sx={{ my: 2, flexWrap: "wrap" }}>
+        <Grid item xs={12} md={6} sx={{ display: "flex" }}>
+          <Box
+            sx={{
+              p: 2,
+              boxShadow: 3,
+              borderRadius: 2,
+              bgcolor: "background.paper",
+              width: "100%", // Ensure the box takes up all available width
+              minHeight: "100%", // Ensure the box takes up minimum height of 100%
+              // display: "flex", // Use flex layout to allow children to expand
+              flexDirection: "column", // Stack children vertically
+            }}
+          >
+            <Typography variant='h6' component='h2' sx={{ fontWeight: "bold", mb: 2 }}>
+              Select the finalized time for the event
+            </Typography>
+            <Stack
+              direction='row'
+              sx={{
+                my: 2,
+                flexWrap: "wrap",
+                alignItems: "center", // Vertically align items in the middle
+                // Remove the gap property and manage margins manually below
+              }}
+            >
               {matchedAvailabilities.map((availability, index) => (
                 <Chip
                   key={index}
@@ -262,17 +296,32 @@ const FinalizeEventPage = () => {
                     availability.start_time
                   )} - ${formatDateTime(availability.end_time)}`}
                   clickable
-                  color={
-                    selectedTimeSlot === availability ? "primary" : "default"
-                  }
+                  color={selectedTimeSlot === availability ? "primary" : "default"}
                   onClick={() => handleSelectTimeSlot(availability)}
-                  variant={
-                    selectedTimeSlot === availability ? "filled" : "outlined"
-                  }
+                  variant={selectedTimeSlot === availability ? "filled" : "outlined"}
+                  sx={{
+                    fontSize: "0.875rem",
+                    height: "36px", // Ensure consistent height
+                    alignItems: "center", // Align text in the center vertically
+                    display: "flex", // Use flexbox to align text
+                    lineHeight: "normal", // Ensure the line height does not affect alignment
+                    padding: "6px 8px",
+                    marginRight: "8px", // Apply right margin to all items
+                    marginBottom: "8px", // Apply bottom margin to all items for wrapping
+                    "&:first-of-type": {
+                      marginLeft: 0, // Remove left margin for the first Chip
+                    },
+                  }}
                 />
               ))}
             </Stack>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+
+            <Button
+              variant='contained'
+              color='secondary'
+              onClick={handleSubmit}
+              sx={{ mt: 1, fontSize: "0.75rem", padding: "6px 12px" }} // Makes the button smaller and aligns with chip font size
+            >
               Submit Finalized Time
             </Button>
           </Box>
