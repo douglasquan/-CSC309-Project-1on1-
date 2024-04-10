@@ -3,10 +3,15 @@ import { useParams, useHistory } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import { addMinutes, format } from "date-fns";
 
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Typography, Chip, Divider, Stack, Button} from "@mui/material";
 
 import { getAllAvailabilities } from "../controllers/AvailabilityController";
-import { fetchEventDetails, updateEvent } from "../controllers/EventsController";
+import {
+  fetchEventDetails,
+  updateEvent,
+} from "../controllers/EventsController";
+
+import { getUserDetails } from "../controllers/UserController";
 
 const FinalizeEventPage = () => {
   let { eventId } = useParams();
@@ -15,7 +20,9 @@ const FinalizeEventPage = () => {
   const [eventDetails, setEventDetails] = useState(null);
   const [hostAvailabilities, setHostAvailabilities] = useState([]);
   const [inviteeAvailabilities, setInviteeAvailabilities] = useState([]);
+  const [inviteeDetails, setInviteeDetails] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [error, setError] = useState(null);
   const [matchedAvailabilities, setMatchedAvailabilities] = useState([]);
 
@@ -29,8 +36,16 @@ const FinalizeEventPage = () => {
         console.log(event);
         console.log(event.host);
         console.log(event.invitee);
-        const hostAvailabilityPromise = getAllAvailabilities(authTokens, eventId, event.host);
-        const inviteeAvailabilityPromise = getAllAvailabilities(authTokens, eventId, event.invitee);
+        const hostAvailabilityPromise = getAllAvailabilities(
+          authTokens,
+          eventId,
+          event.host
+        );
+        const inviteeAvailabilityPromise = getAllAvailabilities(
+          authTokens,
+          eventId,
+          event.invitee
+        );
 
         const [hostAvail, inviteeAvail] = await Promise.all([
           hostAvailabilityPromise,
@@ -52,7 +67,11 @@ const FinalizeEventPage = () => {
 
   // Matching and scoring availabilities
   useEffect(() => {
-    if (eventDetails && hostAvailabilities.length > 0 && inviteeAvailabilities.length > 0) {
+    if (
+      eventDetails &&
+      hostAvailabilities.length > 0 &&
+      inviteeAvailabilities.length > 0
+    ) {
       // Generate time slots for the host that are the same duration as the event
       const hostSlots = generateHostTimeSlots();
 
@@ -61,7 +80,8 @@ const FinalizeEventPage = () => {
       inviteeAvailabilities.forEach((inviteeSlot) => {
         hostSlots.forEach((hostSlot) => {
           if (
-            hostSlot.start.getTime() === new Date(inviteeSlot.start_time).getTime() &&
+            hostSlot.start.getTime() ===
+              new Date(inviteeSlot.start_time).getTime() &&
             hostSlot.end.getTime() === new Date(inviteeSlot.end_time).getTime()
           ) {
             const score =
@@ -82,6 +102,27 @@ const FinalizeEventPage = () => {
       setMatchedAvailabilities(topMatches);
     }
   }, [eventDetails, hostAvailabilities, inviteeAvailabilities]);
+
+  // Fetch host details
+  useEffect(() => {
+    if (eventDetails && eventDetails.invitee) {
+      // Check if eventDetails is not null and has a host
+      const fetchUserDetails = async () => {
+        try {
+          const inviteeDetails = await getUserDetails(
+            eventDetails.invitee,
+            authTokens
+          );
+          console.log(inviteeDetails);
+          setInviteeDetails(inviteeDetails);
+        } catch (error) {
+          console.error("Error fetching invitee details:", error);
+        }
+      };
+
+      fetchUserDetails();
+    }
+  }, [eventDetails, authTokens]); // Depend on eventDetails directly
 
   // Helper function to format the DateTime object or string
   const formatDateTime = (dateTimeStr) => {
@@ -105,6 +146,36 @@ const FinalizeEventPage = () => {
     return slots;
   };
 
+
+  // Function to handle selection of a time slot
+  const handleSelectTimeSlot = (availability) => {
+    setSelectedTimeSlot(availability);
+  };
+
+  // Function to handle finalization submission
+  const handleSubmit = async () => {
+    if (!selectedTimeSlot) {
+      alert("Please select a time slot.");
+      return;
+    }
+  
+    try {
+      // Assuming the event's final date and time are set based on the selectedTimeSlot
+      // You might need to adjust the object structure based on your backend requirements
+      const updateData = {
+        status: "F", // finalized status
+        finalized_start_time: selectedTimeSlot.start_time, 
+        finalized_end_time: selectedTimeSlot.end_time,
+      };
+  
+      await updateEvent(eventId, updateData, authTokens);
+      console.log("Event status updated to 'F' (Finalized)");
+  
+    } catch (error) {
+      console.error("Failed to update event status:", error);
+    }
+  };
+
   // Function to break down host's availabilities into event duration-sized slots
   const generateHostTimeSlots = () => {
     return hostAvailabilities.flatMap((availability) =>
@@ -112,7 +183,10 @@ const FinalizeEventPage = () => {
         new Date(availability.start_time),
         new Date(availability.end_time),
         eventDetails.event_duration
-      ).map((slot) => ({ ...slot, preference_type: availability.preference_type }))
+      ).map((slot) => ({
+        ...slot,
+        preference_type: availability.preference_type,
+      }))
     );
   };
 
@@ -139,20 +213,70 @@ const FinalizeEventPage = () => {
   }
 
   return (
-    <Box className='container mx-auto p-4'>
-      {/* Matched Availabilities Section */}
-      <Grid item xs={12}>
-        <Box className='bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4'>
-          <h2 className='text-xl mb-2'>Top Matched Availabilities</h2>
-          {matchedAvailabilities.map((availability, index) => (
-            <div key={index} className='flex justify-between items-center my-2 p-2 shadow'>
-              <span>{`${availability.date}: ${formatDateTime(
-                availability.start_time
-              )} - ${formatDateTime(availability.end_time)}`}</span>
-              <span>Preference Score: {availability.score}</span>
-            </div>
-          ))}
-        </Box>
+    <Box className="container mx-auto p-4">
+      <Grid container spacing={3}>
+        {/* Event Details Section */}
+        <Grid item xs={12} md={6}>
+          <Stack spacing={2} sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>
+            <Typography variant="h4" component="span">
+              {eventDetails.event_title}
+            </Typography>{" "}
+            <Typography variant="h6" component="span">
+              with {inviteeDetails.username}
+            </Typography>
+            <Divider />
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Duration
+            </Typography>
+            <Typography variant="body2">
+              {eventDetails.event_duration} minutes
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Notes from {inviteeDetails.username}
+            </Typography>
+            <Typography variant="body2">
+              {eventDetails.description || "No description provided."}
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Event Type
+            </Typography>
+            <Typography variant="body2">{eventDetails.event_type}</Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Event Deadline
+            </Typography>
+            <Typography variant="body2">
+              {format(new Date(eventDetails.deadline), "PPPp")}
+            </Typography>
+            <Divider />
+          </Stack>
+        </Grid>
+        {/* Matched Availabilities Section */}
+        <Grid item xs={12} md={6}>
+          <Box sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>
+            <h2>Top Matched Availabilities</h2>
+            <Stack direction="row" spacing={1} sx={{ my: 2, flexWrap: "wrap" }}>
+              {matchedAvailabilities.map((availability, index) => (
+                <Chip
+                  key={index}
+                  label={`${availability.date}: ${formatDateTime(
+                    availability.start_time
+                  )} - ${formatDateTime(availability.end_time)}`}
+                  clickable
+                  color={
+                    selectedTimeSlot === availability ? "primary" : "default"
+                  }
+                  onClick={() => handleSelectTimeSlot(availability)}
+                  variant={
+                    selectedTimeSlot === availability ? "filled" : "outlined"
+                  }
+                />
+              ))}
+            </Stack>
+            <Button variant="contained" color="primary" onClick={handleSubmit}>
+              Submit Finalized Time
+            </Button>
+          </Box>
+        </Grid>
       </Grid>
     </Box>
   );

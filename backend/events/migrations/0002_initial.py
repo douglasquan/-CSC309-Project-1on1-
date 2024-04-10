@@ -11,16 +11,10 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('events', '0001_initial'),
-        ('timeblocks', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='event',
-            name='finalized_timeblock_id',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='finalized_timeblock', to='timeblocks.eventtimeblock'),
-        ),
         migrations.AddField(
             model_name='event',
             name='host',

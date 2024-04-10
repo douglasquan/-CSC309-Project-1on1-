@@ -197,7 +197,10 @@ export default function BasicTabs() {
           setInvitedMeetingsPending(invitedEvents.filter((event) => event.status === "A"));
           setInvitedMeetingsReady(invitedEvents.filter((event) => event.status === "C"));
           setInvitedMeetingsFinalized(invitedEvents.filter((event) => event.status === "F"));
-          console.log("invitedMeetingsReady", invitedMeetingsReady);
+          console.log("hostedEvents", hostedEvents);
+          console.log("invitedEvents", invitedEvents);
+          console.log("invitedMeetingsFinalized", invitedMeetingsFinalized);
+
         } catch (error) {
           console.error("Error fetching events:", error);
         } finally {
@@ -307,6 +310,7 @@ export default function BasicTabs() {
           value={invitedTabValue}
           onChange={handleInvitedTabChange}
           aria-label='sub tabs for invited meetings'
+          centered
         >
           <Tab label='Pending' />
           <Tab label='Waiting host to Finalize' />
@@ -335,7 +339,7 @@ export default function BasicTabs() {
               key={meeting.id}
               eventId={meeting.id}
               eventName={meeting.event_title}
-              inviteeId={meeting.invitee}
+              inviteeId={meeting.host}
               authTokens={authTokens}
               onEdit={() => {
                 console.log("Edit:", meeting.id);

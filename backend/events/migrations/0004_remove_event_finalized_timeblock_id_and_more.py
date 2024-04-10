@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='event',
-            name='finalized_timeblock_id',
-        ),
         migrations.AddField(
             model_name='event',
             name='finalized_date',
