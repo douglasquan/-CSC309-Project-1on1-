@@ -6,6 +6,7 @@ import { getUserDetails } from "../controllers/UserController"; // Assuming this
 import AuthContext from "../context/AuthContext";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
+import {  deleteEvent,} from "../controllers/EventsController";
 
 const EventComponent = ({ event }) => {
   const startTime = moment(event.start).format("LT");
@@ -41,6 +42,15 @@ const HomePage = () => {
     <EventComponent {...props} view={currentView} />
   );
   const [currentView, setCurrentView] = useState("week");
+
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      await deleteEvent(eventId, authTokens);
+      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+    } catch (error) {
+      console.error("Failed to delete event:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchEventsForUser = async () => {
@@ -115,7 +125,7 @@ const HomePage = () => {
       <Grid container spacing={2}>
         {/* Left container with tabs */}
         <Grid item xs={12} md={4} lg={4}>
-          <BasicTabs />
+          <BasicTabs onDelete={handleDeleteEvent} />
         </Grid>
 
         {/* Right container - Calendar Component */}
