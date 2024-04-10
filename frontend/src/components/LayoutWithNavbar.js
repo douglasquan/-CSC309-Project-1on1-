@@ -1,12 +1,12 @@
 import React from 'react';
-import NavbarMenu from './Navbar'; // Assuming you have a Navbar component
+import NavbarComponent from './Navbar'; // Make sure this path is correct
 
 const LayoutWithNavbar = ({ children }) => {
   return (
-    <div className="layout-with-navbar">
-      <NavbarMenu /> {/* Your navigation bar component */}
-      <div className="content">
-        {children} {/* Content passed as children to the LayoutWithNavbar component */}
+    <div className="flex">
+      <NavbarComponent />
+      <div className="flex-grow">
+        {children}
       </div>
     </div>
   );

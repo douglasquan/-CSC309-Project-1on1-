@@ -102,6 +102,15 @@ function ContactListPage() {
   const [contacts, setContacts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [contactToDelete, setContactToDelete] = useState(null);
+
+  const pastelColors = {
+    tableHeadColor: '#a8d1d1', //Table head color
+    deleteIconColor: '#e8a2a2', // A pastel delete icon color
+    contactCellsColor: '#d5e3e8', // Color for active item background
+    tableRowColor: '#dfebeb', // Color for table row
+    hoverColor: '#c9e4de', // Color for hover
+  };
+
   let { authTokens } = useContext(AuthContext);
   const handleAddContact = async (newContact) => {
     if (!newContact.userDetails) {
@@ -165,11 +174,11 @@ function ContactListPage() {
   };
 
 
+
   return (
     <Container maxWidth="lg" className="py-8">
       <div className="flex items-center justify-between pb-6">
         <div>
-          {/* Heading */}
           <Typography variant="h4" gutterBottom>
             Contact List
           </Typography>
@@ -180,7 +189,7 @@ function ContactListPage() {
         <Button
           variant="contained"
           color="primary"
-          className="text-white"
+          sx={{ backgroundColor: pastelColors.tableHeadColor, '&:hover': { backgroundColor: pastelColors.deleteIconColor } }} // Applying pastel colors
           onClick={() => setShowModal(true)}
         >
           Add Contact
@@ -191,10 +200,9 @@ function ContactListPage() {
           onAddContact={handleAddContact}
         />
       </div>
-      {/* Contact List */}
-      <TableContainer component={Paper} className="overflow-hidden rounded-lg">
+      <TableContainer component={Paper} sx={{ overflowHidden: 'rounded-lg'}}>
         <Table aria-label="contacts table">
-          <TableHead>
+          <TableHead sx={{ backgroundColor: pastelColors.tableHeadColor }}>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Username</TableCell>
@@ -205,20 +213,15 @@ function ContactListPage() {
           </TableHead>
           <TableBody>
             {contacts.map((contact) => (
-              <TableRow key={contact.id}>
-                <TableCell>
-                  {`${contact.userDetails.first_name} ${contact.userDetails.last_name}`}
-                </TableCell>
+              <TableRow key={contact.id} sx={{ backgroundColor: pastelColors.tableRowColor, '&:hover': { backgroundColor: pastelColors.hoverColor } }}>
+                <TableCell>{`${contact.userDetails.first_name} ${contact.userDetails.last_name}`}</TableCell>
                 <TableCell>{contact.userDetails.username}</TableCell>
                 <TableCell>{contact.userDetails.email}</TableCell>
-                <TableCell>
-                  {new Date(contact.added_at).toLocaleString()}
-                </TableCell>
-                {/* Delete Button */}
+                <TableCell>{new Date(contact.added_at).toLocaleString()}</TableCell>
                 <TableCell align="right">
                   <IconButton
                     aria-label="delete"
-                    color="error"
+                    sx={{ color: pastelColors.deleteIconColor }}
                     onClick={() => handleDeleteClick(contact)}
                   >
                     <DeleteIcon />
