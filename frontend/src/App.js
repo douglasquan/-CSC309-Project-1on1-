@@ -13,51 +13,48 @@ import SubmitAvailabilityPage from "./pages/SubmitAvailabilityPage";
 import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import FinalizeEventPage from "./pages/FinalizeEventPage";
-import ViewEventPage from "./pages/ViewEventPage";
 import LayoutWithNavbar from "./components/LayoutWithNavbar";
 import { NotificationProvider } from "./components/NotificationContext";
 
 function App() {
   return (
-    <div className='App py-4'>
+
+    <div className='App'>
       <NotificationProvider>
-        <Router>
-          <AuthProvider>
-            <Switch>
-              <Route path='/login' component={LoginPage} />
-              <Route path='/register' component={RegisterPage} />
-              <Route path='/forgot-password' component={ForgotPasswordPage} />
-              <Route
-                path='/'
-                render={() => (
-                  <LayoutWithNavbar>
-                    <Switch>
-                      <PrivateRoute exact path='/' component={HomePage} />
-                      <PrivateRoute exact path='/profile' component={ProfilePage} />
-                      <PrivateRoute exact path='/create-event' component={CreateEventPage} />
-                      <PrivateRoute exact path='/contact-list' component={ContactListPage} />
-                      <PrivateRoute
-                        exact
-                        path='/submit-availability/event/:eventId/user/:userId'
-                        component={SubmitAvailabilityPage}
-                      />
-                      <PrivateRoute
-                        exact
-                        path='/view/event/:eventId/user/:userId'
-                        component={ViewEventPage}
-                      />
-                      <PrivateRoute
-                        exact
-                        path='/finalize-event/event/:eventId'
-                        component={FinalizeEventPage}
-                      />
-                    </Switch>
-                  </LayoutWithNavbar>
-                )}
-              />
-            </Switch>
-          </AuthProvider>
-        </Router>
+      <Router>
+        <AuthProvider>
+          <Switch>
+            <Route path='/login' component={LoginPage} />
+            <Route path='/register' component={RegisterPage} />
+            <Route path='/forgot-password' component={ForgotPasswordPage} />
+            <div className="py-4">
+            <Route
+              path='/'
+              render={() => (
+                <LayoutWithNavbar>
+                  <Switch>
+                    <PrivateRoute exact path='/' component={HomePage} />
+                    <PrivateRoute exact path='/profile' component={ProfilePage} />
+                    <PrivateRoute exact path='/create-event' component={CreateEventPage} />
+                    <PrivateRoute exact path='/contact-list' component={ContactListPage} />
+                    <PrivateRoute
+                      exact
+                      path='/submit-availability/event/:eventId/user/:userId'
+                      component={SubmitAvailabilityPage}
+                    />
+                    <PrivateRoute
+                      exact
+                      path='/finalize-event/event/:eventId'
+                      component={FinalizeEventPage}
+                    />
+                  </Switch>
+                </LayoutWithNavbar>
+              )}
+            />
+            </div>
+          </Switch>
+        </AuthProvider>
+      </Router>
       </NotificationProvider>
     </div>
   );

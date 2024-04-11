@@ -81,16 +81,14 @@ const HomePage = () => {
         const combinedEvents = [...hostedEvents, ...invitedEvents];
 
         // Filter events with status "F" and fetch invitee details (if needed)
-        const finalizedEvents = combinedEvents.filter((event) => event.status === "F");
 
-        const eventsWithDetails = await Promise.all(
-          finalizedEvents.map(async (event) => {
-            const inviteeDetails = await getUserDetails(event.invitee, authTokens);
-            const isHost = event.host === user.user_id;
-            return { ...event, inviteeDetails, is_host: isHost };
-          })
-        );
-
+        const finalizedEvents = combinedEvents.filter(event => event.status === "F");
+  
+        const eventsWithDetails = await Promise.all(finalizedEvents.map(async (event) => {
+          const inviteeDetails = await getUserDetails(event.invitee, authTokens);
+          const hostDetails = await getUserDetails(event.host, authTokens);
+          const isHost = event.host === user.user_id;
+          return { ...event, hostDetails, inviteeDetails, is_host: isHost };        }));
         setEvents(eventsWithDetails);
       } catch (e) {
         console.error("Failed to fetch events:", e);
@@ -107,9 +105,9 @@ const HomePage = () => {
 
   // Convert your event data to the format required by BigCalendar
   const calendarEvents = events.map((finalizedEvent) => ({
-    title: finalizedEvent.is_host
-      ? `${finalizedEvent.event_title} - ${user.username}` // Use host username when is_host is true
-      : `${finalizedEvent.event_title} - ${finalizedEvent.inviteeDetails.username}`, // Use invitee username otherwise
+    title: finalizedEvent.is_host 
+      ? `${finalizedEvent.event_title} - ${finalizedEvent.inviteeDetails.username}` // Use invitee username when is_host is true
+      : `${finalizedEvent.event_title} - ${finalizedEvent.hostDetails.username}`, // Use host username otherwise
     start: moment(finalizedEvent.finalized_start_time).toDate(),
     end: moment(finalizedEvent.finalized_end_time).toDate(),
     is_host: finalizedEvent.is_host,

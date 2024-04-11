@@ -719,7 +719,7 @@ function CreateEventPage() {
               </Button>
               {activeStep === steps.length - 1 ? (
                 /* Create Meeting Button */
-                <Button variant='contained' onClick={handleSubmit}>
+                <Button variant='contained' color="secondary" onClick={handleSubmit}>
                   Create Meeting
                 </Button>
               ) : (
