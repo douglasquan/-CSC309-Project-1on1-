@@ -6,13 +6,19 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Drawer from "@mui/material/Drawer";
-
 
 import AuthContext from "../context/AuthContext";
 import {
@@ -140,32 +146,80 @@ function MeetingItem({
           }}
         >
           {" "}
-          {onEdit && (
-            <Button variant='outlined' color='primary' onClick={onEdit}>
+          {/* {onEdit && (
+            <Button variant="outlined" onClick={onEdit}
+            sx={{
+              color: context === 'invited' ? 'invitation.main' : 'primary.main',
+              borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+              '&:hover': {
+                backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
+                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+              }
+            }}
+            >
               Edit Meeting
-            </Button>
-          )}
+            </Button> */}
+          {/* )} */}
           {onRequest && (
-            <Button variant='outlined' color='primary' onClick={handleOpenRequestDialog}>
+            <Button
+              variant="outlined"
+              onClick={handleOpenRequestDialog}
+              sx={{
+                color: context === 'invited' ? 'invitation.main' : 'primary.main',
+                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+                '&:hover': {
+                  backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
+                  borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+                }
+              }}
+            >
               Request Availability
             </Button>
           )}
           {onAccept && (
-            <Button variant='outlined' color='primary' onClick={handleAccept}>
+            <Button variant="outlined" onClick={handleAccept}
+            sx={{
+              color: context === 'invited' ? 'invitation.main' : 'primary.main',
+              borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+              '&:hover': {
+                backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
+                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+              }
+            }}
+            >
               Accept Invitation
             </Button>
           )}
           {onView && (
-            <Button variant='outlined' color='primary' onClick={() => handleView(eventData)}>
+            <Button
+              variant="outlined"
+              onClick={() => handleView(eventData)}
+              sx={{
+                color: context === 'invited' ? 'invitation.main' : 'primary.main',
+                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+                '&:hover': {
+                  backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
+                  borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+                }
+              }}
+            >
               View Meeting
             </Button>
           )}
           {onFinalize && (
-            <Button variant='outlined' color='success' onClick={handleFinalize}>
+            <Button variant="outlined" onClick={handleFinalize}
+            sx={{
+              color: context === 'invited' ? 'invitation.main' : 'primary.main',
+              borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+              '&:hover': {
+                backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
+                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
+              }
+            }}>
               Finalize Meeting
             </Button>
           )}
-          <IconButton aria-label='delete' onClick={onDelete}>
+          <IconButton aria-label="delete" onClick={onDelete}>
             <DeleteIcon />
           </IconButton>
           <RequestAvailabilityDialog
@@ -176,7 +230,11 @@ function MeetingItem({
           />
         </Box>
       </AccordionDetails>
-      <Drawer anchor='bottom' open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+      <Drawer
+        anchor="bottom"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
         {selectedEvent && <ViewEventPage eventDetails={selectedEvent} />}
       </Drawer>
     </Accordion>
@@ -188,7 +246,7 @@ function TabPanel(props) {
 
   return (
     <div
-      role='tabpanel'
+      role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
@@ -273,12 +331,11 @@ export default function BasicTabs({ onDelete }) {
     setIsConfirmDialogOpen(true);
   };
 
-  
   const handleConfirmDelete = async () => {
     if (eventToDelete) {
       try {
         await onDelete(eventToDelete);
-        setHostedMeetingsPending((prevMeetings) => 
+        setHostedMeetingsPending((prevMeetings) =>
           prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
         );
         console.log("Event deleted successfully.");
@@ -289,24 +346,42 @@ export default function BasicTabs({ onDelete }) {
         setIsConfirmDialogOpen(false);
       }
     }
-  }
+  };
 
   useEffect(() => {
     const fetchEvents = async () => {
       if (user && user.user_id) {
         try {
           setIsLoading(true);
-          const hostedEvents = await fetchEventsByHost(user.user_id, authTokens);
-          const invitedEvents = await fetchEventsByInvitee(user.user_id, authTokens);
+          const hostedEvents = await fetchEventsByHost(
+            user.user_id,
+            authTokens
+          );
+          const invitedEvents = await fetchEventsByInvitee(
+            user.user_id,
+            authTokens
+          );
 
           // Filter hosted events based on status
-          setHostedMeetingsPending(hostedEvents.filter((event) => event.status === "A"));
-          setHostedMeetingsReady(hostedEvents.filter((event) => event.status === "C"));
-          setHostedMeetingsFinalized(hostedEvents.filter((event) => event.status === "F"));
+          setHostedMeetingsPending(
+            hostedEvents.filter((event) => event.status === "A")
+          );
+          setHostedMeetingsReady(
+            hostedEvents.filter((event) => event.status === "C")
+          );
+          setHostedMeetingsFinalized(
+            hostedEvents.filter((event) => event.status === "F")
+          );
 
-          setInvitedMeetingsPending(invitedEvents.filter((event) => event.status === "A"));
-          setInvitedMeetingsReady(invitedEvents.filter((event) => event.status === "C"));
-          setInvitedMeetingsFinalized(invitedEvents.filter((event) => event.status === "F"));
+          setInvitedMeetingsPending(
+            invitedEvents.filter((event) => event.status === "A")
+          );
+          setInvitedMeetingsReady(
+            invitedEvents.filter((event) => event.status === "C")
+          );
+          setInvitedMeetingsFinalized(
+            invitedEvents.filter((event) => event.status === "F")
+          );
           console.log("hostedEvents", hostedEvents);
           console.log("invitedEvents", invitedEvents);
         } catch (error) {
@@ -332,12 +407,27 @@ export default function BasicTabs({ onDelete }) {
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
-          aria-label='basic tabs example'
+          aria-label="basic tabs example"
           allowScrollButtonsMobile
           centered
+          sx={{
+            // Conditionally change the indicator color when the "Invitations" tab is selected
+            '.MuiTabs-indicator': {
+              backgroundColor: tabValue === 1 ? '#EE9B1E' : '',
+            },
+          }}
         >
-          <Tab label='Hosted Meetings' {...a11yProps(0)} />
-          <Tab label='Invitations' {...a11yProps(1)} />
+          <Tab label="Hosted Meetings" {...a11yProps(0)} />
+          <Tab
+            label="Invitations"
+            {...a11yProps(1)}
+            sx={{
+              color: tabValue === 1 ? '#FFDDC1' : '',
+              '&.Mui-selected': {
+                color: '#D17D00', // Ensure the color remains when selected
+              },
+            }} 
+          />
         </Tabs>
       </Box>
 
@@ -352,15 +442,27 @@ export default function BasicTabs({ onDelete }) {
           allowScrollButtonsMobile
         >
           <Tab
-            label={<Box component='span'>Pending ({hostedMeetingsPending.length})</Box>}
+            label={
+              <Box component="span">
+                Pending ({hostedMeetingsPending.length})
+              </Box>
+            }
             wrapped
           />
           <Tab
-            label={<Box component='span'>Ready to Finalize ({hostedMeetingsReady.length})</Box>}
+            label={
+              <Box component="span">
+                Ready to Finalize ({hostedMeetingsReady.length})
+              </Box>
+            }
             wrapped
           />
           <Tab
-            label={<Box component='span'>Finalized ({hostedMeetingsFinalized.length})</Box>}
+            label={
+              <Box component="span">
+                Finalized ({hostedMeetingsFinalized.length})
+              </Box>
+            }
             wrapped
           />
         </Tabs>
@@ -382,7 +484,7 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.invitee}
               authTokens={authTokens}
-              context='hosted'
+              context="hosted"
               onEdit={() => {
                 console.log("Edit:", meeting.id);
               }}
@@ -403,6 +505,7 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.invitee}
               authTokens={authTokens}
+              context="hosted"
               onEdit={() => {
                 console.log("Edit:", meeting.id);
               }}
@@ -423,6 +526,7 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.invitee}
               authTokens={authTokens}
+              context="hosted"
               onView={() => {
                 console.log("View:", meeting.id);
               }}
@@ -441,19 +545,38 @@ export default function BasicTabs({ onDelete }) {
           scrollButtons={isSmallScreen ? "auto" : "false"}
           centered={!isSmallScreen}
           allowScrollButtonsMobile
+          sx={{
+            ".MuiTabs-indicator": {
+              backgroundColor: "#EE9B1E", // change the indicator color
+            },
+            ".Mui-selected": {
+              // change text color of the selected tab
+              color: "#D17D00", // override the color for the selected tab
+            },
+          }}
         >
           <Tab
-            label={<Box component='span'>Pending ({invitedMeetingsPending.length})</Box>}
-            wrapped
-          />
-          <Tab
             label={
-              <Box component='span'>Waiting host to Finalize ({invitedMeetingsReady.length})</Box>
+              <Box component="span">
+                Pending ({invitedMeetingsPending.length})
+              </Box>
             }
             wrapped
           />
           <Tab
-            label={<Box component='span'>Finalized ({invitedMeetingsFinalized.length})</Box>}
+            label={
+              <Box component="span">
+                Waiting host to Finalize ({invitedMeetingsReady.length})
+              </Box>
+            }
+            wrapped
+          />
+          <Tab
+            label={
+              <Box component="span">
+                Finalized ({invitedMeetingsFinalized.length})
+              </Box>
+            }
             wrapped
           />
         </Tabs>
@@ -467,6 +590,7 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.host}
               authTokens={authTokens}
+              context="invited"
               onAccept={() => {}}
               onDelete={() => showDeleteConfirmation(meeting.id)}
             />
@@ -482,9 +606,9 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.host}
               authTokens={authTokens}
+              context="invited"
               onView={() => {}}
               onDelete={() => deleteEvent(meeting.id, authTokens)}
-
             />
           ))}
         </TabPanel>
@@ -498,7 +622,7 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.host}
               authTokens={authTokens}
-              context='invited'
+              context="invited"
               onView={() => {
                 console.log("View:", meeting.id);
               }}

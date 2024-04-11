@@ -7,9 +7,14 @@ const theme = createTheme({
   palette: {
     primary: {
       main: '#2EB69B', // lighter - for button
+      light: '#CCFFE5'
     },
     secondary: {
       main: '#28A28A', // darker - for text
+    },
+    invitation: {
+      main: '#D17D00', 
+      light: '#FFE5CC'
     },
   },
 });

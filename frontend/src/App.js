@@ -13,18 +13,18 @@ import SubmitAvailabilityPage from "./pages/SubmitAvailabilityPage";
 import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import FinalizeEventPage from "./pages/FinalizeEventPage";
-import ViewEventPage from "./pages/ViewEventPage";
 import LayoutWithNavbar from "./components/LayoutWithNavbar";
 
 function App() {
   return (
-    <div className='App py-4'>
+    <div className='App'>
       <Router>
         <AuthProvider>
           <Switch>
             <Route path='/login' component={LoginPage} />
             <Route path='/register' component={RegisterPage} />
             <Route path='/forgot-password' component={ForgotPasswordPage} />
+            <div className="py-4">
             <Route
               path='/'
               render={() => (
@@ -41,11 +41,6 @@ function App() {
                     />
                     <PrivateRoute
                       exact
-                      path='/view/event/:eventId/user/:userId'
-                      component={ViewEventPage}
-                    />
-                    <PrivateRoute
-                      exact
                       path='/finalize-event/event/:eventId'
                       component={FinalizeEventPage}
                     />
@@ -53,6 +48,7 @@ function App() {
                 </LayoutWithNavbar>
               )}
             />
+            </div>
           </Switch>
         </AuthProvider>
       </Router>
