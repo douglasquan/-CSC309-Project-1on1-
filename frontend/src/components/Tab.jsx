@@ -7,6 +7,11 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 
 import AuthContext from "../context/AuthContext";
 import {
@@ -77,7 +82,6 @@ function MeetingItem({
     fetchUserDetails();
   }, [inviteeId, authTokens]);
 
-  
   const handleAccept = () => {
     if (onAccept) {
       onAccept();
@@ -93,57 +97,62 @@ function MeetingItem({
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        bgcolor: "lightgrey",
-        p: 2,
-        my: 1,
-        borderRadius: "8px",
-        boxShadow: 1,
-      }}
-    >
-      <span>{`${eventName} - ${inviteeUsername}`}</span>
-      <Box>
-        {onEdit && (
-          <Button variant='outlined' color='primary' onClick={onEdit}>
-            Edit Meeting
-          </Button>
-        )}
-        {onRequest && (
-          <Button variant='outlined' color='primary' onClick={handleOpenRequestDialog}>
-            Request Availability
-          </Button>
-        )}
-        {onAccept && (
-          <Button variant='outlined' color='primary' onClick={handleAccept}>
-            Accept Invitation
-          </Button>
-        )}
-        {onView && (
-          <Button variant='outlined' color='primary' onClick={onView}>
-            View Meeting
-          </Button>
-        )}
-        {onFinalize && (
-          <Button variant='outlined' color='success' onClick={handleFinalize}>
-            Finalize Meeting
-          </Button>
-        )}
-        <IconButton aria-label='delete' onClick={onDelete}>
-          <DeleteIcon />
-        </IconButton>
-
-        <RequestAvailabilityDialog
-          open={openRequestDialog}
-          onClose={handleCloseRequestDialog}
-          inviteeUsername={inviteeUsername}
-          inviteeEmail={inviteeEmail}
-        />
-      </Box>
-    </Box>
+    <Accordion sx={{ my: 1, boxShadow: 1 }}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls={`panel${eventId}-content`}
+        id={`panel${eventId}-header`}
+      >
+        <Typography>{`${eventName} - ${inviteeUsername}`}</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between", // This will space the children evenly
+            width: "100%", // Ensure the box takes up all the available space
+            flexWrap: "wrap", // Allows the items to wrap onto the next line if necessary
+            gap: 1, // Provides a gap between items
+          }}
+        >
+          {" "}
+          {onEdit && (
+            <Button variant='outlined' color='primary' onClick={onEdit}>
+              Edit Meeting
+            </Button>
+          )}
+          {onRequest && (
+            <Button variant='outlined' color='primary' onClick={handleOpenRequestDialog}>
+              Request Availability
+            </Button>
+          )}
+          {onAccept && (
+            <Button variant='outlined' color='primary' onClick={handleAccept}>
+              Accept Invitation
+            </Button>
+          )}
+          {onView && (
+            <Button variant='outlined' color='primary' onClick={onView}>
+              View Meeting
+            </Button>
+          )}
+          {onFinalize && (
+            <Button variant='outlined' color='success' onClick={handleFinalize}>
+              Finalize Meeting
+            </Button>
+          )}
+          <IconButton aria-label='delete' onClick={onDelete}>
+            <DeleteIcon />
+          </IconButton>
+          <RequestAvailabilityDialog
+            open={openRequestDialog}
+            onClose={handleCloseRequestDialog}
+            inviteeUsername={inviteeUsername}
+            inviteeEmail={inviteeEmail}
+          />
+        </Box>
+      </AccordionDetails>
+    </Accordion>
   );
 }
 
@@ -273,7 +282,6 @@ export default function BasicTabs({ onDelete }) {
           setInvitedMeetingsFinalized(invitedEvents.filter((event) => event.status === "F"));
           console.log("hostedEvents", hostedEvents);
           console.log("invitedEvents", invitedEvents);
-
         } catch (error) {
           console.error("Error fetching events:", error);
         } finally {
