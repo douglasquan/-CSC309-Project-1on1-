@@ -14,10 +14,13 @@ import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import FinalizeEventPage from "./pages/FinalizeEventPage";
 import LayoutWithNavbar from "./components/LayoutWithNavbar";
+import { NotificationProvider } from "./components/NotificationContext";
 
 function App() {
   return (
+
     <div className='App'>
+      <NotificationProvider>
       <Router>
         <AuthProvider>
           <Switch>
@@ -52,6 +55,7 @@ function App() {
           </Switch>
         </AuthProvider>
       </Router>
+      </NotificationProvider>
     </div>
   );
 }

@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef  } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom'; // Import useHistory for navigation
 import AuthContext from '../context/AuthContext';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Tooltip, Divider, Box } from '@mui/material';
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Tooltip, Divider, Box, useMediaQuery } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -28,6 +28,9 @@ const NavbarComponent = () => {
   const history = useHistory();
   const [expanded, setExpanded] = useState(false);
   const location = useLocation(); // Get the current location
+  const isMobile = useMediaQuery('(max-width:600px)');
+  const drawerRef = useRef();
+
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -54,66 +57,96 @@ const NavbarComponent = () => {
     { title: "Register", path: "/register", icon: <PersonAddIcon /> },
   ];
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (drawerRef.current && !drawerRef.current.contains(event.target)) {
+        setDrawerOpen(false);
+      }
+    }
+
+    if (isMobile && drawerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobile, drawerOpen]); 
+
   return (
     <Box onMouseEnter={() => setExpanded(true)} onMouseLeave={() => setExpanded(false)} sx={{ display: 'flex' }}>
-      <IconButton onClick={() => setExpanded(!expanded)} color="inherit" sx={{ color: pastelColors.iconColor }}>
-        <MenuIcon />
-      </IconButton>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: expanded ? drawerWidthExpanded : drawerWidthCollapsed,
-          '& .MuiDrawer-paper': {
+      {isMobile ? (
+        <IconButton 
+          onClick={handleDrawerToggle} 
+          color="inherit" 
+          sx={{ 
+            color: pastelColors.background,
+            position: 'fixed', // fixed or absolute, depending on layout
+            top: 10,
+            left: 14,
+            zIndex: 1201 // above the Drawer and AppBar's zIndex
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+      ) : null}
+        <Drawer
+          variant={isMobile ? "temporary" : "permanent"}
+          ref={drawerRef}
+          open={drawerOpen}
+          onClose={handleDrawerToggle}
+          sx={{
             width: expanded ? drawerWidthExpanded : drawerWidthCollapsed,
-            boxSizing: 'border-box',
-            overflowX: 'hidden',
-            backgroundColor: pastelColors.background,
-            transition: (theme) => theme.transitions.create('width', {
-              easing: theme.transitions.easing.sharp,
-              duration: expanded ? theme.transitions.duration.enteringScreen : theme.transitions.duration.leavingScreen,
-            }),
-          },
-        }}
-        open={expanded}
-      >
-        <List style={{ padding: expanded ? '10px' : '20px 6px' }}>
-          {navigationItems.map((item) => (
-            <Tooltip title={expanded ? '' : item.title} placement="right" key={item.title}>
-              <ListItem
-                button
-                component={Link}
-                to={item.path}
-                onClick={drawerOpen ? handleDrawerToggle : null}
-                style={{ 
-                  marginTop: '20px',
-                  backgroundColor: location.pathname === item.path ? pastelColors.activeItemBackground : 'transparent',
-                }}
-              >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={expanded ? item.title : ''} />
-              </ListItem>
-            </Tooltip>
-          ))}
-        </List>
-        {user && (
-          <Box sx={{ position: 'absolute', bottom: 0, width: '100%', textAlign: 'center'}}>
-            <Divider />
-            <Tooltip title={!expanded ? "Logout" : ''} placement="right">
-              <ListItem 
-                button 
-                onClick={handleLogout} 
-                sx={{ 
-                  justifyContent: expanded ? 'flex-start' : 'center', 
-                  p: expanded ? '10px' : '10px 50px',
-                }}
-              >
-                <ListItemIcon><LogoutIcon /></ListItemIcon>
-                <ListItemText primary="Logout" sx={{ display: expanded ? 'block' : 'none'}} />
-              </ListItem>
-            </Tooltip>
-          </Box>
-        )}
-      </Drawer>
+            '& .MuiDrawer-paper': {
+              width: isMobile ? drawerWidthExpanded : (expanded ? drawerWidthExpanded : drawerWidthCollapsed),
+              boxSizing: 'border-box',
+              overflowX: 'hidden',
+              backgroundColor: pastelColors.background,
+              transition: (theme) => theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: expanded ? theme.transitions.duration.enteringScreen : theme.transitions.duration.leavingScreen,
+              }),
+            },
+          }}
+        >
+          <List style={{ padding: isMobile ? '20px 6px' : (expanded ? '10px' : '20px 6px')}}>
+            {navigationItems.map((item) => (
+              <Tooltip title={isMobile ? item.title : (expanded ? '' : item.title)} placement="right" key={item.title}>
+                <ListItem
+                  button
+                  component={Link}
+                  to={item.path}
+                  onClick={drawerOpen ? handleDrawerToggle : null}
+                  style={{ 
+                    marginTop: '20px',
+                    backgroundColor: location.pathname === item.path ? pastelColors.activeItemBackground : 'transparent',
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={isMobile ? item.title : (expanded ? item.title : '')} />
+                </ListItem>
+              </Tooltip>
+            ))}
+          </List>
+          {user && (
+            <Box sx={{ position: 'absolute', bottom: 0, width: '100%', textAlign: 'center'}}>
+              <Divider />
+              <Tooltip title={isMobile ? "Logout" : (!expanded ? "Logout" : '')} placement="right">
+                <ListItem 
+                  button 
+                  onClick={handleLogout} 
+                  sx={{ 
+                    justifyContent: expanded ? 'flex-start' : 'center', 
+                    p: expanded ? '10px' : '10px 50px',
+                  }}
+                >
+                  <ListItemIcon><LogoutIcon /></ListItemIcon>
+                  <ListItemText primary="Logout" sx={{ display: expanded ? 'block' : 'none'}} />
+                </ListItem>
+              </Tooltip>
+            </Box>
+          )}
+        </Drawer>
     </Box>
   );
 };

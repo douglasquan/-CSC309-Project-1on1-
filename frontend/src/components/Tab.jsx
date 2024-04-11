@@ -39,10 +39,10 @@ const ConfirmDialog = ({ open, onClose, onConfirm, title, message }) => {
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} color='primary'>
           Cancel
         </Button>
-        <Button onClick={onConfirm} color="primary" autoFocus>
+        <Button onClick={onConfirm} color='primary' autoFocus>
           Confirm
         </Button>
       </DialogActions>
@@ -471,8 +471,8 @@ export default function BasicTabs({ onDelete }) {
           open={isConfirmDialogOpen}
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={handleConfirmDelete}
-          title="Confirm Deletion"
-          message="Are you sure you want to delete this event? This action cannot be undone."
+          title='Confirm Deletion'
+          message='Are you sure you want to delete this event? This action cannot be undone.'
         />
 
         {/* List hostedMeetingsPending */}
