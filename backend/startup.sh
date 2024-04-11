@@ -1,16 +1,15 @@
 #!/bin/bash
 
-# Update and install necessary apt packages
-sudo apt-get update
-sudo apt-get install -y python3-pip python3-venv libpq-dev python3-dev
-
-# Install prerequisites for the Python Imaging Library (Pillow)
-sudo apt-get install -y libjpeg-dev zlib1g-dev libpng-dev
-
-# Create a virtual environment
-python3 -m venv venv
+# Create a virtual environment if it doesn't already exist
+if [ ! -d "venv" ]; then
+  python3 -m venv venv
+  echo "Virtual environment created."
+else
+  echo "Virtual environment already exists."
+fi
 
 # Activate the virtual environment
+# For Windows, use `venv\Scripts\activate` instead
 source venv/bin/activate
 
 # Upgrade pip to the latest version
