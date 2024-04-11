@@ -16,6 +16,7 @@ import {
   Chip,
   Divider,
   Stack,
+  CircularProgress
 } from "@mui/material";
 
 import EventIcon from "@mui/icons-material/Event";
@@ -107,7 +108,7 @@ const EventDetailsPage = () => {
   };
 
   if (!eventDetails) {
-    return <div>Loading...</div>;
+    return <CircularProgress />;
   }
 
   const handleTimeSlotClick = (slot) => {

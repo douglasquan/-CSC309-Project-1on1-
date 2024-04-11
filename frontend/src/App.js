@@ -13,6 +13,7 @@ import SubmitAvailabilityPage from "./pages/SubmitAvailabilityPage";
 import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import FinalizeEventPage from "./pages/FinalizeEventPage";
+import ViewEventPage from "./pages/ViewEventPage";
 import LayoutWithNavbar from "./components/LayoutWithNavbar";
 
 function App() {
@@ -37,6 +38,11 @@ function App() {
                       exact
                       path='/submit-availability/event/:eventId/user/:userId'
                       component={SubmitAvailabilityPage}
+                    />
+                    <PrivateRoute
+                      exact
+                      path='/view/event/:eventId/user/:userId'
+                      component={ViewEventPage}
                     />
                     <PrivateRoute
                       exact
