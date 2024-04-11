@@ -11,16 +11,19 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Drawer from "@mui/material/Drawer";
 
 
 import AuthContext from "../context/AuthContext";
 import {
   fetchEventsByHost,
   fetchEventsByInvitee,
+  fetchEventDetails,
   deleteEvent,
 } from "../controllers/EventsController";
 import { getUserDetails } from "../controllers/UserController";
 import RequestAvailabilityDialog from "./RequestAvailabilityDialog";
+import ViewEventPage from "../pages/ViewEventPage";
 
 const ConfirmDialog = ({ open, onClose, onConfirm, title, message }) => {
   return (
@@ -52,10 +55,20 @@ function MeetingItem({
   onRequest,
   onAccept,
   onView,
+  context,
 }) {
   const [inviteeUsername, setInviteeUsername] = useState("Loading...");
   const [openRequestDialog, setOpenRequestDialog] = React.useState(false);
   const [inviteeEmail, setInviteeEmail] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const eventData = {
+    id: eventId,
+    event_title: eventName,
+    inviteeId: inviteeId,
+    // Add other necessary details that you want to pass to the ViewEventPage
+  };
 
   const handleOpenRequestDialog = () => {
     setOpenRequestDialog(true);
@@ -87,6 +100,17 @@ function MeetingItem({
       onAccept();
     }
     history.push(`/submit-availability/event/${eventId}/user/${inviteeId}`);
+  };
+
+  const handleView = async (context) => {
+    try {
+      // Here you should fetch the full event details
+      const eventDetailsData = await fetchEventDetails(eventId, authTokens);
+      setSelectedEvent({ ...eventDetailsData, context });
+      setDrawerOpen(true); // Open the drawer
+    } catch (error) {
+      console.error("Error fetching event details:", error);
+    }
   };
 
   const handleFinalize = () => {
@@ -132,7 +156,7 @@ function MeetingItem({
             </Button>
           )}
           {onView && (
-            <Button variant='outlined' color='primary' onClick={onView}>
+            <Button variant='outlined' color='primary' onClick={() => handleView(eventData)}>
               View Meeting
             </Button>
           )}
@@ -152,6 +176,9 @@ function MeetingItem({
           />
         </Box>
       </AccordionDetails>
+      <Drawer anchor='bottom' open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        {selectedEvent && <ViewEventPage eventDetails={selectedEvent} />}
+      </Drawer>
     </Accordion>
   );
 }
@@ -355,6 +382,7 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.invitee}
               authTokens={authTokens}
+              context='hosted'
               onEdit={() => {
                 console.log("Edit:", meeting.id);
               }}
@@ -454,10 +482,9 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.host}
               authTokens={authTokens}
-              onView={() => {
-                console.log("View:", meeting.id);
-              }}
-              onDelete={() => showDeleteConfirmation(meeting.id)}
+              onView={() => {}}
+              onDelete={() => deleteEvent(meeting.id, authTokens)}
+
             />
           ))}
         </TabPanel>
@@ -471,6 +498,7 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.host}
               authTokens={authTokens}
+              context='invited'
               onView={() => {
                 console.log("View:", meeting.id);
               }}
