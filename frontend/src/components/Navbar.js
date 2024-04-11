@@ -12,24 +12,31 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import FaceIcon from '@mui/icons-material/Face';
 import LogoutIcon from '@mui/icons-material/Logout';  
+import {getUserDetails} from "../controllers/UserController";
 
 const drawerWidthExpanded = 240;
 const drawerWidthCollapsed = 65;
 
 const pastelColors = {
   background: '#c9e4de', // A pastel background color
-  iconColor: '#f5b5fc', // A pastel icon color
+  iconColor: '#9ea1d4', // A pastel icon color
   activeItemBackground: '#a8d1d1', // A pastel active item background color
 };
 
 const NavbarComponent = () => {
-  let { user, logoutUser } = useContext(AuthContext);
+  let { user, logoutUser, authTokens } = useContext(AuthContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const history = useHistory();
   const [expanded, setExpanded] = useState(false);
   const location = useLocation(); // Get the current location
   const isMobile = useMediaQuery('(max-width:600px)');
   const drawerRef = useRef();
+  const [userName, setUserName] = useState({ first_name: '', last_name: '' });
+
+  const getInitials = (firstName, lastName) => {
+    if (!firstName || !lastName) return 'NN'; // Add a check for undefined or empty values
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
 
 
   const handleDrawerToggle = () => {
@@ -58,20 +65,42 @@ const NavbarComponent = () => {
   ];
 
   useEffect(() => {
+    // Click outside listener
     function handleClickOutside(event) {
       if (drawerRef.current && !drawerRef.current.contains(event.target)) {
         setDrawerOpen(false);
       }
     }
-
+  
     if (isMobile && drawerOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-
-    return () => {
+  
+    // Clean up the click outside listener
+    const cleanUpClickOutsideListener = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMobile, drawerOpen]); 
+  
+    // Fetch user details
+    const fetchUserDetails = async () => {
+      if (user && user.user_id && authTokens) {
+        try {
+          const details = await getUserDetails(user.user_id, authTokens);
+          setUserName({
+            first_name: details.first_name || '',
+            last_name: details.last_name || '',
+          });
+        } catch (error) {
+          console.error('Error fetching user details:', error);
+        }
+      }
+    };
+  
+    fetchUserDetails();
+  
+    // The return here is for cleanup of the click outside event listener
+    return cleanUpClickOutsideListener;
+  }, [isMobile, drawerOpen, user, authTokens]);
 
   return (
     <Box onMouseEnter={() => setExpanded(true)} onMouseLeave={() => setExpanded(false)} sx={{ display: 'flex' }}>
@@ -109,7 +138,33 @@ const NavbarComponent = () => {
             },
           }}
         >
+          {user && (
           <List style={{ padding: isMobile ? '20px 6px' : (expanded ? '10px' : '20px 6px')}}>
+            <ListItem   
+              button 
+              component={Link} 
+              to="/profile"
+              sx={{ justifyContent: 'flex-start', paddingY: 1, marginBottom: '10px', paddingX:1 }}>
+              <ListItemIcon sx={{ minWidth: '40px' }}>
+                <Box sx={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%', // make it circular
+                  backgroundColor: pastelColors.iconColor,
+                  color: 'white',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                }}>
+                  {getInitials(userName.first_name, userName.last_name)}
+                </Box>
+              </ListItemIcon>
+              {expanded && (
+                <ListItemText primary={`${userName.first_name} ${userName.last_name}`} sx={{ marginLeft: '10px' }} />
+              )}
+            </ListItem>
             {navigationItems.map((item) => (
               <Tooltip title={isMobile ? item.title : (expanded ? '' : item.title)} placement="right" key={item.title}>
                 <ListItem
@@ -128,6 +183,7 @@ const NavbarComponent = () => {
               </Tooltip>
             ))}
           </List>
+          )}
           {user && (
             <Box sx={{ position: 'absolute', bottom: 0, width: '100%', textAlign: 'center'}}>
               <Divider />
