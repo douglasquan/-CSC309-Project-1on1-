@@ -6,13 +6,19 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Drawer from "@mui/material/Drawer";
-
 
 import AuthContext from "../context/AuthContext";
 import {
@@ -33,10 +39,10 @@ const ConfirmDialog = ({ open, onClose, onConfirm, title, message }) => {
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} color='primary'>
           Cancel
         </Button>
-        <Button onClick={onConfirm} color="primary" autoFocus>
+        <Button onClick={onConfirm} color='primary' autoFocus>
           Confirm
         </Button>
       </DialogActions>
@@ -273,12 +279,11 @@ export default function BasicTabs({ onDelete }) {
     setIsConfirmDialogOpen(true);
   };
 
-  
   const handleConfirmDelete = async () => {
     if (eventToDelete) {
       try {
         await onDelete(eventToDelete);
-        setHostedMeetingsPending((prevMeetings) => 
+        setHostedMeetingsPending((prevMeetings) =>
           prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
         );
         console.log("Event deleted successfully.");
@@ -289,7 +294,7 @@ export default function BasicTabs({ onDelete }) {
         setIsConfirmDialogOpen(false);
       }
     }
-  }
+  };
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -369,8 +374,8 @@ export default function BasicTabs({ onDelete }) {
           open={isConfirmDialogOpen}
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={handleConfirmDelete}
-          title="Confirm Deletion"
-          message="Are you sure you want to delete this event? This action cannot be undone."
+          title='Confirm Deletion'
+          message='Are you sure you want to delete this event? This action cannot be undone.'
         />
 
         {/* List hostedMeetingsPending */}
@@ -482,15 +487,8 @@ export default function BasicTabs({ onDelete }) {
               eventName={meeting.event_title}
               inviteeId={meeting.host}
               authTokens={authTokens}
-<<<<<<< HEAD
               onView={() => {}}
               onDelete={() => deleteEvent(meeting.id, authTokens)}
-=======
-              onView={() => {
-                console.log("View:", meeting.id);
-              }}
-              onDelete={() => showDeleteConfirmation(meeting.id)}
->>>>>>> e5ae541e23c00e5f1d87711db2076652309106eb
             />
           ))}
         </TabPanel>
