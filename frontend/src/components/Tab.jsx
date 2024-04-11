@@ -6,12 +6,13 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Button from "@mui/material/Button";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Drawer from "@mui/material/Drawer";
+
 
 import AuthContext from "../context/AuthContext";
 import {
@@ -23,6 +24,25 @@ import {
 import { getUserDetails } from "../controllers/UserController";
 import RequestAvailabilityDialog from "./RequestAvailabilityDialog";
 import ViewEventPage from "../pages/ViewEventPage";
+
+const ConfirmDialog = ({ open, onClose, onConfirm, title, message }) => {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>{message}</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={onConfirm} color="primary" autoFocus>
+          Confirm
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 function MeetingItem({
   eventId,
@@ -215,7 +235,7 @@ function a11yProps(index) {
   };
 }
 
-export default function BasicTabs() {
+export default function BasicTabs({ onDelete }) {
   const [tabValue, setTabValue] = useState(0); // For top-level tabs
   const [subTabValue, setSubTabValue] = useState(0); // For sub-tabs within "My Hosted Meetings"
   const [invitedTabValue, setInvitedTabValue] = useState(0); // For sub-tabs within "Invited Meetings"
@@ -228,6 +248,8 @@ export default function BasicTabs() {
   const [invitedMeetingsFinalized, setInvitedMeetingsFinalized] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { authTokens, user } = useContext(AuthContext);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
 
   const size = useWindowSize();
   const isSmallScreen = size.width < 1435 && size.width > 900;
@@ -245,6 +267,29 @@ export default function BasicTabs() {
   const handleInvitedTabChange = (event, newValue) => {
     setInvitedTabValue(newValue);
   };
+
+  const showDeleteConfirmation = (eventId) => {
+    setEventToDelete(eventId);
+    setIsConfirmDialogOpen(true);
+  };
+
+  
+  const handleConfirmDelete = async () => {
+    if (eventToDelete) {
+      try {
+        await onDelete(eventToDelete);
+        setHostedMeetingsPending((prevMeetings) => 
+          prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+        );
+        console.log("Event deleted successfully.");
+      } catch (error) {
+        console.error("Error deleting event:", error);
+      } finally {
+        setEventToDelete(null);
+        setIsConfirmDialogOpen(false);
+      }
+    }
+  }
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -320,6 +365,14 @@ export default function BasicTabs() {
           />
         </Tabs>
 
+        <ConfirmDialog
+          open={isConfirmDialogOpen}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Confirm Deletion"
+          message="Are you sure you want to delete this event? This action cannot be undone."
+        />
+
         {/* List hostedMeetingsPending */}
         <TabPanel value={subTabValue} index={0}>
           {hostedMeetingsPending.map((meeting) => (
@@ -336,7 +389,7 @@ export default function BasicTabs() {
               onRequest={() => {
                 console.log("Request:", meeting.id);
               }}
-              onDelete={() => deleteEvent(meeting.id, authTokens)}
+              onDelete={() => showDeleteConfirmation(meeting.id)}
             />
           ))}
         </TabPanel>
@@ -356,7 +409,7 @@ export default function BasicTabs() {
               onFinalize={() => {
                 console.log("Finalize:", meeting.id);
               }}
-              onDelete={() => deleteEvent(meeting.id, authTokens)}
+              onDelete={() => showDeleteConfirmation(meeting.id)}
             />
           ))}
         </TabPanel>
@@ -373,7 +426,7 @@ export default function BasicTabs() {
               onView={() => {
                 console.log("View:", meeting.id);
               }}
-              onDelete={() => deleteEvent(meeting.id, authTokens)}
+              onDelete={() => showDeleteConfirmation(meeting.id)}
             />
           ))}
         </TabPanel>
@@ -415,7 +468,7 @@ export default function BasicTabs() {
               inviteeId={meeting.host}
               authTokens={authTokens}
               onAccept={() => {}}
-              onDelete={() => deleteEvent(meeting.id, authTokens)}
+              onDelete={() => showDeleteConfirmation(meeting.id)}
             />
           ))}
         </TabPanel>
@@ -429,8 +482,15 @@ export default function BasicTabs() {
               eventName={meeting.event_title}
               inviteeId={meeting.host}
               authTokens={authTokens}
+<<<<<<< HEAD
               onView={() => {}}
               onDelete={() => deleteEvent(meeting.id, authTokens)}
+=======
+              onView={() => {
+                console.log("View:", meeting.id);
+              }}
+              onDelete={() => showDeleteConfirmation(meeting.id)}
+>>>>>>> e5ae541e23c00e5f1d87711db2076652309106eb
             />
           ))}
         </TabPanel>
@@ -448,7 +508,7 @@ export default function BasicTabs() {
               onView={() => {
                 console.log("View:", meeting.id);
               }}
-              onDelete={() => deleteEvent(meeting.id, authTokens)}
+              onDelete={() => showDeleteConfirmation(meeting.id)}
             />
           ))}
         </TabPanel>
