@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Box, Grid, Typography, CircularProgress } from "@mui/material";
+import { Box, Grid, Typography, CircularProgress, Snackbar, Alert } from "@mui/material";
 import BasicTabs from "../components/Tab";
-import { fetchEventsByHost, fetchEventsByInvitee } from "../controllers/EventsController";
-import { getUserDetails } from "../controllers/UserController"; // Assuming this exists
+import { useNotification } from "../components/NotificationContext";
+
 import AuthContext from "../context/AuthContext";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
-import {  deleteEvent,} from "../controllers/EventsController";
+
+import { fetchEventsByHost, fetchEventsByInvitee } from "../controllers/EventsController";
+import { getUserDetails } from "../controllers/UserController";
+import { deleteEvent } from "../controllers/EventsController";
 
 const EventComponent = ({ event }) => {
   const startTime = moment(event.start).format("LT");
@@ -16,7 +19,7 @@ const EventComponent = ({ event }) => {
   return (
     <div
       style={{
-        backgroundColor: backgroundColor, 
+        backgroundColor: backgroundColor,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -25,9 +28,10 @@ const EventComponent = ({ event }) => {
         width: "100%",
       }}
     >
-      
       <div style={{ color: "black" }}>{event.title}</div>
-      <div style={{ color: "black", fontSize: "smaller",  marginTop: "4px" }}>{`${startTime} - ${endTime}`}</div>
+      <div
+        style={{ color: "black", fontSize: "smaller", marginTop: "4px" }}
+      >{`${startTime} - ${endTime}`}</div>
     </div>
   );
 };
@@ -38,10 +42,21 @@ const HomePage = () => {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState(null);
   const localizer = momentLocalizer(moment);
-  const EventComponentWrapper = (props) => (
-    <EventComponent {...props} view={currentView} />
-  );
+  const EventComponentWrapper = (props) => <EventComponent {...props} view={currentView} />;
   const [currentView, setCurrentView] = useState("week");
+
+  const { notification, triggerNotification } = useNotification();
+  const [open, setOpen] = React.useState(false);
+
+  useEffect(() => {
+    if (notification.open) {
+      setOpen(true);
+    }
+  }, [notification, triggerNotification]);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleDeleteEvent = async (eventId) => {
     try {
@@ -58,21 +73,24 @@ const HomePage = () => {
       try {
         // Fetch events hosted by the user
         const hostedEvents = await fetchEventsByHost(user.user_id, authTokens);
-        
+
         // Fetch events where the user is the invitee
         // Assuming fetchEventsByInvitee is similar to fetchEventsByHost
         const invitedEvents = await fetchEventsByInvitee(user.user_id, authTokens);
-  
+
         const combinedEvents = [...hostedEvents, ...invitedEvents];
-        
+
         // Filter events with status "F" and fetch invitee details (if needed)
-        const finalizedEvents = combinedEvents.filter(event => event.status === "F");
-  
-        const eventsWithDetails = await Promise.all(finalizedEvents.map(async (event) => {
-          const inviteeDetails = await getUserDetails(event.invitee, authTokens);
-          const isHost = event.host === user.user_id;
-          return { ...event, inviteeDetails, is_host: isHost };        }));
-  
+        const finalizedEvents = combinedEvents.filter((event) => event.status === "F");
+
+        const eventsWithDetails = await Promise.all(
+          finalizedEvents.map(async (event) => {
+            const inviteeDetails = await getUserDetails(event.invitee, authTokens);
+            const isHost = event.host === user.user_id;
+            return { ...event, inviteeDetails, is_host: isHost };
+          })
+        );
+
         setEvents(eventsWithDetails);
       } catch (e) {
         console.error("Failed to fetch events:", e);
@@ -81,7 +99,7 @@ const HomePage = () => {
         setIsLoading(false);
       }
     };
-  
+
     fetchEventsForUser();
   }, [user.user_id, authTokens]);
 
@@ -89,14 +107,13 @@ const HomePage = () => {
 
   // Convert your event data to the format required by BigCalendar
   const calendarEvents = events.map((finalizedEvent) => ({
-    title: finalizedEvent.is_host 
+    title: finalizedEvent.is_host
       ? `${finalizedEvent.event_title} - ${user.username}` // Use host username when is_host is true
       : `${finalizedEvent.event_title} - ${finalizedEvent.inviteeDetails.username}`, // Use invitee username otherwise
     start: moment(finalizedEvent.finalized_start_time).toDate(),
     end: moment(finalizedEvent.finalized_end_time).toDate(),
     is_host: finalizedEvent.is_host,
   }));
-  
 
   const formats = {
     // remove the default time inside the timeblock
@@ -104,7 +121,7 @@ const HomePage = () => {
       return "";
     },
   };
-  
+
   const eventStyleGetter = (event) => {
     let backgroundColor = event.is_host ? "#DBF3E1" : "#FFDDC1"; // Example: greenish for host, orangish for invitee
     return {
@@ -113,15 +130,19 @@ const HomePage = () => {
         opacity: 0.8,
         border: "0px solid white",
       },
-    };  
-  }
+    };
+  };
 
   if (isLoading) return <CircularProgress />;
-  if (error)
-    return <Typography color="error">Error: {error.message}</Typography>;
+  if (error) return <Typography color='error'>Error: {error.message}</Typography>;
 
   return (
-    <Box className="min-h-screen" sx={{ flexGrow: 1 }}>
+    <Box className='min-h-screen' sx={{ flexGrow: 1 }}>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity='success' variant='filled' sx={{ width: "100%" }}>
+          {notification.message}
+        </Alert>
+      </Snackbar>
       <Grid container spacing={2}>
         {/* Left container with tabs */}
         <Grid item xs={12} md={4} lg={4}>
@@ -146,17 +167,16 @@ const HomePage = () => {
             <Calendar
               resizable
               onView={(view) => setCurrentView(view)}
-              defaultView="month"
+              defaultView='month'
               localizer={localizer}
               formats={formats}
               events={calendarEvents}
-              startAccessor="start"
-              endAccessor="end"
+              startAccessor='start'
+              endAccessor='end'
               components={{
-                event: EventComponentWrapper, 
+                event: EventComponentWrapper,
               }}
               eventPropGetter={eventStyleGetter}
-
               style={{ height: 1000 }}
             />
           </Box>

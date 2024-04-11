@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import { addMinutes, format } from "date-fns";
 
@@ -10,12 +10,13 @@ import EventIcon from "@mui/icons-material/Event";
 import PhoneIcon from "@mui/icons-material/Phone";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import MeetingRoom from "@mui/icons-material/MeetingRoom";
 
 import { getAllAvailabilities } from "../controllers/AvailabilityController";
 import { fetchEventDetails, updateEvent } from "../controllers/EventsController";
-
 import { getUserDetails } from "../controllers/UserController";
-import MeetingRoom from "@mui/icons-material/MeetingRoom";
+
+import { useNotification } from "../components/NotificationContext";
 
 const FinalizeEventPage = () => {
   let { eventId } = useParams();
@@ -29,6 +30,8 @@ const FinalizeEventPage = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [error, setError] = useState(null);
   const [matchedAvailabilities, setMatchedAvailabilities] = useState([]);
+  const { triggerNotification } = useNotification();
+  const history = useHistory();
 
   // fetch availabilities of host and invitee
   useEffect(() => {
@@ -156,6 +159,8 @@ const FinalizeEventPage = () => {
       };
 
       await updateEvent(eventId, updateData, authTokens);
+      triggerNotification('Event Finalized Successfully');
+      history.push("/");
       console.log("Event status updated to 'F' (Finalized)");
     } catch (error) {
       console.error("Failed to update event status:", error);

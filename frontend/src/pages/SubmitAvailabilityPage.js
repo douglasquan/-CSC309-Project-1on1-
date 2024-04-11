@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { addMinutes, format } from "date-fns";
+import { useHistory } from "react-router-dom";
 
 import {
   Radio,
@@ -8,15 +9,15 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
-  TextField,
   Button,
   Box,
   Grid,
   Typography,
   Chip,
   Divider,
-  Stack,
-  CircularProgress
+  CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 import EventIcon from "@mui/icons-material/Event";
@@ -28,8 +29,9 @@ import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import AuthContext from "../context/AuthContext";
 import { getAllAvailabilities, createAvailability } from "../controllers/AvailabilityController";
 import { fetchEventDetails, updateEvent } from "../controllers/EventsController";
-
 import { getUserDetails } from "../controllers/UserController";
+
+import { useNotification } from "../components/NotificationContext";
 
 const EventDetailsPage = () => {
   let { eventId, userId } = useParams();
@@ -40,24 +42,38 @@ const EventDetailsPage = () => {
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
   const [hostDetails, setHostDetails] = useState("");
   const { authTokens } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
+  const { triggerNotification } = useNotification();
+
+  const history = useHistory();
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); // Set loading to true when data fetch starts
+      if (!authTokens) {
+        console.error("Auth tokens are not available.");
+        return;
+      }
+
       try {
-        // Fetch event details first
         const eventDetailsData = await fetchEventDetails(eventId, authTokens);
         setEventDetails(eventDetailsData);
 
-        // Once event details are fetched and set, then fetch host details
-        const hostDetailsData = await getUserDetails(eventDetailsData.host, authTokens);
-        setHostDetails(hostDetailsData);
+        if (eventDetailsData.host) {
+          const hostDetailsData = await getUserDetails(eventDetailsData.host, authTokens);
+          setHostDetails(hostDetailsData);
+        }
 
-        // And finally fetch availabilities
-        const availabilitiesData = await getAllAvailabilities(authTokens, eventId, userId);
-        setAvailabilities(availabilitiesData);
+        if (eventDetailsData && userId) {
+          const availabilitiesData = await getAllAvailabilities(authTokens, eventId, userId);
+          setAvailabilities(availabilitiesData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
+      setLoading(false); // Set loading to false when data fetch completes
     };
 
     fetchData();
@@ -78,6 +94,11 @@ const EventDetailsPage = () => {
   }, [eventDetails, availabilities.length]);
 
   const handleSubmitAvailability = async () => {
+    if (selectedTimeSlots.length === 0) {
+      setOpenAlert(true); // Show error alert
+      return;
+    }
+
     try {
       const promises = selectedTimeSlots.map((selectedSlot) => {
         const availabilityData = {
@@ -85,23 +106,17 @@ const EventDetailsPage = () => {
           event_id: eventId,
           start_time: selectedSlot.start,
           end_time: selectedSlot.end,
-          preference_type: selectedSlot.preference, // Include preference type in the payload
+          preference_type: selectedSlot.preference,
         };
         return createAvailability(authTokens, availabilityData);
       });
 
       await Promise.all(promises);
       console.log("All availabilities submitted");
-
-      // Update event status to "C" after successfully submitting all availabilities
       await updateEvent(eventId, { status: "C" }, authTokens);
       console.log("Event status updated to 'C'");
-
-      // Update local state to reflect the new status
-      setEventDetails((prevDetails) => ({ ...prevDetails, status: "C" }));
-
-      // You might want to clear the selected slots or show a success message after submission
-      setSelectedTimeSlots([]);
+      triggerNotification("Availability submitted successfully!");
+      history.push("/");
     } catch (error) {
       console.error("An error occurred while submitting availabilities:", error);
     }
@@ -185,8 +200,23 @@ const EventDetailsPage = () => {
     }
   };
 
+  if (loading) {
+    return <CircularProgress />;
+  }
+
   return (
     <Box className='container mx-auto p-4'>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        message='Availability submitted successfully!'
+      />
+      {openAlert && (
+        <Alert severity='error' onClose={() => setOpenAlert(false)}>
+          Please select at least one availability before submitting.
+        </Alert>
+      )}
       <Grid container spacing={3}>
         {/* Event Details Section */}
         <Grid item xs={12} md={6}>
@@ -244,14 +274,6 @@ const EventDetailsPage = () => {
             <Typography variant='body2'>
               {eventDetails.description || "No description provided."}
             </Typography>
-
-            <TextField
-              fullWidth
-              label='Notes for the meeting (optional)'
-              multiline
-              rows={4}
-              placeholder='Add any information relevant to this event'
-            />
           </Box>
         </Grid>
         {/* Availabilities Section */}

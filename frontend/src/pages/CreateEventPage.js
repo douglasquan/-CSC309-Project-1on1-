@@ -9,6 +9,7 @@ import { getContacts } from "../controllers/ContactsController";
 import { getUserDetails } from "../controllers/UserController";
 import { addEvent } from "../controllers/EventsController";
 import { createAvailability } from "../controllers/AvailabilityController";
+import { useNotification } from "../components/NotificationContext";
 import {
   Box,
   TextField,
@@ -62,6 +63,7 @@ function CreateEventPage() {
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const { triggerNotification } = useNotification();
 
   const validateForm = () => {
     let isValid = true;
@@ -254,6 +256,7 @@ function CreateEventPage() {
           })
         )
       );
+      triggerNotification("Event Created Successfully");
       history.push("/");
 
       console.log("All availabilities created successfully");
