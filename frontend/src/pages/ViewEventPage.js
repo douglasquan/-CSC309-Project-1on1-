@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 import { Box, Grid, Typography, Divider, CircularProgress } from "@mui/material";
 
@@ -45,6 +45,16 @@ const ViewEventPage = ({ eventDetails }) => {
       default:
         return null; // Or some default icon
     }
+  };
+
+  // Helper function to format finalized event time
+  const formatFinalizedTime = () => {
+    if (eventDetails.finalized_start_time && eventDetails.finalized_end_time) {
+      const startTime = format(parseISO(eventDetails.finalized_start_time), "PPPp");
+      const endTime = format(parseISO(eventDetails.finalized_end_time), "p");
+      return `${startTime} to ${endTime}`;
+    }
+    return null; // Return null if any of the values are not available
   };
 
   if (!eventDetails || !relatedUserDetails) {
@@ -107,6 +117,13 @@ const ViewEventPage = ({ eventDetails }) => {
             Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
           </Typography>
 
+          {/* Display finalized event time */}
+          {formatFinalizedTime() && (
+            <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+              Finalized Time: {formatFinalizedTime()}
+            </Typography>
+          )}
+
           <Typography variant='body1' sx={{ fontWeight: "bold" }}>
             Notes from {relatedUserDetails.username} :
           </Typography>
@@ -118,4 +135,5 @@ const ViewEventPage = ({ eventDetails }) => {
     </Box>
   );
 };
+
 export default ViewEventPage;
