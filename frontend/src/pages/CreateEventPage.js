@@ -232,10 +232,15 @@ function CreateEventPage() {
   };
 
   const handleCreateEvent = async () => {
-    if (!validateForm()) {
+    if (timeblocks.length === 0) {
+      setAlertMessage("Please select at least one timeslot before creating the event.");
+      setShowAlert(true);
+      return; // Prevent the event creation if no timeslots are selected
+    } else if (!validateForm()) {
       return; // Prevent form submission if validation fails
+    } else {
+      setConfirmOpen(true);
     }
-    setConfirmOpen(true); // Open confirmation dialog before proceeding
   };
 
   const handleConfirmCreateEvent = async () => {

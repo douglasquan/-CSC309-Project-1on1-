@@ -14,7 +14,7 @@ import AuthContext from "../context/AuthContext";
 import { getUserDetails } from "../controllers/UserController";
 
 const ViewEventPage = ({ eventDetails }) => {
-  const { authTokens } = useContext(AuthContext);
+  const { authTokens, user } = useContext(AuthContext);
   const [relatedUserDetails, setRelatedUserDetails] = useState(""); // This will store either the host or invitee details based on context
 
   useEffect(() => {
