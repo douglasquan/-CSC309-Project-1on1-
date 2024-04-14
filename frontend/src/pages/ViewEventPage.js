@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import { format } from "date-fns";
 
-import { Box, Grid, Typography, Divider, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Typography,
+  Divider,
+  CircularProgress,
+} from "@mui/material";
 
 import PhoneIcon from "@mui/icons-material/Phone";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
@@ -14,8 +20,11 @@ import AuthContext from "../context/AuthContext";
 import { getUserDetails } from "../controllers/UserController";
 
 const ViewEventPage = ({ eventDetails }) => {
-  const { authTokens } = useContext(AuthContext);
+  const { authTokens, user } = useContext(AuthContext);
   const [relatedUserDetails, setRelatedUserDetails] = useState(""); // This will store either the host or invitee details based on context
+  // Determine the color based on user role
+  const titleColor =
+    user.user_id === eventDetails.host ? "primary.main" : "invitation.main";
 
   useEffect(() => {
     const fetchRelatedUserDetails = async () => {
@@ -74,44 +83,62 @@ const ViewEventPage = ({ eventDetails }) => {
             gap: 2,
           }}
         >
-          <Typography variant='h6' component='h2' sx={{ fontWeight: "bold", fontSize: "1.25rem" }}>
+          <Typography
+            variant="h6"
+            component="h2"
+            sx={{ fontWeight: "bold", fontSize: "1.25rem" }}
+          >
             <Face6Icon sx={{ mr: 0.75 }} /> {relatedUserDetails.username}
           </Typography>
 
           <Divider />
 
           <Typography
-            variant='h5'
-            component='h2'
-            sx={{ color: "primary.main", fontWeight: "bold", fontSize: "2rem" }}
+            variant="h5"
+            component="h2"
+            sx={{ color: titleColor, fontWeight: "bold", fontSize: "2rem" }}
           >
             {eventDetails.event_title}
           </Typography>
 
           <Typography
-            variant='body1'
+            variant="body1"
             sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
           >
-            <AccessTimeIcon sx={{ mr: 1 }} /> {eventDetails.event_duration} minutes
+            <AccessTimeIcon sx={{ mr: 1 }} /> {eventDetails.event_duration}{" "}
+            minutes
           </Typography>
 
-          <Typography
-            variant='body1'
-            sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
-          >
-            {getEventTypeIcon(eventDetails.event_type)}
-            {eventDetails.event_type.replace("_", " ")}
-          </Typography>
+          {eventDetails.event_type !== "other" && (
+            <Typography
+              variant="body1"
+              sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
+            >
+              {getEventTypeIcon(eventDetails.event_type)}
+              {eventDetails.event_type.replace("_", " ")}
+            </Typography>
+          )}
 
-          <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
           </Typography>
 
-          <Typography variant='body1' sx={{ fontWeight: "bold" }}>
-            Notes from {relatedUserDetails.username} :
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            {user.user_id === eventDetails.host
+              ? "Your notes:"
+              : `Notes from ${user.username}:`}
           </Typography>
-          <Typography variant='body2'>
+          <Typography variant="body2">
             {eventDetails.description || "No description provided."}
+          </Typography>
+
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            {user.user_id === eventDetails.invitee
+              ? "Your notes:"
+              : `Notes from ${relatedUserDetails.username}:`}
+          </Typography>
+          <Typography variant="body2">
+            {eventDetails.invitee_description || "No description provided."}
           </Typography>
         </Box>
       </Grid>

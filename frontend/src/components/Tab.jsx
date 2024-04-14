@@ -39,10 +39,10 @@ const ConfirmDialog = ({ open, onClose, onConfirm, title, message }) => {
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color='primary'>
+        <Button onClick={onClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={onConfirm} color='primary' autoFocus>
+        <Button onClick={onConfirm} color="primary" autoFocus>
           Confirm
         </Button>
       </DialogActions>
@@ -165,27 +165,41 @@ function MeetingItem({
               variant="outlined"
               onClick={handleOpenRequestDialog}
               sx={{
-                color: context === 'invited' ? 'invitation.main' : 'primary.main',
-                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
-                '&:hover': {
-                  backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
-                  borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
-                }
+                color:
+                  context === "invited" ? "invitation.main" : "primary.main",
+                borderColor:
+                  context === "invited" ? "invitation.main" : "primary.main",
+                "&:hover": {
+                  backgroundColor:
+                    context === "invited"
+                      ? "invitation.light"
+                      : "primary.light",
+                  borderColor:
+                    context === "invited" ? "invitation.main" : "primary.main",
+                },
               }}
             >
               Request Availability
             </Button>
           )}
           {onAccept && (
-            <Button variant="outlined" onClick={handleAccept}
-            sx={{
-              color: context === 'invited' ? 'invitation.main' : 'primary.main',
-              borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
-              '&:hover': {
-                backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
-                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
-              }
-            }}
+            <Button
+              variant="outlined"
+              onClick={handleAccept}
+              sx={{
+                color:
+                  context === "invited" ? "invitation.main" : "primary.main",
+                borderColor:
+                  context === "invited" ? "invitation.main" : "primary.main",
+                "&:hover": {
+                  backgroundColor:
+                    context === "invited"
+                      ? "invitation.light"
+                      : "primary.light",
+                  borderColor:
+                    context === "invited" ? "invitation.main" : "primary.main",
+                },
+              }}
             >
               Accept Invitation
             </Button>
@@ -195,27 +209,42 @@ function MeetingItem({
               variant="outlined"
               onClick={() => handleView(eventData)}
               sx={{
-                color: context === 'invited' ? 'invitation.main' : 'primary.main',
-                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
-                '&:hover': {
-                  backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
-                  borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
-                }
+                color:
+                  context === "invited" ? "invitation.main" : "primary.main",
+                borderColor:
+                  context === "invited" ? "invitation.main" : "primary.main",
+                "&:hover": {
+                  backgroundColor:
+                    context === "invited"
+                      ? "invitation.light"
+                      : "primary.light",
+                  borderColor:
+                    context === "invited" ? "invitation.main" : "primary.main",
+                },
               }}
             >
               View Meeting
             </Button>
           )}
           {onFinalize && (
-            <Button variant="outlined" onClick={handleFinalize}
-            sx={{
-              color: context === 'invited' ? 'invitation.main' : 'primary.main',
-              borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
-              '&:hover': {
-                backgroundColor: context === 'invited' ? 'invitation.light' : 'primary.light',
-                borderColor: context === 'invited' ? 'invitation.main' : 'primary.main',
-              }
-            }}>
+            <Button
+              variant="outlined"
+              onClick={handleFinalize}
+              sx={{
+                color:
+                  context === "invited" ? "invitation.main" : "primary.main",
+                borderColor:
+                  context === "invited" ? "invitation.main" : "primary.main",
+                "&:hover": {
+                  backgroundColor:
+                    context === "invited"
+                      ? "invitation.light"
+                      : "primary.light",
+                  borderColor:
+                    context === "invited" ? "invitation.main" : "primary.main",
+                },
+              }}
+            >
               Finalize Meeting
             </Button>
           )}
@@ -412,8 +441,8 @@ export default function BasicTabs({ onDelete }) {
           centered
           sx={{
             // Conditionally change the indicator color when the "Invitations" tab is selected
-            '.MuiTabs-indicator': {
-              backgroundColor: tabValue === 1 ? '#EE9B1E' : '',
+            ".MuiTabs-indicator": {
+              backgroundColor: tabValue === 1 ? "#EE9B1E" : "",
             },
           }}
         >
@@ -422,11 +451,11 @@ export default function BasicTabs({ onDelete }) {
             label="Invitations"
             {...a11yProps(1)}
             sx={{
-              color: tabValue === 1 ? '#FFDDC1' : '',
-              '&.Mui-selected': {
-                color: '#D17D00', // Ensure the color remains when selected
+              color: tabValue === 1 ? "#FFDDC1" : "",
+              "&.Mui-selected": {
+                color: "#D17D00", // Ensure the color remains when selected
               },
-            }} 
+            }}
           />
         </Tabs>
       </Box>
@@ -471,8 +500,8 @@ export default function BasicTabs({ onDelete }) {
           open={isConfirmDialogOpen}
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={handleConfirmDelete}
-          title='Confirm Deletion'
-          message='Are you sure you want to delete this event? This action cannot be undone.'
+          title="Confirm Deletion"
+          message="Are you sure you want to delete this event? This action cannot be undone."
         />
 
         {/* List hostedMeetingsPending */}

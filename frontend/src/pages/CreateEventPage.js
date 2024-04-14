@@ -582,6 +582,7 @@ function CreateEventPage() {
                     <FormControlLabel value='in_person' control={<Radio />} label='In Person' />
                     <FormControlLabel value='video' control={<Radio />} label='Video' />
                     <FormControlLabel value='phone' control={<Radio />} label='Phone' />
+                    <FormControlLabel value='other' control={<Radio />} label='Other' />
                   </RadioGroup>
                 </FormControl>
 
