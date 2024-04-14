@@ -5,7 +5,7 @@ import { Container, Box, TextField, Button, Typography, Link } from '@mui/materi
 import logo from '../img/logo1.png';
 
 const LoginPage = () => {
-  let { loginUser } = useContext(AuthContext);
+  let { loginUser, error } = useContext(AuthContext);
   const history = useHistory();
 
   const handleLinkClick = (path) => {
@@ -31,7 +31,11 @@ const LoginPage = () => {
           <Typography variant="h4" component="h1" gutterBottom textAlign="center">
             User Login
           </Typography>
-
+          {error && (
+            <Typography color="error" textAlign="center">
+              {error}  {/* Displaying the error message from context */}
+            </Typography>
+          )}      
           <Box component="form" onSubmit={loginUser} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
