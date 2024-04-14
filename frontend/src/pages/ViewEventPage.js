@@ -105,13 +105,16 @@ const ViewEventPage = ({ eventDetails }) => {
             <AccessTimeIcon sx={{ mr: 1 }} /> {eventDetails.event_duration} minutes
           </Typography>
 
-          <Typography
-            variant='body1'
-            sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
-          >
-            {getEventTypeIcon(eventDetails.event_type)}
-            {eventDetails.event_type.replace("_", " ")}
-          </Typography>
+          {eventDetails.event_type !== "other" && (
+            <Typography
+              variant="body1"
+              sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
+            >
+              {getEventTypeIcon(eventDetails.event_type)}
+              {eventDetails.event_type.replace("_", " ")}
+            </Typography>
+          )}
+          
 
           <Typography variant='body1' sx={{ fontWeight: "bold" }}>
             Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
@@ -123,13 +126,25 @@ const ViewEventPage = ({ eventDetails }) => {
               Finalized Time: {formatFinalizedTime()}
             </Typography>
           )}
+          
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
+          </Typography>
 
           <Typography variant='body1' sx={{ fontWeight: "bold" }}>
-            Notes from {relatedUserDetails.username} :
+            {user.user_id === eventDetails.host ? "Your notes:" : `Notes from ${relatedUserDetails.username}:`}
           </Typography>
           <Typography variant='body2'>
             {eventDetails.description || "No description provided."}
           </Typography>
+          
+          <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+            {user.user_id === eventDetails.invitee ? "Your notes:" : `Notes from ${relatedUserDetails.username}:`}
+          </Typography>
+          <Typography variant='body2'>
+            {eventDetails.invitee_description || "No description provided."}
+          </Typography>
+
         </Box>
       </Grid>
     </Box>
