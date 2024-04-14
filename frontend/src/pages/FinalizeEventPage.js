@@ -6,7 +6,6 @@ import { addMinutes, format } from "date-fns";
 import { Box, Grid, Typography, Chip, Divider, Stack, Button } from "@mui/material";
 
 import Face6Icon from "@mui/icons-material/Face6";
-import EventIcon from "@mui/icons-material/Event";
 import PhoneIcon from "@mui/icons-material/Phone";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -21,7 +20,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 
 const FinalizeEventPage = () => {
   let { eventId } = useParams();
-  const { authTokens } = useContext(AuthContext);
+  const { authTokens, user } = useContext(AuthContext);
 
   const [eventDetails, setEventDetails] = useState(null);
   const [hostAvailabilities, setHostAvailabilities] = useState([]);
@@ -275,11 +274,17 @@ const FinalizeEventPage = () => {
             </Typography>
 
             <Typography variant='body1' sx={{ fontWeight: "bold" }}>
-              Notes from {inviteeDetails.username}:
+            {user.user_id === eventDetails.host ? "Your notes:" : `Notes from ${inviteeDetails.username}:`}
             </Typography>
-
             <Typography variant='body2'>
               {eventDetails.description || "No description provided."}
+            </Typography>
+            
+            <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+              {user.user_id === eventDetails.invitee ? "Your notes:" : `Notes from ${inviteeDetails.username}:`}
+            </Typography>
+            <Typography variant='body2'>
+              {eventDetails.invitee_description || "No description provided."}
             </Typography>
           </Stack>
         </Grid>

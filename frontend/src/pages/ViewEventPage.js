@@ -16,7 +16,9 @@ import { getUserDetails } from "../controllers/UserController";
 const ViewEventPage = ({ eventDetails }) => {
   const { authTokens, user } = useContext(AuthContext);
   const [relatedUserDetails, setRelatedUserDetails] = useState(""); // This will store either the host or invitee details based on context
-
+  // Determine the color based on user role
+  const titleColor = user.user_id === eventDetails.host ? "primary.main" : "invitation.main";
+  
   useEffect(() => {
     const fetchRelatedUserDetails = async () => {
       try {
@@ -93,7 +95,7 @@ const ViewEventPage = ({ eventDetails }) => {
           <Typography
             variant='h5'
             component='h2'
-            sx={{ color: "primary.main", fontWeight: "bold", fontSize: "2rem" }}
+            sx={{ color: titleColor, fontWeight: "bold", fontSize: "2rem" }}
           >
             {eventDetails.event_title}
           </Typography>
@@ -127,10 +129,6 @@ const ViewEventPage = ({ eventDetails }) => {
             </Typography>
           )}
           
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
-          </Typography>
-
           <Typography variant='body1' sx={{ fontWeight: "bold" }}>
             {user.user_id === eventDetails.host ? "Your notes:" : `Notes from ${relatedUserDetails.username}:`}
           </Typography>
