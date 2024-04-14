@@ -32,6 +32,7 @@ import { fetchEventDetails, updateEvent } from "../controllers/EventsController"
 import { getUserDetails } from "../controllers/UserController";
 
 import { useNotification } from "../components/NotificationContext";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const EventDetailsPage = () => {
   let { eventId, userId } = useParams();
@@ -46,6 +47,7 @@ const EventDetailsPage = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const { triggerNotification } = useNotification();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const history = useHistory();
 
@@ -98,7 +100,10 @@ const EventDetailsPage = () => {
       setOpenAlert(true); // Show error alert
       return;
     }
+    setConfirmOpen(true);
+  };
 
+  const handleConfirmSubmit = async () => {
     try {
       const promises = selectedTimeSlots.map((selectedSlot) => {
         const availabilityData = {
@@ -120,6 +125,7 @@ const EventDetailsPage = () => {
     } catch (error) {
       console.error("An error occurred while submitting availabilities:", error);
     }
+    setConfirmOpen(false);
   };
 
   if (!eventDetails) {
@@ -217,6 +223,13 @@ const EventDetailsPage = () => {
           Please select at least one availability before submitting.
         </Alert>
       )}
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmSubmit}
+        title='Confirm Submission'
+        message='Are you sure you want to submit these availabilities?'
+      />
       <Grid container spacing={3}>
         {/* Event Details Section */}
         <Grid item xs={12} md={6}>
