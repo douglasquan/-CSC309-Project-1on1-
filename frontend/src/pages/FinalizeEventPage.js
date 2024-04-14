@@ -6,6 +6,7 @@ import { addMinutes, format } from "date-fns";
 import { Box, Grid, Typography, Chip, Divider, Stack, Button } from "@mui/material";
 
 import Face6Icon from "@mui/icons-material/Face6";
+import EventIcon from "@mui/icons-material/Event";
 import PhoneIcon from "@mui/icons-material/Phone";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -261,35 +262,24 @@ const FinalizeEventPage = () => {
               <AccessTimeIcon sx={{ mr: 1 }} /> {eventDetails.event_duration} minutes
             </Typography>
 
-            {eventDetails.event_type !== "other" && (
-              <Typography
-                variant='body1'
-                sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
-              >
-                {getEventTypeIcon(eventDetails.event_type)}
-                {eventDetails.event_type.replace("_", " ")}
-              </Typography>
-            )}
-
+            <Typography
+              variant='body1'
+              sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
+            >
+              {getEventTypeIcon(eventDetails.event_type)}
+              {eventDetails.event_type.replace("_", " ")}
+            </Typography>
 
             <Typography variant='body1' sx={{ fontWeight: "bold" }}>
               Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
             </Typography>
 
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Description you provided:
+            <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+              Notes from {inviteeDetails.username}:
             </Typography>
 
             <Typography variant='body2'>
               {eventDetails.description || "No description provided."}
-            </Typography>
-
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Notes from {inviteeDetails.username}:
-            </Typography>
-
-            <Typography variant="body2">
-              {eventDetails.invitee_description || "No description provided."}
             </Typography>
           </Stack>
         </Grid>

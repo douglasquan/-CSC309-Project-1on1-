@@ -4,9 +4,9 @@ from .models import Event
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ('id', 'host', 'invitee', 'event_type', 'event_duration', 
-                    'event_title', 'description', 'invitee_description', 'deadline', 
-                    'finalized_start_time', 'finalized_end_time', 'finalized_date', 
-                    'status', 'is_active', 'created_at', 'updated_at')
+                    'event_title', 'description', 'deadline', 'finalized_start_time', 
+                    'finalized_end_time', 'finalized_date', 'status', 'is_active', 
+                    'created_at', 'updated_at')
     
     list_filter = ('event_type', 'event_duration', 'status', 'is_active', 'finalized_date')
     search_fields = ('event_title', 'description', 'host__username', 'invitee__username')
