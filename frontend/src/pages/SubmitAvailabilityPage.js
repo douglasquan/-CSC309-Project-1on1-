@@ -365,7 +365,7 @@ const EventDetailsPage = () => {
                   </div>
                 </div>
               ))}
-              <Button variant='contained' color='invitation' onClick={handleSubmitAvailability}>
+              <Button variant='contained' color='primary' onClick={handleSubmitAvailability}>
                 Submit Availability
               </Button>
             </div>

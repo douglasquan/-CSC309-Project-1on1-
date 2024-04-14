@@ -3,6 +3,7 @@ from .models import Event
 
 class EventSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=False, allow_blank=True)
+    invitee_description = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Event

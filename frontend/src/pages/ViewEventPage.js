@@ -128,36 +128,29 @@ const ViewEventPage = ({ eventDetails }) => {
               {eventDetails.event_type.replace("_", " ")}
             </Typography>
           )}
-
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
-          </Typography>
-
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {user.user_id === eventDetails.host
-              ? "Your notes:"
-              : `Notes from ${user.username}:`}
-              
+          
           {/* Display finalized event time */}
           {formatFinalizedTime() && (
             <Typography variant='body1' sx={{ fontWeight: "bold" }}>
               Finalized Time: {formatFinalizedTime()}
             </Typography>
           )}
+          
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
+          </Typography>
 
           <Typography variant='body1' sx={{ fontWeight: "bold" }}>
-            Notes from {relatedUserDetails.username} :
+            {user.user_id === eventDetails.host ? "Your notes:" : `Notes from ${relatedUserDetails.username}:`}
           </Typography>
-          <Typography variant="body2">
+          <Typography variant='body2'>
             {eventDetails.description || "No description provided."}
           </Typography>
-
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {user.user_id === eventDetails.invitee
-              ? "Your notes:"
-              : `Notes from ${relatedUserDetails.username}:`}
+          
+          <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+            {user.user_id === eventDetails.invitee ? "Your notes:" : `Notes from ${relatedUserDetails.username}:`}
           </Typography>
-          <Typography variant="body2">
+          <Typography variant='body2'>
             {eventDetails.invitee_description || "No description provided."}
           </Typography>
           

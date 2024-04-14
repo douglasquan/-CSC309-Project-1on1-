@@ -158,10 +158,7 @@ function MeetingItem({
               justifyContent: "flex-end",
               gap: 1,
             }}
-            >
-              Edit Meeting
-            </Button> */}
-          {/* )} */}
+          >
             {onRequest && (
               <Button
                 variant='outlined'
