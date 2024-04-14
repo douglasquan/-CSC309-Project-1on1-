@@ -4,12 +4,17 @@ import { Calendar as BigCalendar, momentLocalizer } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+
 import AuthContext from "../context/AuthContext";
+
 import { getContacts } from "../controllers/ContactsController";
 import { getUserDetails } from "../controllers/UserController";
 import { addEvent } from "../controllers/EventsController";
 import { createAvailability } from "../controllers/AvailabilityController";
+
 import { useNotification } from "../components/NotificationContext";
+import ConfirmDialog from "../components/ConfirmDialog";
+
 import {
   Box,
   TextField,
@@ -64,6 +69,7 @@ function CreateEventPage() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const { triggerNotification } = useNotification();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const validateForm = () => {
     let isValid = true;
@@ -224,27 +230,29 @@ function CreateEventPage() {
       setSelectedContactUserId("");
     }
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    const eventData = {
-      invitee: selectedContactUserId,
-      event_title: eventTitle,
-      event_duration: parseInt(eventDuration, 10),
-      event_type: eventType,
-      description: description,
-      deadline: deadline.date,
-    };
+  const handleCreateEvent = async () => {
+    if (!validateForm()) {
+      return; // Prevent form submission if validation fails
+    }
+    setConfirmOpen(true); // Open confirmation dialog before proceeding
+  };
 
-    console.log("eventData: ", eventData);
-    console.log("Timeblocks: ", timeblocks);
-
+  const handleConfirmCreateEvent = async () => {
+    // Perform the event creation logic here
     try {
-      // create the event
+      const eventData = {
+        invitee: selectedContactUserId,
+        event_title: eventTitle,
+        event_duration: parseInt(eventDuration, 10),
+        event_type: eventType,
+        description: description,
+        deadline: deadline.date,
+      };
+
       const eventResponse = await addEvent(eventData, authTokens);
       console.log("Event added successfully:", eventResponse);
 
-      // Create an availability for each timeblock
       await Promise.all(
         timeblocks.map((timeblock) =>
           createAvailability(authTokens, {
@@ -256,13 +264,13 @@ function CreateEventPage() {
           })
         )
       );
+
       triggerNotification("Event Created Successfully");
       history.push("/");
-
-      console.log("All availabilities created successfully");
     } catch (error) {
       console.error("Error in the process:", error);
     }
+    setConfirmOpen(false); // Close the confirmation dialog after submission
   };
 
   // Calendar Timeblock:
@@ -336,6 +344,13 @@ function CreateEventPage() {
           width: "100%",
         }}
       >
+        <ConfirmDialog
+          open={confirmOpen}
+          onClose={() => setConfirmOpen(false)}
+          onConfirm={handleConfirmCreateEvent}
+          title='Confirm Event Creation'
+          message='Are you sure you want to create this event?'
+        />
         {/* Displaying the start to end time */}
         <span style={{ color: "black", fontSize: "smaller" }}>
           {formatTime(timeblock.start)} - {formatTime(timeblock.end)}
@@ -720,8 +735,8 @@ function CreateEventPage() {
               </Button>
               {activeStep === steps.length - 1 ? (
                 /* Create Meeting Button */
-                <Button variant='contained' color="secondary" onClick={handleSubmit}>
-                  Create Meeting
+                <Button variant='contained' color='secondary' onClick={handleCreateEvent}>
+                  Create Event
                 </Button>
               ) : (
                 <Button onClick={handleNext}>Next</Button>
