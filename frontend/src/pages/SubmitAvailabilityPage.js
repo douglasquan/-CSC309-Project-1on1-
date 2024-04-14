@@ -18,9 +18,9 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  TextField
 } from "@mui/material";
 
-import EventIcon from "@mui/icons-material/Event";
 import PhoneIcon from "@mui/icons-material/Phone";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -48,6 +48,7 @@ const EventDetailsPage = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const { triggerNotification } = useNotification();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [inviteeNote, setInviteeNote] = useState(""); 
 
   const history = useHistory();
 
@@ -118,7 +119,7 @@ const EventDetailsPage = () => {
 
       await Promise.all(promises);
       console.log("All availabilities submitted");
-      await updateEvent(eventId, { status: "C" }, authTokens);
+      await updateEvent(eventId, { status: "C", invitee_description: inviteeNote}, authTokens);
       console.log("Event status updated to 'C'");
       triggerNotification("Availability submitted successfully!");
       history.push("/");
@@ -257,7 +258,7 @@ const EventDetailsPage = () => {
             <Typography
               variant='h5'
               component='h2'
-              sx={{ color: "primary.main", fontWeight: "bold", fontSize: "2rem" }}
+              sx={{ color: "invitation.main", fontWeight: "bold", fontSize: "2rem" }}
             >
               {eventDetails.event_title}
             </Typography>
@@ -269,13 +270,15 @@ const EventDetailsPage = () => {
               <AccessTimeIcon sx={{ mr: 1 }} /> {eventDetails.event_duration} minutes
             </Typography>
 
-            <Typography
-              variant='body1'
-              sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
-            >
-              {getEventTypeIcon(eventDetails.event_type)}
-              {eventDetails.event_type.replace("_", " ")}
-            </Typography>
+            {eventDetails.event_type !== "other" && (
+              <Typography
+                variant='body1'
+                sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
+              >
+                {getEventTypeIcon(eventDetails.event_type)}
+                {eventDetails.event_type.replace("_", " ")}
+              </Typography>
+            )}
 
             <Typography variant='body1' sx={{ fontWeight: "bold" }}>
               Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
@@ -287,6 +290,18 @@ const EventDetailsPage = () => {
             <Typography variant='body2'>
               {eventDetails.description || "No description provided."}
             </Typography>
+
+            <TextField
+              label="Your Notes"
+              multiline
+              rows={4}
+              fullWidth
+              value={inviteeNote}
+              onChange={(e) => setInviteeNote(e.target.value)}
+              variant="outlined"
+              margin="dense"
+            />
+
           </Box>
         </Grid>
         {/* Availabilities Section */}

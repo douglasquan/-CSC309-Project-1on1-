@@ -9,8 +9,7 @@ function RequestAvailabilityDialog({ open, onClose, inviteeUsername, inviteeEmai
     console.log(`Sending email to: ${inviteeEmail}`);
 
     const emailBody = encodeURIComponent(
-      `Hello ${inviteeUsername},\n\nPlease fill out your availability for the meeting at this link: [Dummy Link](http://example.com/availability).\n\nBest regards.`
-    );
+      `Hello ${inviteeUsername},\n\nPlease fill out your availability for the meeting at MeetHomie.\n\nBest regards.`    );
 
     // Open the user's default mail client pre-filled with the email
     window.open(`mailto:${inviteeEmail}?subject=Request for Meeting Availability&body=${emailBody}`);
