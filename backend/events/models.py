@@ -9,7 +9,6 @@ class Event(models.Model):
         ('in_person', 'In Person'),
         ('phone', 'Phone'),
         ('video', 'Video'),
-        ('other', 'Other')
     )
     EVENT_DURATION = (
         (30, '30 minutes'),
@@ -44,7 +43,6 @@ class Event(models.Model):
     event_duration = models.IntegerField(choices=EVENT_DURATION, null=False)  
     event_type = models.CharField(max_length=50, choices=EVENT_TYPES)
     description = models.TextField(null=True)
-    invitee_description = models.TextField(null=True)
     deadline = models.DateField(null=True)  
 
     finalized_start_time = models.DateTimeField(null=True)      

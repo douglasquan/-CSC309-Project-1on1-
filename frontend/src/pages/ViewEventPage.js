@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { format, parseISO } from "date-fns";
 
-import {
-  Box,
-  Grid,
-  Typography,
-  Divider,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Grid, Typography, Divider, CircularProgress } from "@mui/material";
 
 import PhoneIcon from "@mui/icons-material/Phone";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
@@ -20,11 +14,8 @@ import AuthContext from "../context/AuthContext";
 import { getUserDetails } from "../controllers/UserController";
 
 const ViewEventPage = ({ eventDetails }) => {
-  const { authTokens, user } = useContext(AuthContext);
+  const { authTokens } = useContext(AuthContext);
   const [relatedUserDetails, setRelatedUserDetails] = useState(""); // This will store either the host or invitee details based on context
-  // Determine the color based on user role
-  const titleColor =
-    user.user_id === eventDetails.host ? "primary.main" : "invitation.main";
 
   useEffect(() => {
     const fetchRelatedUserDetails = async () => {
@@ -93,30 +84,25 @@ const ViewEventPage = ({ eventDetails }) => {
             gap: 2,
           }}
         >
-          <Typography
-            variant="h6"
-            component="h2"
-            sx={{ fontWeight: "bold", fontSize: "1.25rem" }}
-          >
+          <Typography variant='h6' component='h2' sx={{ fontWeight: "bold", fontSize: "1.25rem" }}>
             <Face6Icon sx={{ mr: 0.75 }} /> {relatedUserDetails.username}
           </Typography>
 
           <Divider />
 
           <Typography
-            variant="h5"
-            component="h2"
-            sx={{ color: titleColor, fontWeight: "bold", fontSize: "2rem" }}
+            variant='h5'
+            component='h2'
+            sx={{ color: "primary.main", fontWeight: "bold", fontSize: "2rem" }}
           >
             {eventDetails.event_title}
           </Typography>
 
           <Typography
-            variant="body1"
+            variant='body1'
             sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
           >
-            <AccessTimeIcon sx={{ mr: 1 }} /> {eventDetails.event_duration}{" "}
-            minutes
+            <AccessTimeIcon sx={{ mr: 1 }} /> {eventDetails.event_duration} minutes
           </Typography>
 
           {eventDetails.event_type !== "other" && (
@@ -129,6 +115,11 @@ const ViewEventPage = ({ eventDetails }) => {
             </Typography>
           )}
           
+
+          <Typography variant='body1' sx={{ fontWeight: "bold" }}>
+            Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
+          </Typography>
+
           {/* Display finalized event time */}
           {formatFinalizedTime() && (
             <Typography variant='body1' sx={{ fontWeight: "bold" }}>
@@ -153,7 +144,7 @@ const ViewEventPage = ({ eventDetails }) => {
           <Typography variant='body2'>
             {eventDetails.invitee_description || "No description provided."}
           </Typography>
-          
+
         </Box>
       </Grid>
     </Box>
