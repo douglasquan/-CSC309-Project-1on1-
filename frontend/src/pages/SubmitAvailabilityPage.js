@@ -38,7 +38,12 @@ const EventDetailsPage = () => {
   let { eventId, userId } = useParams();
 
   const [eventDetails, setEventDetails] = useState(null);
-  const [availabilities, setAvailabilities] = useState([]);
+  const [availabilities, setAvailabilities] = useState(() => {
+    const localStorageKey = `availabilities_${userId}_${eventId}`;
+    const savedAvailabilities = localStorage.getItem(localStorageKey);
+    return savedAvailabilities ? JSON.parse(savedAvailabilities) : [];
+  });
+  
   const [preferredTime, setPreferredTime] = useState("high");
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
   const [hostDetails, setHostDetails] = useState("");
@@ -55,10 +60,12 @@ const EventDetailsPage = () => {
   const history = useHistory();
 
   useEffect(() => {
+    const localStorageKey = `availabilities_${userId}_${eventId}`;
     const fetchData = async () => {
-      setLoading(true); // Set loading to true when data fetch starts
+      setLoading(true);
       if (!authTokens) {
         console.error("Auth tokens are not available.");
+        setLoading(false);
         return;
       }
 
@@ -73,12 +80,12 @@ const EventDetailsPage = () => {
 
         if (eventDetailsData && userId) {
           const availabilitiesData = await getAllAvailabilities(authTokens, eventId, userId);
-          setAvailabilities(availabilitiesData);
+          mergeAndSetAvailabilities(availabilitiesData, localStorageKey);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-      setLoading(false); // Set loading to false when data fetch completes
+      setLoading(false);
     };
 
     fetchData();
@@ -97,6 +104,14 @@ const EventDetailsPage = () => {
       setAvailabilities(updatedAvailabilities);
     }
   }, [eventDetails, availabilities.length]);
+
+  const mergeAndSetAvailabilities = (newData, localStorageKey) => {
+    if (localStorage.getItem(localStorageKey)) {
+      return;
+    }
+    setAvailabilities(newData);
+    localStorage.setItem(localStorageKey, JSON.stringify(newData));
+  };
 
   const handleSubmitAvailability = async () => {
     if (selectedTimeSlots.length === 0) {
