@@ -1,7 +1,10 @@
 from django.views import View
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.conf import settings
+from django.core.mail import send_mail
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
@@ -38,6 +41,26 @@ class UserDetailsView(APIView):
         serializer = UserSerializer(user)
         return JsonResponse(serializer.data)
     
+class CheckUsernameView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, username, *args, **kwargs):
+        if not username:
+            return Response({"error": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        exists = User.objects.filter(username=username).exists()
+        return Response({"exists": exists}, status=status.HTTP_200_OK)
+    
+class CheckEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        email = request.GET.get('email')
+        if not email:
+            return Response({"error": "Email parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        exists = User.objects.filter(email=email).exists()
+        return Response({"exists": exists}, status=status.HTTP_200_OK)
     
 class DeleteUserView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
@@ -58,5 +81,28 @@ class UserUpdateView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        associated_users = User.objects.filter(email=email)
+        if associated_users.exists():
+            for user in associated_users:
+                form = PasswordResetForm({'email': user.email})
+                if form.is_valid():
+                    form.save(
+                        request=request,
+                        use_https=request.is_secure(),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        email_template_name='registration/password_reset_email.html'
+                    )
+                    return Response({"message": "Password reset e-mail has been sent."}, status=status.HTTP_200_OK)
+                else:
+                    # Log the form errors
+                    return Response({"message": "Form is not valid", "errors": form.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "No user is associated with this email address."}, status=status.HTTP_404_NOT_FOUND)
 
 

@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import AuthContext from "../context/AuthContext";
-import {
-  getUserDetails,
-  updateUserDetails,
-} from "../controllers/UserController";
+import { getUserDetails, updateUserDetails } from "../controllers/UserController";
 import {
   Dialog,
   DialogActions,
@@ -19,13 +16,14 @@ import {
 
 const ProfilePage = () => {
   // All for 'profile' or 'password'
-  const [openDialog, setOpenDialog] = useState(false); 
+  const [openDialog, setOpenDialog] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
   const [dialogContent, setDialogContent] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("error");
   const { authTokens, user } = useContext(AuthContext);
+  const [initialUserDetails, setInitialUserDetails] = useState({});
 
   const [userDetails, setUserDetails] = useState({
     username: "",
@@ -43,13 +41,15 @@ const ProfilePage = () => {
     const fetchUserDetails = async () => {
       try {
         const details = await getUserDetails(user.user_id, authTokens);
-        setUserDetails({
+        const formattedDetails = {
           username: details.username || "",
           first_name: details.first_name || "",
           last_name: details.last_name || "",
           email: details.email || "",
           phone_number: details.phoneNumber || "",
-        });
+        };
+        setUserDetails(formattedDetails);
+        setInitialUserDetails(formattedDetails); // Store initial details for comparison
       } catch (error) {
         console.error("Error fetching user details:", error);
       }
@@ -72,16 +72,20 @@ const ProfilePage = () => {
       [name]: value,
     }));
   };
+  // check the field is changed
+  const isValueChanged = (name) => {
+    return userDetails[name] !== initialUserDetails[name];
+  };
 
   const handleUpdateProfileClick = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setConfirmAction("profile");
     setDialogContent("Are you sure you want to update your profile?");
     setOpenDialog(true);
   };
-  
+
   const handleUpdatePasswordClick = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setConfirmAction("password");
     setDialogContent("Are you sure you want to update your password?");
     setOpenDialog(true);
@@ -95,7 +99,6 @@ const ProfilePage = () => {
         setAlertMessage("Profile updated successfully!");
         setAlertSeverity("success");
       } else if (confirmAction === "password") {
-        
         if (passwordDetails.newPassword !== passwordDetails.confirmPassword) {
           setAlertMessage("Passwords do not match.");
           setAlertSeverity("error");
@@ -112,11 +115,7 @@ const ProfilePage = () => {
       }
     } catch (error) {
       console.error("Error updating:", error);
-      setAlertMessage(
-        `Failed to update ${
-          confirmAction === "profile" ? "profile" : "password"
-        }.`
-      );
+      setAlertMessage(`Failed to update ${confirmAction === "profile" ? "profile" : "password"}.`);
       setAlertSeverity("error");
     }
     setShowAlert(true);
@@ -136,15 +135,11 @@ const ProfilePage = () => {
       <Grid
         container
         spacing={2}
-        justifyContent="center"
-        sx={{ maxWidth: "500px", width: "100%", px: 2 , py: 2}}
+        justifyContent='center'
+        sx={{ maxWidth: "500px", width: "100%", px: 2, py: 2 }}
       >
         {showAlert && (
-          <Alert
-            severity={alertSeverity}
-            onClose={() => setShowAlert(false)}
-            sx={{ mb: 2 }}
-          >
+          <Alert severity={alertSeverity} onClose={() => setShowAlert(false)} sx={{ mb: 2 }}>
             {alertMessage}
           </Alert>
         )}
@@ -153,55 +148,70 @@ const ProfilePage = () => {
         <Grid item xs={12}>
           <form onSubmit={handleUpdateProfileClick} style={{ width: "100%" }}>
             <TextField
-              id="username"
-              label="Username"
-              name="username"
+              id='username'
+              label='Username'
+              name='username'
               value={userDetails.username}
               onChange={handleUserInputChange}
-              variant="standard"
+              variant='standard'
               fullWidth
-              margin="normal"
+              margin='normal'
+              style={{
+                backgroundColor: isValueChanged("username") ? "#E4FFE4" : "transparent",
+              }}
             />
             <TextField
-              id="first-name"
-              label="First Name"
-              name="first_name"
+              id='first-name'
+              label='First Name'
+              name='first_name'
               value={userDetails.first_name}
               onChange={handleUserInputChange}
-              variant="standard"
+              variant='standard'
               fullWidth
-              margin="normal"
+              margin='normal'
+              style={{
+                backgroundColor: isValueChanged("first_name") ? "#E4FFE4" : "transparent",
+              }}
             />
             <TextField
-              id="last-name"
-              label="Last Name"
-              name="last_name"
+              id='last-name'
+              label='Last Name'
+              name='last_name'
               value={userDetails.last_name}
               onChange={handleUserInputChange}
-              variant="standard"
+              variant='standard'
               fullWidth
-              margin="normal"
+              margin='normal'
+              style={{
+                backgroundColor: isValueChanged("last_name") ? "#E4FFE4" : "transparent",
+              }}
             />
             <TextField
-              id="email"
-              label="Email"
-              name="email"
+              id='email'
+              label='Email'
+              name='email'
               value={userDetails.email}
               onChange={handleUserInputChange}
-              variant="standard"
+              variant='standard'
               fullWidth
-              margin="normal"
+              margin='normal'
+              style={{
+                backgroundColor: isValueChanged("email") ? "#E4FFE4" : "transparent",
+              }}
             />
             <TextField
-              id="phone-number"
-              label="Phone Number"
-              name="phone_number"
+              id='phone-number'
+              label='Phone Number'
+              name='phone_number'
               value={userDetails.phone_number}
               onChange={handleUserInputChange}
-              variant="standard"
+              variant='standard'
               fullWidth
+              style={{
+                backgroundColor: isValueChanged("phone_number") ? "#E4FFE4" : "transparent",
+              }}
             />
-            <Button type="submit" variant="contained" color="secondary" sx={{ marginTop: 2 }} >
+            <Button type='submit' variant='contained' color='secondary' sx={{ marginTop: 2 }}>
               Update Profile
             </Button>
           </form>
@@ -211,29 +221,29 @@ const ProfilePage = () => {
         <Grid item xs={12}>
           <form onSubmit={handleUpdatePasswordClick} style={{ width: "100%" }}>
             <TextField
-              id="new-password"
-              label="New Password"
-              name="newPassword"
+              id='new-password'
+              label='New Password'
+              name='newPassword'
               value={passwordDetails.newPassword} // Ensure this uses passwordDetails
               onChange={handlePasswordChange}
-              type="password"
-              variant="standard"
+              type='password'
+              variant='standard'
               fullWidth
-              margin="normal"
+              margin='normal'
             />
 
             <TextField
-              id="confirm-password"
-              label="Confirm New Password"
-              name="confirmPassword"
+              id='confirm-password'
+              label='Confirm New Password'
+              name='confirmPassword'
               value={passwordDetails.confirmPassword} // Ensure this uses passwordDetails
               onChange={handlePasswordChange}
-              type="password"
-              variant="standard"
+              type='password'
+              variant='standard'
               fullWidth
-              margin="normal"
+              margin='normal'
             />
-            <Button type="submit" variant="contained" color="secondary" sx={{ marginTop: 2 }} >
+            <Button type='submit' variant='contained' color='secondary' sx={{ marginTop: 2 }}>
               Update Password
             </Button>
           </form>
