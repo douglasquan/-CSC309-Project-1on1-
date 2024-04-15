@@ -18,7 +18,7 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
-  TextField
+  TextField,
 } from "@mui/material";
 
 import PhoneIcon from "@mui/icons-material/Phone";
@@ -48,7 +48,9 @@ const EventDetailsPage = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const { triggerNotification } = useNotification();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [inviteeNote, setInviteeNote] = useState(""); 
+  const [inviteeNote, setInviteeNote] = useState("");
+  const [noAvailableTime, setNoAvailableTime] = useState(false);
+  const [noAvailableTimeConfirmOpen, setNoAvailableTimeConfirmOpen] = useState(false);
 
   const history = useHistory();
 
@@ -119,7 +121,7 @@ const EventDetailsPage = () => {
 
       await Promise.all(promises);
       console.log("All availabilities submitted");
-      await updateEvent(eventId, { status: "C", invitee_description: inviteeNote}, authTokens);
+      await updateEvent(eventId, { status: "C", invitee_description: inviteeNote }, authTokens);
       console.log("Event status updated to 'C'");
       triggerNotification("Availability submitted successfully!");
       history.push("/");
@@ -156,6 +158,25 @@ const EventDetailsPage = () => {
         return [...prevSlots, { ...slot, preference: preferredTime }];
       }
     });
+  };
+
+  const handleNoAvailableTimeClick = () => {
+    setNoAvailableTimeConfirmOpen(true); // Show confirmation dialog
+  };
+
+  const handleConfirmNoAvailableTime = async () => {
+    setNoAvailableTime(true);
+    try {
+      // Update the event with status "F" and is_active set to false
+      await updateEvent(eventId, { status: "F", is_active: false }, authTokens);
+      console.log("Event is Finalized and is no longer active");
+      triggerNotification("No available times were suitable, event marked as Finalized.");
+      history.push("/"); // Redirect or handle as needed
+    } catch (error) {
+      console.error("An error occurred while updating the event:", error);
+      triggerNotification("Failed to update the event status.");
+    }
+    setNoAvailableTimeConfirmOpen(false); // Close confirmation dialog
   };
 
   const preferenceColor = (preference) => {
@@ -231,6 +252,13 @@ const EventDetailsPage = () => {
         title='Confirm Submission'
         message='Are you sure you want to submit these availabilities?'
       />
+      <ConfirmDialog
+        open={noAvailableTimeConfirmOpen}
+        onClose={() => setNoAvailableTimeConfirmOpen(false)}
+        onConfirm={handleConfirmNoAvailableTime}
+        title='Confirm No Available Time'
+        message='Are you sure there are no suitable times? This will finalize the event and it will be no longer active.'
+      />
       <Grid container spacing={3}>
         {/* Event Details Section */}
         <Grid item xs={12} md={6}>
@@ -292,16 +320,15 @@ const EventDetailsPage = () => {
             </Typography>
 
             <TextField
-              label="Your Notes"
+              label='Your Notes'
               multiline
               rows={4}
               fullWidth
               value={inviteeNote}
               onChange={(e) => setInviteeNote(e.target.value)}
-              variant="outlined"
-              margin="dense"
+              variant='outlined'
+              margin='dense'
             />
-
           </Box>
         </Grid>
         {/* Availabilities Section */}
@@ -367,9 +394,19 @@ const EventDetailsPage = () => {
                   </div>
                 </div>
               ))}
-              <Button variant='contained' color='primary' onClick={handleSubmitAvailability}>
-                Submit Availability
-              </Button>
+              <div className='flex justify-center'>
+                <Button variant='contained' color='primary' onClick={handleSubmitAvailability}>
+                  Submit Availability
+                </Button>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={handleNoAvailableTimeClick} // Updated to handle click that shows confirmation
+                  sx={{ ml: 2 }}
+                >
+                  No Available Time
+                </Button>
+              </div>
             </div>
           </Box>
         </Grid>

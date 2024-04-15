@@ -64,12 +64,14 @@ function MeetingItem({
   context,
   createdAt,
   updatedAt,
+  isActive,
 }) {
   const [inviteeUsername, setInviteeUsername] = useState("Loading...");
   const [openRequestDialog, setOpenRequestDialog] = React.useState(false);
   const [inviteeEmail, setInviteeEmail] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const backgroundColor = isActive ? "background.paper" : "#e0e0e0"; // Grey out if not active
 
   const eventData = {
     id: eventId,
@@ -128,7 +130,7 @@ function MeetingItem({
     history.push(`/finalize-event/event/${eventId}`);
   };
   return (
-    <Accordion sx={{ my: 1, boxShadow: 1 }}>
+    <Accordion sx={{ my: 1, boxShadow: 1, bgcolor: backgroundColor }}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`panel${eventId}-content`}
@@ -312,8 +314,6 @@ export default function BasicTabs({ onDelete }) {
 
   const size = useWindowSize();
   const isSmallScreen = size.width < 1435 && size.width > 900;
-  console.log(size);
-  console.log(isSmallScreen);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -458,6 +458,7 @@ export default function BasicTabs({ onDelete }) {
               context='hosted'
               createdAt={meeting.created_at}
               updatedAt={meeting.updated_at}
+              isActive={meeting.is_active}
               onEdit={() => {
                 console.log("Edit:", meeting.id);
               }}
@@ -481,6 +482,7 @@ export default function BasicTabs({ onDelete }) {
               context='hosted'
               createdAt={meeting.created_at}
               updatedAt={meeting.updated_at}
+              isActive={meeting.is_active}
               onEdit={() => {
                 console.log("Edit:", meeting.id);
               }}
@@ -504,7 +506,9 @@ export default function BasicTabs({ onDelete }) {
               context='hosted'
               createdAt={meeting.created_at}
               updatedAt={meeting.updated_at}
+              isActive={meeting.is_active}
               onView={() => {
+                console.log("FINALIED:", hostedMeetingsFinalized);
                 console.log("View:", meeting.id);
               }}
               onDelete={() => showDeleteConfirmation(meeting.id)}
@@ -560,6 +564,7 @@ export default function BasicTabs({ onDelete }) {
               context='invited'
               createdAt={meeting.created_at}
               updatedAt={meeting.updated_at}
+              isActive={meeting.is_active}
               onAccept={() => {}}
               onDelete={() => showDeleteConfirmation(meeting.id)}
             />
@@ -578,6 +583,7 @@ export default function BasicTabs({ onDelete }) {
               context='invited'
               createdAt={meeting.created_at}
               updatedAt={meeting.updated_at}
+              isActive={meeting.is_active}
               onView={() => {}}
               onDelete={() => deleteEvent(meeting.id, authTokens)}
             />
@@ -596,6 +602,7 @@ export default function BasicTabs({ onDelete }) {
               context='invited'
               createdAt={meeting.created_at}
               updatedAt={meeting.updated_at}
+              isActive={meeting.is_active}
               onView={() => {
                 console.log("View:", meeting.id);
               }}
