@@ -339,6 +339,21 @@ export default function BasicTabs({ onDelete }) {
         setHostedMeetingsPending((prevMeetings) =>
           prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
         );
+        setHostedMeetingsReady((prevMeetings) =>
+          prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+        );
+        setHostedMeetingsFinalized((prevMeetings) =>
+          prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+        );
+        setInvitedMeetingsPending((prevMeetings) =>
+          prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+        );
+        setInvitedMeetingsReady((prevMeetings) =>
+          prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+        );
+        setInvitedMeetingsFinalized((prevMeetings) =>
+          prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+        );
         console.log("Event deleted successfully.");
       } catch (error) {
         console.error("Error deleting event:", error);
@@ -519,6 +534,13 @@ export default function BasicTabs({ onDelete }) {
 
       {/* Invited Meetings */}
       <TabPanel value={tabValue} index={1}>
+        <ConfirmDialog
+            open={isConfirmDialogOpen}
+            onClose={() => setIsConfirmDialogOpen(false)}
+            onConfirm={handleConfirmDelete}
+            title='Confirm Deletion'
+            message='Are you sure you want to delete this event? This action cannot be undone.'
+        />
         <Tabs
           value={invitedTabValue}
           onChange={handleInvitedTabChange}
