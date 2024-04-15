@@ -1,11 +1,24 @@
 import React, {useContext} from 'react'
 import { NavLink } from 'react-router-dom';
-import AuthContext from '../context/AuthContext'
 import { Container, Box, Typography, TextField, Button, Link } from '@mui/material';
+import { useState } from 'react';
+import { requestPasswordReset } from '../controllers/UserController';
 
 
 const ForgotPasswordPage = () => {
-    let {forgotPassword} = useContext(AuthContext)
+  const [email, setEmail] = useState('');
+  const handleForgotPassword = async (event) => {
+    event.preventDefault();
+    try {
+        const response = await requestPasswordReset(email);
+        console.log(response.message); // Or display this message in the UI
+        alert('If an account with that email exists, we have sent a link to reset your password.');
+    } catch (error) {
+        console.error('Error in password reset:', error);
+        alert('Failed to send password reset email.');
+    }
+  };
+
     
     return (
         <Box
@@ -42,7 +55,7 @@ const ForgotPasswordPage = () => {
                 
                 <Box
                   component="form"
-                  onSubmit={forgotPassword}
+                  onSubmit={handleForgotPassword}
                   sx={{ flex: 1, mt: { xs: 4, md: 0 } }}
                   noValidate
                 >
@@ -58,6 +71,8 @@ const ForgotPasswordPage = () => {
                     name="email"
                     autoComplete="email"
                     autoFocus
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                   <Button
                     type="submit"

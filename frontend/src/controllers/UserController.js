@@ -34,3 +34,28 @@ export const updateUserDetails = async (userId, authTokens, userData) => {
     }
 };
 
+export const requestPasswordReset = async (email) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/accounts/password_reset/`, {
+            email: email
+        });
+        console.log("Password reset email sent:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to send password reset email:", error.response.data);
+        throw error;
+    }
+};
+
+export const checkUsernameExists = async (username) => {
+    if (!username) {
+        return;
+    }
+    try {
+        const response = await axios.get(`${BASE_URL}/accounts/check_username/${username}`);
+        return response.data.exists;
+    } catch (error) {
+        console.error(`Failed to check if username ${username} exists:`, error);
+        throw error;
+    }
+}
