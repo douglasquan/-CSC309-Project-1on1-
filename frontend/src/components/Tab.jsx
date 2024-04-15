@@ -339,6 +339,21 @@
           setHostedMeetingsPending((prevMeetings) =>
             prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
           );
+          setHostedMeetingsReady((prevMeetings) =>
+            prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+          );
+          setHostedMeetingsFinalized((prevMeetings) =>
+            prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+          );
+          setInvitedMeetingsPending((prevMeetings) =>
+            prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+          );
+          setInvitedMeetingsReady((prevMeetings) =>
+            prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+          );
+          setInvitedMeetingsFinalized((prevMeetings) =>
+            prevMeetings.filter((meeting) => meeting.id !== eventToDelete)
+          );
           console.log("Event deleted successfully.");
         } catch (error) {
           console.error("Error deleting event:", error);
