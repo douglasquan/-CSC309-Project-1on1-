@@ -22,7 +22,7 @@ class AllEventsByHostView(APIView):
     def get(self, request, host_id, format=None):
         User = get_user_model()
         host = get_object_or_404(User, pk=host_id)
-        events = Event.objects.filter(host=host, is_active=True)
+        events = Event.objects.filter(host=host)
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
 
@@ -33,7 +33,7 @@ class AllEventsByInviteeView(APIView):
     def get(self, request, invitee_id, format=None):
         User = get_user_model()
         invitee = get_object_or_404(User, pk=invitee_id)
-        events = Event.objects.filter(invitee=invitee, is_active=True)
+        events = Event.objects.filter(invitee=invitee)
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
     

@@ -18,7 +18,7 @@ const ViewEventPage = ({ eventDetails }) => {
   const [relatedUserDetails, setRelatedUserDetails] = useState(""); // This will store either the host or invitee details based on context
   // Determine the color based on user role
   const titleColor = user.user_id === eventDetails.host ? "primary.main" : "invitation.main";
-  
+
   useEffect(() => {
     const fetchRelatedUserDetails = async () => {
       try {
@@ -86,6 +86,11 @@ const ViewEventPage = ({ eventDetails }) => {
             gap: 2,
           }}
         >
+          {!eventDetails.is_active && (
+            <Typography variant='subtitle1' sx={{ color: "red", fontWeight: "bold" }}>
+              This Event is no longer Active
+            </Typography>
+          )}
           <Typography variant='h6' component='h2' sx={{ fontWeight: "bold", fontSize: "1.25rem" }}>
             <Face6Icon sx={{ mr: 0.75 }} /> {relatedUserDetails.username}
           </Typography>
@@ -109,14 +114,13 @@ const ViewEventPage = ({ eventDetails }) => {
 
           {eventDetails.event_type !== "other" && (
             <Typography
-              variant="body1"
+              variant='body1'
               sx={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
             >
               {getEventTypeIcon(eventDetails.event_type)}
               {eventDetails.event_type.replace("_", " ")}
             </Typography>
           )}
-          
 
           <Typography variant='body1' sx={{ fontWeight: "bold" }}>
             Event Deadline: {format(new Date(eventDetails.deadline), "PPPp")}
@@ -128,21 +132,24 @@ const ViewEventPage = ({ eventDetails }) => {
               Finalized Time: {formatFinalizedTime()}
             </Typography>
           )}
-          
+
           <Typography variant='body1' sx={{ fontWeight: "bold" }}>
-            {user.user_id === eventDetails.host ? "Your notes:" : `Notes from ${relatedUserDetails.username}:`}
+            {user.user_id === eventDetails.host
+              ? "Your notes:"
+              : `Notes from ${relatedUserDetails.username}:`}
           </Typography>
           <Typography variant='body2'>
             {eventDetails.description || "No description provided."}
           </Typography>
-          
+
           <Typography variant='body1' sx={{ fontWeight: "bold" }}>
-            {user.user_id === eventDetails.invitee ? "Your notes:" : `Notes from ${relatedUserDetails.username}:`}
+            {user.user_id === eventDetails.invitee
+              ? "Your notes:"
+              : `Notes from ${relatedUserDetails.username}:`}
           </Typography>
           <Typography variant='body2'>
             {eventDetails.invitee_description || "No description provided."}
           </Typography>
-
         </Box>
       </Grid>
     </Box>
