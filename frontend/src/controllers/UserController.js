@@ -59,3 +59,13 @@ export const checkUsernameExists = async (username) => {
         throw error;
     }
 }
+
+export const checkEmailExists = async (email) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/accounts/check_email/`, { params: { email } });
+        return response.data.exists; // Assuming the endpoint returns { exists: true/false }
+    } catch (error) {
+        console.error(`Failed to check if email ${email} exists:`, error);
+        throw error;
+    }
+};

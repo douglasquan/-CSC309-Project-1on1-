@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { Container, Box, Typography, TextField, Button, Alert } from "@mui/material";
 import { Link, useHistory } from 'react-router-dom';
 import AuthContext from "../context/AuthContext";
-import { checkUsernameExists } from '../controllers/UserController'
+import { checkUsernameExists, checkEmailExists } from '../controllers/UserController'
 
 
 const RegisterPage = () => {
@@ -46,7 +46,20 @@ const RegisterPage = () => {
     if (username.length >= 3) {
       const available = await checkUsernameExists(username);
       setUsernameAvailable(available);
-      setError(available ? '' : 'Username is already taken.');
+      setError(available ? 'Username is already taken.' : '');
+    }
+  };
+
+  const handleEmailChange = async (event) => {
+    const email = event.target.value;
+    handleChange(event);
+    if (validateEmail(email)) {
+        const exists = await checkEmailExists(email);
+        if (exists) {
+            setError('Email is already in use. Please use a different email.');
+        } else {
+            setError('');
+        }
     }
   };
 
@@ -69,9 +82,10 @@ const RegisterPage = () => {
       return;
     }
 
-    if (checkUsernameExists(formData.username)) {
-      setError('Username is already taken. Please choose another one.');
-      return;
+    const isUsernameTaken = await checkUsernameExists(formData.username);
+    if (isUsernameTaken) {
+        setError('Username is already taken. Please choose another one.');
+        return;
     }
 
     if (formData.password1 !== formData.password2) {
@@ -158,8 +172,8 @@ const RegisterPage = () => {
 
           {/* Registration Form */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <TextField fullWidth label="Username" variant="outlined" name="username" value={formData.username} onChange={handleChange} margin="normal" />
-            <TextField fullWidth label="Email" variant="outlined" name="email" type="email" value={formData.email} onChange={handleChange} margin="normal" />
+            <TextField fullWidth label="Username" variant="outlined" name="username" value={formData.username} onChange={handleUsernameChange} margin="normal" />
+            <TextField fullWidth label="Email" variant="outlined" name="email" type="email" value={formData.email} onChange={handleEmailChange} margin="normal" />
             <TextField fullWidth label="First Name" variant="outlined" name="first_name" value={formData.first_name} onChange={handleChange} margin="normal" />
             <TextField fullWidth label="Last Name" variant="outlined" name="last_name" value={formData.last_name} onChange={handleChange} margin="normal" />
             <TextField fullWidth label="Phone Number" variant="outlined" name="phone_number" value={formData.phone_number} onChange={handleChange} margin="normal" />
