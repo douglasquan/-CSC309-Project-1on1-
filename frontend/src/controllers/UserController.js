@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://127.0.0.1:8000';
+// const BASE_URL = 'http://127.0.0.1:8000';
+
+// deployment
+const BASE_URL = "/choreo-apis/meethomie/backend/rest-api-be2/v1.0";
 
 // Function to get auth header
 const getAuthHeaders = (authTokens) => ({

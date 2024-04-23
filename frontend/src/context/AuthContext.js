@@ -6,6 +6,10 @@ const AuthContext = createContext()
 
 export default AuthContext;
 
+// const BASE_URL = 'http://127.0.0.1:8000';
+
+// deployment
+const BASE_URL = "/choreo-apis/meethomie/backend/rest-api-be2/v1.0";
 
 export const AuthProvider = ({children}) => {
     let [authTokens, setAuthTokens] = useState(() => {
@@ -22,7 +26,7 @@ export const AuthProvider = ({children}) => {
 
     let loginUser = async (e )=> {
         e.preventDefault()
-        let response = await fetch('http://127.0.0.1:8000/api/token/', {
+        let response = await fetch(`${BASE_URL}/api/token/`, {
             method:'POST',
             headers:{
                 'Content-Type':'application/json'
@@ -52,7 +56,7 @@ export const AuthProvider = ({children}) => {
 
     let updateToken = async ()=> {
 
-        let response = await fetch('http://127.0.0.1:8000/api/token/refresh/', {
+        let response = await fetch(`${BASE_URL}/api/token/refresh/`, {
             method:'POST',
             headers:{
                 'Content-Type':'application/json'
