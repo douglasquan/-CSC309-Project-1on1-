@@ -13,3 +13,5 @@ node_modules/
 
 # Ignore all files with a .tmp extension
 *.tmp
+
+vevn/

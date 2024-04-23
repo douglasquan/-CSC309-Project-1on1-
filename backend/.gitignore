@@ -13,3 +13,6 @@ node_modules/
 
 # Ignore all files with a .tmp extension
 *.tmp
+
+db.sqlite3
+venv/
