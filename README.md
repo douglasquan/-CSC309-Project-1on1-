@@ -1,4 +1,4 @@
-# Why I Built This App
+# MeetHomie - An Intuitive Scheduling App
 
 The inspiration behind developing this scheduling app stemmed from the noticeable inefficiencies and limitations present in existing scheduling solutions. Many of these applications often require cumbersome steps to simply set up a meeting, lack intuitive interfaces, or do not offer flexible scheduling options that cater to the varying availability and preferences of all participants.
 
